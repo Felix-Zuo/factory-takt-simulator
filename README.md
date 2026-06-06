@@ -28,7 +28,7 @@ Factory Takt Simulator is a visual production-line takt sandbox for building pro
 
 ![Report sample](docs/showcase/diagrams/report-sample.svg)
 
-Report file example: [docs/showcase/reports/example-report.md](docs/showcase/reports/example-report.md)
+Report file example: [docs/showcase/report-example.md](docs/showcase/report-example.md)
 
 ## Core Features
 
