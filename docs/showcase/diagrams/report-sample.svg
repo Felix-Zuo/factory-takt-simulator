@@ -1,0 +1,92 @@
+<svg width="1440" height="620" viewBox="0 0 1440 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06111f"/>
+      <stop offset="1" stop-color="#090b18"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#fb7185"/>
+    </linearGradient>
+    <style>
+      .title{font:700 32px Inter,Arial,sans-serif;fill:#f8fafc}
+      .sub{font:500 15px Inter,Arial,sans-serif;fill:#93a8ba}
+      .panel{fill:#0b1323;stroke:#243b57;stroke-width:1.2}
+      .panel2{fill:#101526;stroke:#4b3a18;stroke-width:1.2}
+      .k{font:500 13px Inter,Arial,sans-serif;fill:#94a3b8}
+      .v{font:800 34px Inter,Arial,sans-serif;fill:#f8fafc}
+      .unit{font:500 13px Inter,Arial,sans-serif;fill:#8fb5c9}
+      .name{font:700 17px Inter,Arial,sans-serif;fill:#e2e8f0}
+      .desc{font:500 13px Inter,Arial,sans-serif;fill:#9fb1c4}
+      .warn{font:700 24px Inter,Arial,sans-serif;fill:#fde68a}
+      .line{stroke:#1f334b;stroke-width:1}
+    </style>
+  </defs>
+  <rect width="1440" height="620" rx="28" fill="url(#bg)"/>
+  <text x="56" y="74" class="title">Background Simulation Report</text>
+  <text x="56" y="104" class="sub">One-click run by time or output target, then export capacity and bottleneck data.</text>
+
+  <g transform="translate(56 142)">
+    <rect class="panel" width="250" height="128" rx="16"/>
+    <text x="24" y="38" class="k">line capacity</text>
+    <text x="24" y="84" class="v">146.4</text>
+    <text x="150" y="85" class="unit">pcs/h</text>
+  </g>
+  <g transform="translate(330 142)">
+    <rect class="panel" width="250" height="128" rx="16"/>
+    <text x="24" y="38" class="k">simulation output</text>
+    <text x="24" y="84" class="v">9,820</text>
+    <text x="150" y="85" class="unit">pcs</text>
+  </g>
+  <g transform="translate(604 142)">
+    <rect class="panel2" width="250" height="128" rx="16"/>
+    <text x="24" y="38" class="k">bottleneck</text>
+    <text x="24" y="84" class="warn">SF-IR-01</text>
+  </g>
+  <g transform="translate(878 142)">
+    <rect class="panel" width="250" height="128" rx="16"/>
+    <text x="24" y="38" class="k">balance rate</text>
+    <text x="24" y="84" class="v">82.7%</text>
+  </g>
+  <g transform="translate(1152 142)">
+    <rect class="panel" width="232" height="128" rx="16"/>
+    <text x="24" y="38" class="k">run length</text>
+    <text x="24" y="84" class="v">8h</text>
+  </g>
+
+  <g transform="translate(56 314)">
+    <rect class="panel" width="618" height="242" rx="18"/>
+    <text x="26" y="42" class="name">Capacity ranking</text>
+    <line x1="26" y1="70" x2="590" y2="70" class="line"/>
+    <text x="26" y="105" class="desc">FEED</text>
+    <rect x="160" y="88" width="400" height="14" rx="7" fill="#152238"/>
+    <rect x="160" y="88" width="360" height="14" rx="7" fill="url(#bar1)"/>
+    <text x="570" y="102" class="desc" text-anchor="end">1,071 pcs/h</text>
+    <text x="26" y="145" class="desc">OR</text>
+    <rect x="160" y="128" width="400" height="14" rx="7" fill="#152238"/>
+    <rect x="160" y="128" width="176" height="14" rx="7" fill="url(#bar1)"/>
+    <text x="570" y="142" class="desc" text-anchor="end">479 pcs/h</text>
+    <text x="26" y="185" class="desc">SF-IR-01</text>
+    <rect x="160" y="168" width="400" height="14" rx="7" fill="#152238"/>
+    <rect x="160" y="168" width="82" height="14" rx="7" fill="url(#bar2)"/>
+    <text x="570" y="182" class="desc" text-anchor="end">146 pcs/h</text>
+    <text x="26" y="225" class="desc">ASM CLEAN</text>
+    <rect x="160" y="208" width="400" height="14" rx="7" fill="#152238"/>
+    <rect x="160" y="208" width="210" height="14" rx="7" fill="url(#bar1)"/>
+    <text x="570" y="222" class="desc" text-anchor="end">540 pcs/h</text>
+  </g>
+
+  <g transform="translate(710 314)">
+    <rect class="panel" width="674" height="242" rx="18"/>
+    <text x="26" y="42" class="name">Bottleneck note</text>
+    <line x1="26" y1="70" x2="646" y2="70" class="line"/>
+    <text x="26" y="108" class="desc">SF-IR-01 is below the upstream IR grinding output and becomes the current constraint.</text>
+    <text x="26" y="144" class="desc">IR side output buffer pressure rises first; assembly storage still absorbs downstream variation.</text>
+    <text x="26" y="180" class="desc">Recommended: reduce SF cycle time, add parallel station capacity, or adjust transfer batch rules.</text>
+    <text x="26" y="216" class="desc">Report fields are exported with node ranking, edge capacity, waiting time, and blocked time.</text>
+  </g>
+</svg>

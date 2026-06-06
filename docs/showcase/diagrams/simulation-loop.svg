@@ -1,0 +1,84 @@
+<svg width="1440" height="560" viewBox="0 0 1440 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06131f"/>
+      <stop offset="1" stop-color="#070817"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <style>
+      .title{font:700 32px Inter,Arial,sans-serif;fill:#f0f9ff}
+      .sub{font:500 15px Inter,Arial,sans-serif;fill:#90a7bb}
+      .step{fill:#0b1526;stroke:#24465f;stroke-width:1.2}
+      .run{fill:#052e22;stroke:#22c55e}
+      .wait{fill:#312508;stroke:#f59e0b}
+      .block{fill:#320d16;stroke:#fb7185}
+      .maint{fill:#101a3a;stroke:#60a5fa}
+      .label{font:700 18px Inter,Arial,sans-serif;fill:#f8fafc}
+      .small{font:500 13px Inter,Arial,sans-serif;fill:#9fb3c8}
+      .arrow{stroke:#38bdf8;stroke-width:3;stroke-linecap:round;stroke-dasharray:10 12}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0 0L10 5L0 10Z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+  <rect width="1440" height="560" rx="28" fill="url(#bg)"/>
+  <circle cx="1180" cy="98" r="190" fill="#12314c" opacity=".22" filter="url(#soft)"/>
+  <text x="58" y="74" class="title">Discrete Simulation Loop</text>
+  <text x="58" y="104" class="sub">Buffers, transfer links, maintenance pauses, and bottleneck metrics update every simulation tick.</text>
+
+  <path d="M310 170H520" class="arrow" marker-end="url(#arrow)"/>
+  <path d="M700 170H910" class="arrow" marker-end="url(#arrow)"/>
+  <path d="M1050 240V355" class="arrow" marker-end="url(#arrow)"/>
+  <path d="M910 425H700" class="arrow" marker-end="url(#arrow)"/>
+  <path d="M520 425H310" class="arrow" marker-end="url(#arrow)"/>
+  <path d="M210 355V240" class="arrow" marker-end="url(#arrow)"/>
+
+  <g transform="translate(90 132)">
+    <rect class="step" width="220" height="108" rx="16"/>
+    <text x="24" y="38" class="label">Input buffer</text>
+    <text x="24" y="68" class="small">enough material</text>
+    <text x="24" y="90" class="small">port filter / route rule</text>
+  </g>
+  <g transform="translate(520 132)">
+    <rect class="step run" width="220" height="108" rx="16"/>
+    <text x="24" y="38" class="label">RUN</text>
+    <text x="24" y="68" class="small">cycle timer</text>
+    <text x="24" y="90" class="small">single or dual station</text>
+  </g>
+  <g transform="translate(910 132)">
+    <rect class="step maint" width="220" height="108" rx="16"/>
+    <text x="24" y="38" class="label">DRESS / CHANGE</text>
+    <text x="24" y="68" class="small">wheel dressing</text>
+    <text x="24" y="90" class="small">consumable change</text>
+  </g>
+  <g transform="translate(910 372)">
+    <rect class="step" width="220" height="108" rx="16"/>
+    <text x="24" y="38" class="label">Transfer</text>
+    <text x="24" y="68" class="small">conveyor or loader arm</text>
+    <text x="24" y="90" class="small">travel time + capacity</text>
+  </g>
+  <g transform="translate(520 372)">
+    <rect class="step block" width="220" height="108" rx="16"/>
+    <text x="24" y="38" class="label">BLOCK</text>
+    <text x="24" y="68" class="small">downstream full</text>
+    <text x="24" y="90" class="small">upstream stops output</text>
+  </g>
+  <g transform="translate(90 372)">
+    <rect class="step wait" width="220" height="108" rx="16"/>
+    <text x="24" y="38" class="label">WAIT</text>
+    <text x="24" y="68" class="small">input below batch</text>
+    <text x="24" y="90" class="small">waiting time counted</text>
+  </g>
+
+  <g transform="translate(1195 172)">
+    <rect class="step" width="185" height="236" rx="18"/>
+    <text x="24" y="40" class="label">Metrics</text>
+    <text x="24" y="78" class="small">capacity ranking</text>
+    <text x="24" y="110" class="small">bottleneck cause</text>
+    <text x="24" y="142" class="small">WIP pressure</text>
+    <text x="24" y="174" class="small">utilization</text>
+    <text x="24" y="206" class="small">report export</text>
+  </g>
+</svg>

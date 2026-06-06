@@ -1,0 +1,112 @@
+<svg width="1440" height="560" viewBox="0 0 1440 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111f"/>
+      <stop offset="1" stop-color="#050914"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#20d5ff"/>
+      <stop offset="1" stop-color="#22f5b8"/>
+    </linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" stroke="#13304a" stroke-opacity=".65" stroke-width="1"/>
+    </pattern>
+    <style>
+      .title{font:700 34px Inter,Arial,sans-serif;fill:#eef8ff}
+      .sub{font:500 17px Inter,Arial,sans-serif;fill:#8ea6bd}
+      .card{fill:#0a1323;stroke:#244763;stroke-width:1.3}
+      .card2{fill:#0b182a;stroke:#2a6d86;stroke-width:1.3}
+      .tag{font:700 16px Inter,Arial,sans-serif;fill:#ecfeff}
+      .meta{font:500 12px Inter,Arial,sans-serif;fill:#8fb5c9}
+      .num{font:700 23px Inter,Arial,sans-serif;fill:#67e8f9}
+      .line{stroke:url(#cyan);stroke-width:4;stroke-linecap:round;filter:url(#glow)}
+      .arm{stroke:url(#violet);stroke-width:7;stroke-linecap:round;filter:url(#glow)}
+      .dot{fill:#67e8f9}
+    </style>
+  </defs>
+  <rect width="1440" height="560" rx="28" fill="url(#bg)"/>
+  <rect width="1440" height="560" rx="28" fill="url(#grid)" opacity=".75"/>
+  <text x="56" y="72" class="title">Factory Takt Simulator</text>
+  <text x="56" y="104" class="sub">Bearing raceway grinding to assembly, built as a live takt sandbox</text>
+
+  <path d="M150 270H340" class="line"/>
+  <path d="M410 205H585" class="arm"/>
+  <path d="M410 335H585" class="arm"/>
+  <path d="M655 270H810" class="line"/>
+  <path d="M880 205H1070" class="line"/>
+  <path d="M880 335H1070" class="line"/>
+  <path d="M1140 270H1290" class="line"/>
+  <circle cx="245" cy="270" r="7" class="dot"/>
+  <circle cx="493" cy="205" r="7" fill="#a78bfa"/>
+  <circle cx="493" cy="335" r="7" fill="#a78bfa"/>
+  <circle cx="735" cy="270" r="7" class="dot"/>
+  <circle cx="965" cy="205" r="7" class="dot"/>
+  <circle cx="965" cy="335" r="7" class="dot"/>
+  <circle cx="1218" cy="270" r="7" class="dot"/>
+
+  <g transform="translate(56 206)">
+    <rect class="card2" width="128" height="128" rx="14"/>
+    <text x="22" y="38" class="tag">FEED</text>
+    <text x="22" y="64" class="meta">OR / IR outlets</text>
+    <text x="22" y="104" class="num">3.0s</text>
+  </g>
+  <g transform="translate(330 138)">
+    <rect class="card" width="150" height="116" rx="14"/>
+    <text x="22" y="36" class="tag">OR</text>
+    <text x="22" y="61" class="meta">outer groove</text>
+    <text x="22" y="94" class="num">13.0s</text>
+  </g>
+  <g transform="translate(330 306)">
+    <rect class="card" width="150" height="116" rx="14"/>
+    <text x="22" y="36" class="tag">IR</text>
+    <text x="22" y="61" class="meta">inner groove</text>
+    <text x="22" y="94" class="num">13.0s</text>
+  </g>
+  <g transform="translate(575 138)">
+    <rect class="card" width="150" height="116" rx="14"/>
+    <text x="22" y="36" class="tag">SF</text>
+    <text x="22" y="61" class="meta">superfinish</text>
+    <text x="22" y="94" class="num">12.5s</text>
+  </g>
+  <g transform="translate(575 306)">
+    <rect class="card" width="150" height="116" rx="14"/>
+    <text x="22" y="36" class="tag">BORE</text>
+    <text x="22" y="61" class="meta">bore grinding</text>
+    <text x="22" y="94" class="num">12.8s</text>
+  </g>
+  <g transform="translate(805 206)">
+    <rect class="card2" width="150" height="128" rx="14"/>
+    <text x="22" y="38" class="tag">DRY</text>
+    <text x="22" y="64" class="meta">5 columns × 5 pcs</text>
+    <text x="22" y="104" class="num">17s</text>
+  </g>
+  <g transform="translate(1060 138)">
+    <rect class="card" width="150" height="116" rx="14"/>
+    <text x="22" y="36" class="tag">WASH</text>
+    <text x="22" y="61" class="meta">channel cleaning</text>
+    <text x="22" y="94" class="num">2.5s</text>
+  </g>
+  <g transform="translate(1060 306)">
+    <rect class="card" width="150" height="116" rx="14"/>
+    <text x="22" y="36" class="tag">PAIR</text>
+    <text x="22" y="61" class="meta">OR + IR merge</text>
+    <text x="22" y="94" class="num">4.5s</text>
+  </g>
+  <g transform="translate(1280 206)">
+    <rect class="card2" width="112" height="128" rx="14"/>
+    <text x="22" y="38" class="tag">END</text>
+    <text x="22" y="64" class="meta">finished flow</text>
+    <text x="22" y="104" class="num">∞</text>
+  </g>
+</svg>
