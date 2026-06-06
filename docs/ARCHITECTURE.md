@@ -1,63 +1,49 @@
 # Architecture
 
-Factory Takt Simulator is organized around a graph-based production-line model.
+Factory Takt Simulator is built as a local-first graph editor plus deterministic simulation engine.
 
-## Main Layers
+## Runtime Layers
 
 ```text
-React UI
+React interface
   -> Zustand store
     -> Simulation engine
     -> Takt calculator
     -> Bottleneck analyzer
     -> Report exporter
+    -> Agent bridge
 ```
 
-## Domain Model
+## Important Folders
 
-The core domain types live in `src/types/factory.ts`.
+- `src/components/canvas`: React Flow canvas, process cards, custom links, route handles.
+- `src/components/layout`: toolbar, panels, settings, tutorial, project overview.
+- `src/data`: device catalog, default state, default link data.
+- `src/lib`: domain logic, simulation, takt, reporting, route rules, agent bridge.
+- `src/store`: single application store.
+- `src/types`: shared TypeScript model.
 
-- `FactoryNodeData`: process/module state and editable parameters.
-- `FactoryEdgeData`: transfer-link parameters, route state, and animated in-flight material.
-- `DeviceParams`: shared process configuration, buffer configuration, takt settings, and special process settings.
-- `SimulatorSettings`: UI, animation, speed, and background simulation settings.
+## Scenario Model
 
-## Simulation Flow
+A scenario is a graph:
 
-The simulation engine is intentionally deterministic and local-first:
+- **Node**: process, source, sink, buffer, inspection, cleaner, dryer, or assembly station.
+- **Port**: a specific input or output point on a node.
+- **Edge**: transfer route between ports.
+- **Runtime state**: buffers, timers, in-flight material, counters, and warnings.
 
-1. Resolve enabled nodes and connected edges.
-2. Advance processing timers.
-3. Apply maintenance pauses such as dressing or consumable change.
-4. Move finished work into output buffers when capacity allows.
-5. Move material through conveyor or loader-arm edges.
-6. Accumulate waiting, blocking, utilization, and production counters.
-7. Recompute takt and bottleneck indicators.
+The graph is stored locally and can be exported as JSON.
 
-## UI Flow
+## Simulation Tick
 
-The canvas is built with `@xyflow/react`:
+Each tick follows the same order:
 
-- Custom node UI: `src/components/canvas/DeviceNode.tsx`
-- Custom edge UI: `src/components/canvas/FlowEdge.tsx`
-- Main canvas orchestration: `src/components/canvas/FactoryCanvas.tsx`
-- Context menus: `src/components/canvas/CanvasContextMenu.tsx`
+1. Clone current nodes and edges.
+2. Advance process timers and maintenance timers.
+3. Move finished work into output buffers when capacity allows.
+4. Dispatch conveyor packets or loader-arm actions when both source and target are ready.
+5. Advance in-flight packets.
+6. Accumulate waiting, blocking, utilization, and output metrics.
+7. Recompute summary and bottleneck analysis.
 
-Right-side and bottom panels read from the Zustand store and patch node or edge parameters directly.
-
-## Persistence
-
-The app stores scenarios in local storage for convenience. Users can also export and import JSON files. Exported scenarios are plain JSON and should avoid private site data before being shared publicly.
-
-## Extension Points
-
-Good places to extend the app:
-
-- Add a device type in `src/data/deviceCatalog.ts`.
-- Add default parameters in `src/data/defaultState.ts`.
-- Add route validation in `src/lib/portRules.ts`.
-- Add takt formulas in `src/lib/takt.ts`.
-- Add simulation behavior in `src/lib/simulation.ts` or a specialized helper.
-- Add report logic in `src/lib/reporting.ts`.
-
-Keep reusable logic generic. Put site-specific examples in `examples/` or `public/scenarios/`.
+Keeping this deterministic makes it easier to test, reproduce, and connect external automation.

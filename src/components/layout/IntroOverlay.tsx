@@ -38,7 +38,7 @@ export function IntroOverlay({ language, onClose }: { language: string; onClose:
             </div>
             <div className="mt-5 text-3xl font-semibold tracking-tight text-slate-50">Factory_Takt_Simulator</div>
             <div className="mt-1 text-sm uppercase tracking-[0.22em] text-cyan-100">
-              {zh ? '通用离散制造产线仿真沙盘' : 'Generic Line Takt Sandbox'}
+              {zh ? '模块化离散制造产线沙盘' : 'Generic Line Takt Sandbox'}
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@ export function IntroOverlay({ language, onClose }: { language: string; onClose:
             {zh ? '自动恢复最近方案' : 'Auto recovery'}
           </span>
           <span className="rounded border border-slate-800/85 bg-slate-900/42 px-3 py-2">
-            {zh ? '模块化工序与物流建模' : 'Modular process and transfer modeling'}
+            {zh ? '工序与物流同步建模' : 'Process and transfer modeling'}
           </span>
           <span className="rounded border border-slate-800/85 bg-slate-900/42 px-3 py-2">
             {zh ? '点击或按任意键进入' : 'Click or press any key'}

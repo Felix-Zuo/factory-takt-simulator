@@ -6,13 +6,17 @@ import { ModuleLibrary } from './components/layout/ModuleLibrary';
 import { TopBar } from './components/layout/TopBar';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useScenarioMemory } from './hooks/useScenarioMemory';
+import { installFactoryTaktAgentBridge } from './lib/agentBridge';
 import { useFactoryStore } from './store/factoryStore';
 import './App.css';
 
-type AppView = 'simulator' | 'settings' | 'tutorial';
+type AppView = 'simulator' | 'settings' | 'tutorial' | 'showcase';
 
 const TutorialPage = lazy(() =>
   import('./components/layout/TutorialPage').then((module) => ({ default: module.TutorialPage })),
+);
+const ShowcasePage = lazy(() =>
+  import('./components/layout/ShowcasePage').then((module) => ({ default: module.ShowcasePage })),
 );
 const SettingsPage = lazy(() =>
   import('./components/layout/SettingsPage').then((module) => ({ default: module.SettingsPage })),
@@ -33,6 +37,8 @@ function App() {
   const settings = useFactoryStore((state) => state.settings);
   const panels = useFactoryStore((state) => state.panels);
   const setPanelSize = useFactoryStore((state) => state.setPanelSize);
+
+  useEffect(() => installFactoryTaktAgentBridge(), []);
 
   useEffect(() => {
     const tickMs =
@@ -78,6 +84,16 @@ function App() {
           }
         >
           <TutorialPage />
+        </Suspense>
+      ) : view === 'showcase' ? (
+        <Suspense
+          fallback={
+            <main className="grid h-full place-items-center bg-slate-950 text-sm text-cyan-100">
+              Loading project overview...
+            </main>
+          }
+        >
+          <ShowcasePage />
         </Suspense>
       ) : view === 'settings' ? (
         <Suspense

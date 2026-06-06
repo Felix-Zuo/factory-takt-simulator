@@ -2,9 +2,9 @@
 
 ## 0.5.4-beta
 
-- Prepared a public showcase edition.
+- Prepared the project as a cleaner personal showcase build.
 - Replaced site-specific default branding with generic Factory Takt Simulator branding.
-- Added open-source documentation, license, contribution guide, security policy, and CI workflow.
+- Added project overview, development notes, packaging notes, and an agent integration bridge.
 - Documented the architecture and scenario model.
 
-Earlier internal prototypes were iterative local builds and are not described as public releases.
+Earlier prototypes were iterative local builds.

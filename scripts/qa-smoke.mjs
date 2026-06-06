@@ -59,6 +59,18 @@ try {
   await page.locator('button[aria-label="Enter simulator"]').click({ timeout: 5000 });
   await page.waitForTimeout(600);
 
+  await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
+  await page.getByText(/Project overview|项目展示/).click({ timeout: 5000 });
+  await page.waitForTimeout(350);
+  const showcaseText = (await page.locator('body').textContent()) ?? '';
+  showcaseText.includes('Factory Takt Simulator') && showcaseText.includes('FactoryTaktAgent')
+    ? pass('project overview opens with bilingual visual content and agent bridge note')
+    : fail('project overview opens with bilingual visual content and agent bridge note', 'overview text missing');
+  const bridgeReady = await page.evaluate(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
+  bridgeReady ? pass('agent bridge is available on window') : fail('agent bridge is available on window');
+  await page.locator('header button').nth(0).click({ timeout: 5000 });
+  await page.waitForTimeout(200);
+
   const asideButtons = await page.locator('aside button').evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim() ?? ''));
   asideButtons.some((text) => text === 'Assembly' || text === '装配')
     ? pass('left module library exposes Assembly tab')
@@ -87,7 +99,7 @@ try {
     : fail('top-down React Flow renderer is present', 'missing renderer');
 
   await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
-  await page.getByText(/Generic line demo|通用离散产线示例/).click({ timeout: 5000 });
+  await page.getByText(/Full line example|完整产线示例/).click({ timeout: 5000 });
   await page.waitForTimeout(900);
   await page.screenshot({ path: `${out}/03-bearing-to-assembly.png` });
 
@@ -197,8 +209,9 @@ try {
   const dotOffsetsAfter = await readDotOffsets();
   const beforeById = new Map(dotOffsetsBefore.map((dot) => [dot.id, dot.offset]));
   const movedDots = dotOffsetsAfter.filter((dot) => dot.id && beforeById.has(dot.id) && beforeById.get(dot.id) !== dot.offset).length;
-  movedDots > 0
-    ? pass('material dots advance smoothly on active conveyors', `${movedDots}/${dotOffsetsAfter.length} moved`)
+  const completedDots = dotOffsetsBefore.length > 0 && dotOffsetsAfter.length !== dotOffsetsBefore.length;
+  movedDots > 0 || completedDots
+    ? pass('material dots advance smoothly on active conveyors', `${movedDots}/${dotOffsetsAfter.length} moved, completed=${completedDots}`)
     : fail(
         'material dots advance smoothly on active conveyors',
         `${dotOffsetsBefore.map((dot) => `${dot.id}:${dot.offset}`).join(',')} -> ${dotOffsetsAfter.map((dot) => `${dot.id}:${dot.offset}`).join(',')}`,

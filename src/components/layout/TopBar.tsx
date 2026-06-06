@@ -8,6 +8,7 @@ import {
   FolderOpen,
   Grid3X3,
   HelpCircle,
+  LayoutDashboard,
   Pause,
   Play,
   RotateCcw,
@@ -23,7 +24,7 @@ import type { SavedScenarioSummary } from '../../types/factory';
 import { APP_VERSION } from '../../version';
 import { NumberStepper } from '../ui/NumberStepper';
 
-type AppView = 'simulator' | 'settings' | 'tutorial';
+type AppView = 'simulator' | 'settings' | 'tutorial' | 'showcase';
 
 const BackgroundSimulationModal = lazy(() =>
   import('./BackgroundSimulationModal').then((module) => ({ default: module.BackgroundSimulationModal })),
@@ -108,7 +109,7 @@ export function TopBar({ view, setView }: TopBarProps) {
             <span className="text-[10px] font-medium tracking-normal text-slate-500">v{APP_VERSION}</span>
           </h1>
           <p className="max-w-[280px] truncate text-[10px] text-slate-500">
-            {zh ? '通用产线节拍仿真沙盘' : 'Open-source line takt simulation sandbox'}
+            {zh ? '模块化产线节拍仿真工作台' : 'Modular line takt simulation workstation'}
           </p>
         </div>
       </button>
@@ -145,7 +146,7 @@ export function TopBar({ view, setView }: TopBarProps) {
         <button
           className={`${buttonClass} ${settings.snapToGrid ? 'border-cyan-300/70 text-cyan-100' : ''}`}
           onClick={() => updateSettings({ snapToGrid: !settings.snapToGrid })}
-          title={zh ? '切换网格对齐/自由放置' : 'Toggle snap/free placement'}
+          title={zh ? '切换网格对齐 / 自由放置' : 'Toggle grid snap / free placement'}
         >
           <Grid3X3 className="h-4 w-4" />
           <span>{settings.snapToGrid ? (zh ? '网格' : 'Grid') : zh ? '自由' : 'Free'}</span>
@@ -153,7 +154,7 @@ export function TopBar({ view, setView }: TopBarProps) {
         <button
           className={`${buttonClass} ${settings.hideText ? 'border-cyan-300/70 text-cyan-100' : ''}`}
           onClick={() => updateSettings({ hideText: !settings.hideText })}
-          title={zh ? '一键隐藏/显示画布文字' : 'Hide/show canvas text'}
+          title={zh ? '隐藏或显示画布文字' : 'Hide or show canvas text'}
         >
           {settings.hideText ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           <span>{zh ? '文字' : 'Text'}</span>
@@ -164,7 +165,15 @@ export function TopBar({ view, setView }: TopBarProps) {
             <span>{t(settings.language, 'more')}</span>
           </button>
           {moreOpen ? (
-            <div className="absolute right-0 top-10 z-50 w-56 rounded border border-slate-700 bg-slate-950/98 p-1.5 shadow-2xl shadow-black/40">
+            <div className="absolute right-0 top-10 z-50 w-60 rounded border border-slate-700 bg-slate-950/98 p-1.5 shadow-2xl shadow-black/40">
+              <MenuButton
+                icon={<LayoutDashboard className="h-4 w-4" />}
+                label={zh ? '项目展示' : 'Project overview'}
+                onClick={() => {
+                  setView('showcase');
+                  setMoreOpen(false);
+                }}
+              />
               <MenuButton
                 icon={<WandSparkles className="h-4 w-4" />}
                 label={t(settings.language, 'demo')}
@@ -176,7 +185,7 @@ export function TopBar({ view, setView }: TopBarProps) {
               />
               <MenuButton
                 icon={<WandSparkles className="h-4 w-4" />}
-                label={zh ? '通用离散产线示例' : 'Generic line demo'}
+                label={zh ? '完整产线示例' : 'Full line example'}
                 onClick={() => {
                   createBearingRacewayScenario();
                   refreshScenarioList();
@@ -186,7 +195,7 @@ export function TopBar({ view, setView }: TopBarProps) {
               />
               <MenuButton
                 icon={<WandSparkles className="h-4 w-4" />}
-                label={zh ? '装配示例' : 'Assembly line demo'}
+                label={zh ? '装配线示例' : 'Assembly example'}
                 onClick={() => {
                   createAssemblyScenario();
                   refreshScenarioList();
@@ -221,7 +230,7 @@ export function TopBar({ view, setView }: TopBarProps) {
               />
               <MenuButton
                 icon={<Download className="h-4 w-4" />}
-                label={zh ? '导出方案 JSON' : 'Export scenario'}
+                label={zh ? '导出方案 JSON' : 'Export scenario JSON'}
                 onClick={() => {
                   exportScenario();
                   setMoreOpen(false);
@@ -229,7 +238,7 @@ export function TopBar({ view, setView }: TopBarProps) {
               />
               <MenuButton
                 icon={<Upload className="h-4 w-4" />}
-                label={zh ? '导入方案 JSON' : 'Import scenario'}
+                label={zh ? '导入方案 JSON' : 'Import scenario JSON'}
                 onClick={() => importInputRef.current?.click()}
               />
               <MenuButton

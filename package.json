@@ -1,6 +1,6 @@
 {
   "name": "factory-takt-simulator",
-  "description": "Open-source modular line takt simulation sandbox for discrete manufacturing.",
+  "description": "Modular production line takt simulation workstation for discrete manufacturing.",
   "author": "Factory Takt Simulator contributors",
   "version": "0.5.4-beta",
   "type": "module",
@@ -82,14 +82,6 @@
     "discrete-event-simulation",
     "factory-layout"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/YOUR_ORG/factory-takt-simulator.git"
-  },
-  "bugs": {
-    "url": "https://github.com/YOUR_ORG/factory-takt-simulator/issues"
-  },
-  "homepage": "https://github.com/YOUR_ORG/factory-takt-simulator#readme",
   "overrides": {
     "tmp": "^0.2.6"
   }

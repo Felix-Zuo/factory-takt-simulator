@@ -1,30 +1,21 @@
 # Factory Takt Simulator
 
-Factory Takt Simulator is an open-source prototype for modular production-line takt simulation. It provides a visual sandbox for building discrete manufacturing lines, connecting process modules, editing buffers and transfer logic, running simulations, and generating bottleneck analysis.
+Factory Takt Simulator is a modular production-line takt simulation workstation. It is designed for building a line visually, editing process and transfer parameters, running a discrete simulation, and reviewing capacity or bottleneck behavior from one screen.
 
-> 中文说明：这是一个通用产线节拍仿真沙盘项目。公开版不绑定任何具体公司或现场数据，仓库内置的产线只是合成示例，用于演示建模、仿真、节拍计算和瓶颈分析能力。
+中文定位：一个用于展示和验证产线节拍匹配的可视化沙盘。用户可以拖入工序、连接物流、配置缓存和节拍，再运行仿真查看待料、堵料、产出和瓶颈。
 
-## What It Does
+## Main Capabilities
 
-- Drag production modules onto a React Flow canvas.
-- Connect modules with conveyor or loader-arm transfer links.
-- Configure takt, batch size, buffers, material type, yield, uptime, dressing, and consumable changes.
-- Run animated simulations with material flow particles.
-- Analyze effective capacity, waiting time, blocking time, utilization, and bottleneck risk.
-- Save, import, export, and replay scenarios locally.
-- Generate background simulation reports without rendering every animation frame.
-- Package as a desktop app with Electron.
-
-## Tech Stack
-
-- React
-- TypeScript
-- Vite
-- Electron
-- @xyflow/react
-- Zustand
-- Framer Motion
-- Tailwind CSS
+- Visual line building with draggable process cards.
+- Manual link creation through input and output ports.
+- Conveyor and loader-arm transfer logic.
+- Editable buffers, takt parameters, yield, uptime, dressing, and consumable change.
+- Direct takt mode for quick estimation.
+- Animated material movement on active transfer links.
+- Scenario save, load, import, and export.
+- Background simulation report by time or output target.
+- Desktop packaging with Electron.
+- Browser-side integration bridge for external assistants or automation scripts.
 
 ## Quick Start
 
@@ -33,62 +24,57 @@ npm install
 npm run dev
 ```
 
-Open the Vite URL shown in the terminal.
-
-For a desktop run:
+Desktop mode:
 
 ```bash
 npm run desktop
 ```
 
-For a Windows portable build:
+Windows portable package:
 
 ```bash
 npm run dist:win
 ```
 
-## Repository Layout
+## Project Structure
 
 ```text
 src/
   components/
-    canvas/        React Flow canvas, custom nodes, custom edges, context menus
-    layout/        Top bar, panels, scenario library, settings, tutorial UI
+    canvas/        Canvas, process cards, transfer links, context menu
+    layout/        Main panels, settings, tutorial, project overview
     ui/            Reusable controls
-  data/            Device catalog, default state, edge defaults
-  hooks/           Persistence and scenario memory hooks
-  i18n/            Centralized UI text helpers
-  lib/             Simulation, takt calculation, bottleneck analysis, reporting
-  store/           Zustand application store
+  data/            Device catalog and default parameters
+  hooks/           Keyboard shortcuts and local scenario memory
+  i18n/            Interface text helpers
+  lib/             Simulation, takt, analysis, reports, integration bridge
+  store/           Application state
   types/           Shared domain types
-electron/          Desktop shell entry
-public/            Static brand/scenario assets
-examples/          Example scenario exports
-docs/              Architecture and publication notes
-scripts/           Build, smoke, maintenance, and packaging helpers
+electron/          Desktop shell
+public/            Static assets and example scenario files
+examples/          Exported scenario examples
+docs/              Architecture, development, integration, and packaging notes
 ```
 
-## Scenario Model
+## Integration Bridge
 
-The simulator treats a line as a graph:
+After the app starts, external automation can access:
 
-- **Node**: one production process, buffer, source, sink, inspection station, dryer, cleaner, or assembly station.
-- **Port**: one input/output point on a node. Ports can carry material filters and routing rules.
-- **Edge**: one transfer path. Conveyor edges model travel time and in-flight capacity. Loader-arm edges model pick, move, place, and return time.
-- **Simulation tick**: a deterministic time step that updates node processing, maintenance pauses, buffer movement, transfer movement, and analysis counters.
+```ts
+window.FactoryTaktAgent
+```
 
-## Public Example Data
+Typical calls:
 
-The bundled scenario is synthetic. It is intentionally based on common discrete-manufacturing concepts such as machining, inspection, cleaning, drying, transfer buffers, pairing, and packing. It is not a production recipe and should not be treated as operational advice.
+```ts
+window.FactoryTaktAgent.getSnapshot()
+window.FactoryTaktAgent.runCommand({ type: 'start' })
+window.FactoryTaktAgent.runCommand({ type: 'runBackgroundSimulation' })
+```
 
-## Open-Source Preparation Notes
+See `docs/AGENT_INTEGRATION.md` for the command list and packaging notes.
 
-Before publishing to GitHub:
-
-1. Replace `YOUR_ORG` in `package.json` with the real GitHub organization or user name.
-2. Review `docs/PUBLICATION_CHECKLIST.md`.
-3. Confirm no private scenario, customer name, operator name, path, report, screenshot, `.env`, or packaged binary is committed.
-4. Run:
+## Verification
 
 ```bash
 npm run build
@@ -96,8 +82,16 @@ npm run lint
 npm run maintain:check
 ```
 
-## License
+Optional browser smoke test:
 
-This project is prepared under the Apache License 2.0. See [LICENSE](LICENSE).
+```bash
+npm run start:local
+npm run test:smoke
+```
 
-Some dependencies use their own licenses. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+## Notes
+
+- Example scenarios are synthetic and are meant for demonstration.
+- Local scenario memory is stored in browser/Electron local storage.
+- Packaged binaries, temporary reports, screenshots, and dependency folders are intentionally ignored by Git.
+- The application can be rebranded and packaged as a separate desktop build by replacing assets in `public/brand` and Electron metadata in `package.json`.
