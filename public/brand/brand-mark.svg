@@ -1,0 +1,8 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Factory Takt Simulator logo">
+  <rect x="18" y="18" width="220" height="220" rx="44" fill="#07111F" stroke="#22D3EE" stroke-opacity="0.42" stroke-width="6"/>
+  <path d="M62 160V86h50c28 0 50 22 50 50s-22 50-50 50H88" stroke="#E5F7FF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M104 86h88M148 86v100" stroke="#22D3EE" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="112" cy="136" r="25" stroke="#10B981" stroke-width="10"/>
+  <circle cx="112" cy="136" r="8" fill="#E5F7FF"/>
+  <path d="M52 206h152" stroke="#64748B" stroke-width="8" stroke-linecap="round" stroke-dasharray="4 16"/>
+</svg>

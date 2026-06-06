@@ -1,0 +1,368 @@
+import type { Edge, Node } from '@xyflow/react';
+
+export type Language = 'zh-CN' | 'en';
+export type ThemeMode = 'dark' | 'light';
+export type AnimationIntensity = 'off' | 'low' | 'standard' | 'showcase';
+export type CardDensity = 'compact' | 'standard';
+export type MaterialKind = 'big_ring' | 'small_ring' | 'mixed';
+export type SimulationTargetMode = 'time' | 'output';
+export type TaktMode = 'calculated' | 'manual';
+export type PortSide = 'input' | 'output';
+export type PortMaterialFilter = MaterialKind | 'any';
+export type PortRoutingStrategy =
+  | 'auto'
+  | 'round_robin'
+  | 'force_round_robin'
+  | 'skip_blocked'
+  | 'wait_blocked'
+  | 'lowest_inventory_first'
+  | 'ratio'
+  | 'material_split'
+  | 'synchronized';
+export type PortBlockedBehavior = 'skip_blocked' | 'wait_blocked';
+
+export type DeviceType =
+  | 'material_source'
+  | 'storage_feeder'
+  | 'assembly_storage'
+  | 'assembly_cleaner'
+  | 'eddy_check'
+  | 'dimension_check'
+  | 'pairing_station'
+  | 'riveting_station'
+  | 'flexibility_check'
+  | 'vibration_check'
+  | 'grease_injection'
+  | 'cap_press'
+  | 'visual_check'
+  | 'manual_buffer'
+  | 'rust_proof'
+  | 'packing_sink'
+  | 'or_grinder'
+  | 'ir_grinder'
+  | 'superfinishing'
+  | 'small_superfinishing'
+  | 'bore_grinder'
+  | 'spin_dryer'
+  | 'robot'
+  | 'conveyor'
+  | 'or_gauge'
+  | 'ir_gauge'
+  | 'bore_gauge'
+  | 'sf_check'
+  | 'general_gauge'
+  | 'finished_sink';
+
+export type ProcessFamily =
+  | 'source'
+  | 'feeder'
+  | 'grinding'
+  | 'superfinishing'
+  | 'gauge'
+  | 'assembly'
+  | 'cleaning'
+  | 'buffer'
+  | 'dryer'
+  | 'transport'
+  | 'sink';
+
+export type DeviceStatus =
+  | 'idle'
+  | 'running'
+  | 'waiting_material'
+  | 'blocked'
+  | 'dressing'
+  | 'changing_consumable'
+  | 'stopped'
+  | 'fault'
+  | 'arm_wait_pick'
+  | 'arm_wait_space'
+  | 'transporting';
+
+export type SuperfinishingMode = 'single_station_once' | 'parallel_once' | 'serial_twice';
+export type MaintenanceKind = 'dressing' | 'changing_consumable' | null;
+export type TransportType = 'conveyor' | 'loader_arm' | 'manual' | 'buffer_transfer';
+export type ArmPhase = 'home' | 'picking' | 'moving' | 'placing' | 'returning';
+export type EdgeShape = 'smooth' | 'orthogonal';
+export type StageKey =
+  | 'big_groove'
+  | 'big_super'
+  | 'small_groove'
+  | 'bore'
+  | 'small_super'
+  | 'general_gauge'
+  | 'dryer'
+  | 'source'
+  | 'assembly_storage'
+  | 'assembly_cleaning'
+  | 'assembly_inspection'
+  | 'pairing'
+  | 'riveting'
+  | 'post_assembly'
+  | 'packaging'
+  | 'sink'
+  | 'other';
+
+export interface DeviceParameters {
+  deviceName: string;
+  deviceShortName: string;
+  deviceType: DeviceType;
+  processFamily: ProcessFamily;
+  deviceCode: string;
+  enabled: boolean;
+  taktMode: TaktMode;
+  manualTaktSec: number;
+  batchSize: number;
+  processTimeSec: number;
+  inputPortCount: number;
+  outputPortCount: number;
+  inputPortRules: Record<string, PortRule>;
+  outputPortRules: Record<string, PortRule>;
+  materialKind: MaterialKind;
+  output1MaterialKind: MaterialKind;
+  output2MaterialKind: MaterialKind;
+  station1Enabled: boolean;
+  station1BatchSize: number;
+  station1ProcessTimeSec: number;
+  station1InputBufferCapacity: number;
+  station1InputBufferCount: number;
+  station2Enabled: boolean;
+  station2BatchSize: number;
+  station2ProcessTimeSec: number;
+  station2InputBufferCapacity: number;
+  station2InputBufferCount: number;
+  machineCount: number;
+  inputBufferCapacity: number;
+  outputBufferCapacity: number;
+  inputBufferCount: number;
+  outputBufferCount: number;
+  initialMaterials: number;
+  availability: number;
+  yieldRate: number;
+  ngRate: number;
+  shiftHours: number;
+  shiftsPerDay: number;
+  plannedOutput: number;
+  dressingIntervalUnits: number;
+  dressingDurationSec: number;
+  consumableIntervalUnits: number;
+  consumableChangeSec: number;
+  superfinishingMode: SuperfinishingMode;
+  firstPassProcessTimeSec: number;
+  secondPassProcessTimeSec: number;
+  storageCapacity: number;
+  currentStorageCount: number;
+  feedBatchSize: number;
+  feedIntervalSec: number;
+  dryerColumnBatchSize: number;
+  dryerColumnCount: number;
+  dryerDryTimeSec: number;
+  dryerLoadedColumns: number;
+  dryerDriedColumns: number;
+  assemblyBigStorageCapacity: number;
+  assemblyBigStorageCount: number;
+  assemblySmallStorageCapacity: number;
+  assemblySmallStorageCount: number;
+  cleanerLaneCount: number;
+  cleanerLaneCapacity: number;
+  cleanerPushIntervalSec: number;
+  cleanerAirBatchSize: number;
+  cleanerAirTimeSec: number;
+  cleanerInternalCount: number;
+  cleanerReadyCount: number;
+}
+
+export interface PortRule {
+  enabled: boolean;
+  label: string;
+  materialFilter: PortMaterialFilter;
+  routingStrategy: PortRoutingStrategy;
+  blockedBehavior: PortBlockedBehavior;
+  minBatch: number;
+  maxBatch: number;
+  priority: number;
+  allocationRatio: number;
+}
+
+export interface SelectedPort {
+  nodeId: string;
+  side: PortSide;
+  handleId: string;
+}
+
+export interface DeviceMetrics {
+  totalInput: number;
+  totalOutput: number;
+  totalProcessingTime: number;
+  totalWaitingTime: number;
+  totalBlockedTime: number;
+  totalDressingTime: number;
+  totalConsumableTime: number;
+  theoreticalCapacityPerHour: number;
+  dailyEffectiveCapacity: number;
+  averageSinglePieceTakt: number;
+  simulationCapacityPerHour: number;
+  utilization: number;
+  waitingRate: number;
+  blockedRate: number;
+  inputStarvedRate: number;
+  outputFullRate: number;
+}
+
+export interface DeviceRuntime {
+  status: DeviceStatus;
+  processRemainingSec: number;
+  maintenanceRemainingSec: number;
+  maintenanceKind: MaintenanceKind;
+  pendingOutput: number;
+  qualityCarry: number;
+  processedSinceDressing: number;
+  processedSinceConsumable: number;
+  station1ProcessRemainingSec: number;
+  station2ProcessRemainingSec: number;
+  station1PendingOutput: number;
+  station2PendingOutput: number;
+  cleanerPushRemainingSec: number;
+  cleanerAirRemainingSec: number;
+  cleanerOutputQueue: number;
+}
+
+export interface DeviceNodeData extends Record<string, unknown> {
+  label: string;
+  params: DeviceParameters;
+  metrics: DeviceMetrics;
+  runtime: DeviceRuntime;
+}
+
+export interface MaterialPacket {
+  id: string;
+  quantity: number;
+  remainingSec: number;
+  totalSec: number;
+}
+
+export interface FlowEdgeData extends Record<string, unknown> {
+  label: string;
+  transportType: TransportType;
+  edgeShape: EdgeShape;
+  routeOffsetX: number;
+  routeOffsetY: number;
+  armGroupId: string;
+  lastPickupSourceId: string;
+  lastDropTargetId: string;
+  batchSize: number;
+  travelTimeSec: number;
+  dispatchIntervalSec: number;
+  isContinuous: boolean;
+  allowBuffer: boolean;
+  capacity: number;
+  lineBufferCapacity: number;
+  lineBufferCount: number;
+  allocationRatio: number;
+  triggerBatch: number;
+  pickCount: number;
+  pickTimeSec: number;
+  moveTimeSec: number;
+  placeTimeSec: number;
+  returnTimeSec: number;
+  waitForDownstreamSpace: boolean;
+  waitForUpstreamBatch: boolean;
+  armPhase: ArmPhase;
+  phaseRemainingSec: number;
+  carriedQuantity: number;
+  inTransit: MaterialPacket[];
+  utilization: number;
+  waitPickTime: number;
+  waitSpaceTime: number;
+  warning?: string;
+  visualHidden?: boolean;
+  visualGroupPath?: string;
+  visualGroupLabelX?: number;
+  visualGroupLabelY?: number;
+  visualGroupMemberCount?: number;
+  visualGroupSourceCount?: number;
+  visualGroupTargetCount?: number;
+  visualRouteControlX?: number;
+  visualRouteControlY?: number;
+  visualArmX?: number;
+  visualArmY?: number;
+  visualArmPath?: string;
+  visualArmProgress?: number;
+  visualArmCarriedQuantity?: number;
+  visualArmPhase?: ArmPhase;
+}
+
+export interface AppSettings {
+  language: Language;
+  themeMode: ThemeMode;
+  animationIntensity: AnimationIntensity;
+  cardDensity: CardDensity;
+  snapToGrid: boolean;
+  hideText: boolean;
+  simulationTargetMode: SimulationTargetMode;
+  simulationTargetHours: number;
+  simulationTargetOutput: number;
+  backgroundStepSec: number;
+}
+
+export interface PanelState {
+  leftCollapsed: boolean;
+  rightCollapsed: boolean;
+  bottomCollapsed: boolean;
+  taktCollapsed: boolean;
+  logCollapsed: boolean;
+  leftWidth: number;
+  rightWidth: number;
+  bottomHeight: number;
+}
+
+export type FactoryNode = Node<DeviceNodeData, 'deviceNode'>;
+export type FactoryEdge = Edge<FlowEdgeData, 'flowEdge'>;
+
+export interface SavedScenarioSummary {
+  id: string;
+  name: string;
+  savedAt: string;
+  nodeCount: number;
+  edgeCount: number;
+  elapsedSec: number;
+}
+
+export interface BottleneckIssue {
+  id: string;
+  severity: 'critical' | 'warning' | 'info';
+  position: string;
+  reason: string;
+  risk: string;
+  suggestions: string[];
+}
+
+export interface BottleneckResult {
+  nodeId: string | null;
+  label: string;
+  reason: string;
+  capacityPerHour: number;
+  lineBalanceRate: number;
+  recommendations: string[];
+  issues: BottleneckIssue[];
+}
+
+export interface StageAnalysis {
+  key: StageKey;
+  label: string;
+  nodeIds: string[];
+  capacityPerHour: number;
+  avgTaktSec: number;
+  totalOutput: number;
+  utilization: number;
+  notes: string[];
+}
+
+export interface SimulationSummary {
+  elapsedSec: number;
+  theoreticalCapacityPerHour: number;
+  simulationCapacityPerHour: number;
+  bottleneck: BottleneckResult;
+  statusCounts: Record<DeviceStatus, number>;
+  stageAnalysis: StageAnalysis[];
+}

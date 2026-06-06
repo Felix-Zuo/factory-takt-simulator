@@ -1,0 +1,96 @@
+{
+  "name": "factory-takt-simulator",
+  "description": "Open-source modular line takt simulation sandbox for discrete manufacturing.",
+  "author": "Factory Takt Simulator contributors",
+  "version": "0.5.4-beta",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "start:local": "vite --host 127.0.0.1 --port 5173",
+    "desktop": "npm run build && electron .",
+    "desktop:dev": "npm run build && electron .",
+    "dist:win": "npm run build && electron-builder --win portable --x64",
+    "dist:update": "npm run dist:win && node scripts/make-portable-update.mjs",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "maintain:check": "node scripts/maintenance-check.mjs",
+    "test:smoke": "node scripts/qa-smoke.mjs",
+    "preview": "vite preview"
+  },
+  "build": {
+    "appId": "com.factory.takt.simulator",
+    "productName": "Factory Takt Simulator",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "!**/node_modules/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "portable"
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Factory_Takt_Simulator_Portable_${version}_${arch}.${ext}"
+    }
+  },
+  "dependencies": {
+    "@xyflow/react": "^12.10.2",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.40.0",
+    "gsap": "^3.15.0",
+    "lucide-react": "^1.16.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "tailwind-merge": "^3.6.0",
+    "zustand": "^5.0.13"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.5.0",
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "playwright": "^1.60.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "manufacturing",
+    "simulation",
+    "takt-time",
+    "react-flow",
+    "discrete-event-simulation",
+    "factory-layout"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_ORG/factory-takt-simulator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_ORG/factory-takt-simulator/issues"
+  },
+  "homepage": "https://github.com/YOUR_ORG/factory-takt-simulator#readme",
+  "overrides": {
+    "tmp": "^0.2.6"
+  }
+}
