@@ -4,6 +4,10 @@ Factory Takt Simulator is a visual production-line takt sandbox for building pro
 
 中文定位：面向轴承产线的模块化节拍仿真沙盘。设备是模块，路线由用户连线决定，系统负责节拍计算、缓存流转、机械手搬运、瓶颈识别和报告输出。
 
+Public scenarios are synthetic examples for simulation and portfolio review.
+Do not commit real production routes, customer programs, machine parameters, or
+factory files unless they have been intentionally sanitized.
+
 ![Line overview](docs/showcase/screenshots/01-line-overview.png)
 
 ## Visual Workbench
