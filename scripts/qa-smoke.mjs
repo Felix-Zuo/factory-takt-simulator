@@ -170,6 +170,15 @@ try {
     const edge = snapshot?.edges.find((item) => item.data?.label === 'FEED-QA A') ?? snapshot?.edges[0];
     if (api && edge) {
       api.runCommand({
+        type: 'updateNode',
+        nodeId: 'line-feed',
+        patch: {
+          outputBufferCount: 20,
+          currentStorageCount: 2000,
+          feedIntervalSec: 1,
+        },
+      });
+      api.runCommand({
         type: 'updateEdge',
         edgeId: edge.id,
         patch: {
