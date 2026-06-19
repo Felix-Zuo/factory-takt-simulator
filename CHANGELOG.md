@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0-beta
+
+- Generalized the public showcase from a domain-specific line into a reusable Process A/B/C, Finishing, QA, Merge, Join, and Packing simulator.
+- Rebuilt public scenario examples as synthetic generic templates instead of preserving private-line-derived exports.
+- Added `docs/PROJECT_HISTORY.md` as a sanitized product-evolution record for GitHub review.
+- Added legacy scenario hydration for older sanitized exports that still use prior device or material names.
+- Fixed the full-line conveyor shape setting by writing `edgeShape` instead of the unused `shape` field.
+- Refreshed README, report examples, diagrams, and smoke checks around the generic product model.
+
 ## 0.5.5-beta
 
 - Verified the current showcase build, lint, and maintainability checks after moving the local repository into the showcase directory.

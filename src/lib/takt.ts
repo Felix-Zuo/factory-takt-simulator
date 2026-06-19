@@ -9,15 +9,15 @@ export const getBaseCycleTime = (params: DeviceParameters) => {
   if (params.taktMode === 'manual') return positive(params.manualTaktSec, params.processTimeSec || 13);
   if (params.deviceType === 'material_source') return params.feedIntervalSec;
   if (params.deviceType === 'finished_sink' || params.deviceType === 'packing_sink') return params.processTimeSec;
-  if (params.deviceType === 'storage_feeder' || params.deviceType === 'assembly_storage') return params.feedIntervalSec;
-  if (params.deviceType === 'assembly_cleaner') {
+  if (params.deviceType === 'storage_feeder' || params.deviceType === 'merge_buffer') return params.feedIntervalSec;
+  if (params.deviceType === 'wash_dry') {
     return (
       positive(params.cleanerPushIntervalSec, params.processTimeSec || 2.5) +
       positive(params.cleanerAirTimeSec, 3) / positive(params.cleanerAirBatchSize, 5)
     );
   }
   if (params.deviceType === 'spin_dryer') return params.dryerDryTimeSec;
-  if (params.processFamily === 'superfinishing' && params.superfinishingMode === 'serial_twice') {
+  if (params.processFamily === 'finishing' && params.finishingMode === 'serial_twice') {
     return params.firstPassProcessTimeSec + params.secondPassProcessTimeSec;
   }
   return params.processTimeSec;
@@ -30,15 +30,15 @@ export const calculateStationTakts = (params: DeviceParameters) => {
   const station2Time = positive(params.station2ProcessTimeSec ?? getBaseCycleTime(params));
   const station1Takt = params.station1Enabled === false ? 0 : station1Time / station1Batch;
   const station2Takt = params.station2Enabled ? station2Time / station2Batch : 0;
-  if (params.processFamily === 'superfinishing') {
-    if (params.superfinishingMode === 'single_station_once') {
+  if (params.processFamily === 'finishing') {
+    if (params.finishingMode === 'single_station_once') {
       return {
         station1Takt,
         station2Takt: 0,
         combinedBaseTakt: station1Takt,
       };
     }
-    if (params.superfinishingMode === 'serial_twice') {
+    if (params.finishingMode === 'serial_twice') {
       const firstPassTakt = positive(params.firstPassProcessTimeSec || station1Time) / station1Batch;
       const secondPassTakt = positive(params.secondPassProcessTimeSec || station2Time) / station2Batch;
       return {
@@ -65,9 +65,9 @@ export const getProcessBatchSize = (params: DeviceParameters) =>
       ? params.feedBatchSize
       : params.deviceType === 'material_source'
         ? params.feedBatchSize
-      : params.deviceType === 'assembly_storage'
+      : params.deviceType === 'merge_buffer'
         ? params.feedBatchSize
-      : params.deviceType === 'assembly_cleaner'
+      : params.deviceType === 'wash_dry'
         ? 1
       : params.deviceType === 'spin_dryer'
         ? params.dryerColumnBatchSize * params.dryerColumnCount
@@ -77,9 +77,9 @@ export const getProcessBatchSize = (params: DeviceParameters) =>
 export const getSimulationBatchSize = (params: DeviceParameters) => {
   if (params.taktMode === 'manual') return 1;
   const stationMode =
-    params.processFamily === 'grinding' ||
-    params.processFamily === 'superfinishing' ||
-    params.processFamily === 'gauge' ||
+    params.processFamily === 'processing' ||
+    params.processFamily === 'finishing' ||
+    params.processFamily === 'inspection' ||
     params.processFamily === 'assembly';
   return stationMode ? 1 : getProcessBatchSize(params);
 };
@@ -87,9 +87,9 @@ export const getSimulationBatchSize = (params: DeviceParameters) => {
 export const getSimulationCycleTime = (params: DeviceParameters) => {
   if (params.taktMode === 'manual') return positive(params.manualTaktSec, params.processTimeSec || 13);
   const stationMode =
-    params.processFamily === 'grinding' ||
-    params.processFamily === 'superfinishing' ||
-    params.processFamily === 'gauge' ||
+    params.processFamily === 'processing' ||
+    params.processFamily === 'finishing' ||
+    params.processFamily === 'inspection' ||
     params.processFamily === 'assembly';
   const stationTakt = calculateStationTakts(params);
   return stationMode && stationTakt.combinedBaseTakt > 0
@@ -110,22 +110,22 @@ export const calculateAverageTakt = (params: DeviceParameters) => {
   const batchSize = getProcessBatchSize(params);
   const stationTakt = calculateStationTakts(params);
   const canUseStationTakt =
-    params.processFamily === 'grinding' ||
-    params.processFamily === 'superfinishing' ||
-    params.processFamily === 'gauge';
+    params.processFamily === 'processing' ||
+    params.processFamily === 'finishing' ||
+    params.processFamily === 'inspection';
   const baseSinglePieceTakt =
     canUseStationTakt && stationTakt.combinedBaseTakt > 0
       ? stationTakt.combinedBaseTakt
       : getBaseCycleTime(params) / batchSize;
-  const isGrinding = params.processFamily === 'grinding';
+  const isProcessing = params.processFamily === 'processing';
 
   const dressingAmortized =
-    isGrinding && params.dressingIntervalUnits > 0
+    isProcessing && params.dressingIntervalUnits > 0
       ? params.dressingDurationSec / positive(params.dressingIntervalUnits)
       : 0;
 
   const consumableAmortized =
-    (isGrinding || params.processFamily === 'superfinishing') && params.consumableIntervalUnits > 0
+    (isProcessing || params.processFamily === 'finishing') && params.consumableIntervalUnits > 0
       ? params.consumableChangeSec / positive(params.consumableIntervalUnits)
       : 0;
 

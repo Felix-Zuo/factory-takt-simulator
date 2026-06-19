@@ -72,15 +72,15 @@ try {
   await page.waitForTimeout(200);
 
   const asideButtons = await page.locator('aside button').evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim() ?? ''));
-  asideButtons.some((text) => text === 'Assembly' || text === '装配')
-    ? pass('left module library exposes Assembly tab')
-    : fail('left module library exposes Assembly tab', asideButtons.join(' | '));
-  await page.locator('aside button').filter({ hasText: /Assembly|装配/ }).first().click({ timeout: 5000 });
+  asideButtons.some((text) => text === 'Post' || text === '后段')
+    ? pass('left module library exposes post-process tab')
+    : fail('left module library exposes post-process tab', asideButtons.join(' | '));
+  await page.locator('aside button').filter({ hasText: /Post|后段/ }).first().click({ timeout: 5000 });
   await page.waitForTimeout(250);
-  (await page.locator('[data-device-type="assembly_storage"]').isVisible().catch(() => false))
-    ? pass('Assembly tab shows assembly process cards')
-    : fail('Assembly tab shows assembly process cards');
-  await page.screenshot({ path: `${out}/02-assembly-tab.png` });
+  (await page.locator('[data-device-type="merge_buffer"]').isVisible().catch(() => false))
+    ? pass('post-process tab shows merge and downstream process cards')
+    : fail('post-process tab shows merge and downstream process cards');
+  await page.screenshot({ path: `${out}/02-post-process-tab.png` });
 
   await page.getByRole('button', { name: /Settings|设置/ }).click({ timeout: 5000 });
   await page.getByRole('button', { name: /Showcase|展示/ }).click({ timeout: 5000 });
@@ -101,29 +101,29 @@ try {
   await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
   await page.getByText(/Full line example|完整产线示例/).click({ timeout: 5000 });
   await page.waitForTimeout(900);
-  await page.screenshot({ path: `${out}/03-bearing-to-assembly.png` });
+  await page.screenshot({ path: `${out}/03-generic-full-line.png` });
 
   const scenarioChecks = await page.evaluate(() => {
     const rawValues = Object.values(localStorage).join('\n');
     return {
-      hasAsmStore: rawValues.includes('bearing-asm-store'),
-      hasAsmPack: rawValues.includes('bearing-asm-pack'),
-      hasMainLineOr: rawValues.includes('OR main line -> ASM'),
-      hasMainLineIr: rawValues.includes('IR main line -> ASM'),
+      hasMergeStore: rawValues.includes('line-join-store'),
+      hasPack: rawValues.includes('line-join-pack'),
+      hasPartAMain: rawValues.includes('Part A main line -> MERGE'),
+      hasPartBMain: rawValues.includes('Part B main line -> MERGE'),
       hasTravel40: rawValues.includes('"travelTimeSec":40'),
       hasDispatch3: rawValues.includes('"dispatchIntervalSec":3'),
       visibleNodes: document.querySelectorAll('.react-flow__node').length,
       visibleEdges: document.querySelectorAll('.react-flow__edge').length,
     };
   });
-  scenarioChecks.hasAsmStore &&
-  scenarioChecks.hasAsmPack &&
-  scenarioChecks.hasMainLineOr &&
-  scenarioChecks.hasMainLineIr &&
+  scenarioChecks.hasMergeStore &&
+  scenarioChecks.hasPack &&
+  scenarioChecks.hasPartAMain &&
+  scenarioChecks.hasPartBMain &&
   scenarioChecks.hasTravel40 &&
   scenarioChecks.hasDispatch3
-    ? pass('bearing demo is connected into assembly with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks))
-    : fail('bearing demo is connected into assembly with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks));
+    ? pass('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks))
+    : fail('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks));
 
   const canvasBox = await page.locator('[data-testid="factory-canvas"]').boundingBox();
   canvasBox && canvasBox.width > 700 && canvasBox.height > 420
@@ -157,20 +157,6 @@ try {
     ? pass('storage feeder exposes an input port', `${feederInputPorts} input ports`)
     : fail('storage feeder exposes an input port', `${feederInputPorts} input ports`);
 
-  const edgeCountBeforeClickConnect = await page.locator('.react-flow__edge').count();
-  await page.locator('[data-node-short-name="FEED"] .node-port-label-out').nth(1).click({ force: true, timeout: 5000 });
-  await page.locator('.node-port-label-in').nth(1).click({ force: true, timeout: 5000 });
-  await page.waitForTimeout(350);
-  const edgeCountAfterClickConnect = await page.locator('.react-flow__edge').count();
-  edgeCountAfterClickConnect > edgeCountBeforeClickConnect
-    ? pass('click connection works from feeder output to gauge input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`)
-    : fail('click connection works from feeder output to gauge input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`);
-
-  await page.locator('.node-port-label-out').first().click({ force: true, timeout: 5000 });
-  (await page.locator('[data-testid="port-rule-editor"]').isVisible().catch(() => false))
-    ? pass('clicking an output port opens port rule editor')
-    : fail('clicking an output port opens port rule editor');
-
   await page.locator('.edge-label').first().click({ timeout: 5000 });
   await page.waitForTimeout(150);
   const activeEdgeLabels = await page.locator('.edge-label').evaluateAll((labels) =>
@@ -178,15 +164,66 @@ try {
   );
   activeEdgeLabels === 1 ? pass('selecting an edge expands only one edge label') : fail('selecting an edge expands only one edge label', `${activeEdgeLabels}`);
 
+  await page.evaluate(() => {
+    const api = window.FactoryTaktAgent;
+    const snapshot = api?.getSnapshot?.();
+    const edge = snapshot?.edges.find((item) => item.data?.label === 'FEED-QA A') ?? snapshot?.edges[0];
+    if (api && edge) {
+      api.runCommand({
+        type: 'updateNode',
+        nodeId: 'line-feed',
+        patch: {
+          outputBufferCount: 20,
+          currentStorageCount: 2000,
+          feedIntervalSec: 1,
+        },
+      });
+      api.runCommand({
+        type: 'updateEdge',
+        edgeId: edge.id,
+        patch: {
+          batchSize: 1,
+          dispatchIntervalSec: 1,
+          travelTimeSec: 20,
+          lineBufferCapacity: 20,
+        },
+      });
+      api.runCommand({ type: 'setSpeed', speed: 1 });
+    }
+  });
   await page.getByRole('button', { name: /Start|开始/ }).click({ timeout: 5000 });
   await page.waitForTimeout(5500);
-  await page
-    .waitForFunction(() => document.querySelectorAll('.material-flow-dot').length > 0, null, { timeout: 2500 })
-    .catch(() => undefined);
-  const motionCount = await page.locator('.material-flow-dot').count();
-  motionCount > 0
-    ? pass('line motion renders real material dots', `movers=${motionCount}`)
-    : fail('line motion renders real material dots', `movers=${motionCount}`);
+  const dotMotion = await page.evaluate(async () => {
+    const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+    const read = () =>
+      Array.from(document.querySelectorAll('.material-flow-dot')).map((node) => {
+        const element = node instanceof HTMLElement ? node : null;
+        return {
+          id: element?.dataset.packetId ?? '',
+          offset: element?.style.offsetDistance ?? '',
+        };
+      });
+    let before = [];
+    for (let attempt = 0; attempt < 25; attempt += 1) {
+      before = read();
+      if (before.length > 0) break;
+      await wait(100);
+    }
+    if (before.length === 0) return { seen: 0, observed: false, detail: 'no material dots visible while sampling' };
+    await wait(500);
+    const after = read();
+    const beforeById = new Map(before.map((dot) => [dot.id, dot.offset]));
+    const moved = after.filter((dot) => dot.id && beforeById.has(dot.id) && beforeById.get(dot.id) !== dot.offset).length;
+    const completed = after.length !== before.length;
+    return {
+      seen: before.length,
+      observed: moved > 0 || completed,
+      detail: `${moved}/${after.length} moved, completed=${completed}`,
+    };
+  });
+  dotMotion.seen > 0
+    ? pass('line motion renders real material dots', `movers=${dotMotion.seen}`)
+    : fail('line motion renders real material dots', `movers=${dotMotion.seen}`);
   const groupedArmVisuals = await page.locator('.arm-carrier-dot-grouped').evaluateAll((nodes) =>
     nodes.map((node) => ({
       offsetPath: node instanceof HTMLElement ? (getComputedStyle(node).offsetPath || node.style.offsetPath) : '',
@@ -197,26 +234,26 @@ try {
   groupedArmVisuals.every((item) => item.offsetPath.includes('path(') && !item.transform.includes('translate'))
     ? pass('grouped loader arm stays bound to rail path', `${groupedArmVisuals.length} arm carriers`)
     : fail('grouped loader arm stays bound to rail path', JSON.stringify(groupedArmVisuals));
-  const readDotOffsets = () =>
-    page.locator('.material-flow-dot').evaluateAll((dots) =>
-      dots.map((node) => ({
-        id: node instanceof HTMLElement ? (node.dataset.packetId ?? '') : '',
-        offset: node instanceof HTMLElement ? node.style.offsetDistance : '',
-      })),
-    );
-  const dotOffsetsBefore = await readDotOffsets();
-  await page.waitForTimeout(300);
-  const dotOffsetsAfter = await readDotOffsets();
-  const beforeById = new Map(dotOffsetsBefore.map((dot) => [dot.id, dot.offset]));
-  const movedDots = dotOffsetsAfter.filter((dot) => dot.id && beforeById.has(dot.id) && beforeById.get(dot.id) !== dot.offset).length;
-  const completedDots = dotOffsetsBefore.length > 0 && dotOffsetsAfter.length !== dotOffsetsBefore.length;
-  movedDots > 0 || completedDots
-    ? pass('material dots advance smoothly on active conveyors', `${movedDots}/${dotOffsetsAfter.length} moved, completed=${completedDots}`)
-    : fail(
-        'material dots advance smoothly on active conveyors',
-        `${dotOffsetsBefore.map((dot) => `${dot.id}:${dot.offset}`).join(',')} -> ${dotOffsetsAfter.map((dot) => `${dot.id}:${dot.offset}`).join(',')}`,
-      );
+  dotMotion.observed
+    ? pass('material dots advance smoothly on active conveyors', dotMotion.detail)
+    : fail('material dots advance smoothly on active conveyors', dotMotion.detail);
   await page.screenshot({ path: `${out}/04-showcase-running.png` });
+
+  const edgeCountBeforeClickConnect = await page.locator('.react-flow__edge').count();
+  await page.locator('[data-node-short-name="FEED"] .node-port-label-out').nth(1).click({ force: true, timeout: 5000 });
+  await page.locator('.node-port-label-in').nth(1).click({ force: true, timeout: 5000 });
+  await page.waitForTimeout(350);
+  const edgeCountAfterClickConnect = await page.locator('.react-flow__edge').count();
+  edgeCountAfterClickConnect > edgeCountBeforeClickConnect
+    ? pass('click connection works from feeder output to inspection input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`)
+    : fail('click connection works from feeder output to inspection input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`);
+
+  await page.locator('.node-port-label-out').first().click({ force: true, timeout: 5000 });
+  (await page.locator('[data-testid="port-rule-editor"]').isVisible().catch(() => false))
+    ? pass('clicking an output port opens port rule editor')
+    : fail('clicking an output port opens port rule editor');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(150);
 
   await page.mouse.click((canvasBox?.x ?? 300) + 220, (canvasBox?.y ?? 90) + 160, { button: 'right' });
   await page.waitForTimeout(200);

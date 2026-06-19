@@ -3,7 +3,7 @@ import { persistLatestScenarioState, readReportMemory, writeReportMemory } from 
 import { useFactoryStore } from '../store/factoryStore';
 import type { ScenarioPayload } from '../lib/scenarioPersistence';
 
-const DEFAULT_SCENARIO_URL = '/scenarios/deep-groove-post-grind-template.json';
+const DEFAULT_SCENARIO_URL = '/scenarios/modular-line-template.json';
 
 export function useScenarioMemory() {
   const bootstrapScenario = useFactoryStore((state) => state.bootstrapScenario);

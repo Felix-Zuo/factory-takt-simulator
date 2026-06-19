@@ -69,12 +69,12 @@ export function PortRuleEditor({ language, params, selectedPort, onPatch }: Port
       <SelectField
         label={label('物料筛选', 'Material filter')}
         value={rule.materialFilter}
-        help={label('限定该端口允许通过的大圈、小圈或混合物料，避免产线料型混乱。', 'Limits the material allowed through this port to keep routing clean.')}
+        help={label('限定该端口允许通过的A件、B件或混合物料，避免产线料型混乱。', 'Limits the material allowed through this port to keep routing clean.')}
         onChange={(value) => onPatch({ materialFilter: value as PortRule['materialFilter'] })}
         options={[
           { value: 'any', label: label('不限', 'Any') },
-          { value: 'big_ring', label: label('大圈', 'Big ring') },
-          { value: 'small_ring', label: label('小圈', 'Small ring') },
+          { value: 'part_a', label: label('A件', 'Part A') },
+          { value: 'part_b', label: label('B件', 'Part B') },
           { value: 'mixed', label: label('混合', 'Mixed') },
         ]}
       />

@@ -15,10 +15,10 @@ const baseProps = (className?: string) => ({
   strokeLinejoin: 'round' as const,
 });
 
-const ring = (cx = 32, cy = 32, outer = 19, inner = 11, width = 3) => (
+const partSymbol = (cx = 32, cy = 32, majorRadius = 19, minorRadius = 11, width = 3) => (
   <>
-    <circle cx={cx} cy={cy} r={outer} strokeWidth={width} />
-    <circle cx={cx} cy={cy} r={inner} strokeWidth={width * 0.82} opacity="0.72" />
+    <circle cx={cx} cy={cy} r={majorRadius} strokeWidth={width} />
+    <circle cx={cx} cy={cy} r={minorRadius} strokeWidth={width * 0.82} opacity="0.72" />
   </>
 );
 
@@ -52,7 +52,7 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'assembly_storage') {
+  if (type === 'merge_buffer') {
     return (
       <svg {...common}>
         <path d="M13 17h38v30H13V17Z" strokeWidth="3" />
@@ -64,7 +64,7 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'assembly_cleaner') {
+  if (type === 'wash_dry') {
     return (
       <svg {...common}>
         <path d="M12 35c5-7 9 7 14 0s9 7 14 0 9 7 14 0" strokeWidth="2.8" />
@@ -75,7 +75,7 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'pairing_station') {
+  if (type === 'join_station') {
     return (
       <svg {...common}>
         <circle cx="19" cy="32" r="11" strokeWidth="3" />
@@ -88,21 +88,21 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'riveting_station') {
+  if (type === 'fasten_station') {
     return (
       <svg {...common}>
         <path d="M18 14h28v10H18V14Z" strokeWidth="3" />
         <path d="M32 24v14" strokeWidth="4" />
         <path d="M20 43h24" strokeWidth="3" />
-        {ring(32, 43, 10, 5, 2.4)}
+        {partSymbol(32, 43, 10, 5, 2.4)}
       </svg>
     );
   }
 
-  if (type === 'grease_injection') {
+  if (type === 'fill_station') {
     return (
       <svg {...common}>
-        {ring(29, 36, 15, 8)}
+        {partSymbol(29, 36, 15, 8)}
         <path d="M43 14l7 10-7 10-7-10 7-10Z" strokeWidth="2.8" />
         <path d="M43 34v12" strokeWidth="3" />
         <circle cx="43" cy="50" r="2.8" fill="currentColor" strokeWidth="0" />
@@ -110,10 +110,10 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'cap_press') {
+  if (type === 'press_station') {
     return (
       <svg {...common}>
-        {ring(32, 34, 15, 8)}
+        {partSymbol(32, 34, 15, 8)}
         <path d="M17 17h30M22 17l5 10M42 17l-5 10" strokeWidth="2.8" />
         <path d="M20 50h24" strokeWidth="3" />
       </svg>
@@ -131,10 +131,10 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'rust_proof') {
+  if (type === 'surface_treatment') {
     return (
       <svg {...common}>
-        {ring(35, 37, 14, 7)}
+        {partSymbol(35, 37, 14, 7)}
         <path d="M12 19h18l-5 9H12V19Z" strokeWidth="2.8" />
         <path d="M30 23h19" strokeWidth="3" />
         <path d="M17 32c4 4 7 4 11 0M13 39c5 5 10 5 15 0" strokeWidth="2.2" opacity="0.72" />
@@ -152,7 +152,7 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'or_grinder') {
+  if (type === 'process_a') {
     return (
       <svg {...common}>
         <circle cx="30" cy="32" r="20" strokeWidth="3" />
@@ -165,7 +165,7 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'ir_grinder') {
+  if (type === 'process_b') {
     return (
       <svg {...common}>
         <circle cx="39" cy="32" r="16" strokeWidth="3" />
@@ -178,10 +178,10 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'bore_grinder') {
+  if (type === 'process_c') {
     return (
       <svg {...common}>
-        {ring(28, 32, 18, 8)}
+        {partSymbol(28, 32, 18, 8)}
         <path d="M28 32h25" strokeWidth="4" />
         <path d="M50 24v16" strokeWidth="2.8" />
         <circle cx="28" cy="32" r="3.4" fill="currentColor" strokeWidth="0" />
@@ -189,10 +189,10 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
     );
   }
 
-  if (type === 'superfinishing' || type === 'small_superfinishing') {
+  if (type === 'finishing' || type === 'finishing_b') {
     return (
       <svg {...common}>
-        {ring(28, 31, 17, 9)}
+        {partSymbol(28, 31, 17, 9)}
         <path d="M42 18l11-4-4 11-12 12-7-7 12-12Z" strokeWidth="2.6" />
         <path d="M14 50c6-7 11 7 17 0s11 7 17 0" strokeWidth="2.4" opacity="0.92" />
       </svg>
@@ -200,29 +200,33 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
   }
 
   if (
-    type === 'general_gauge' ||
-    type === 'or_gauge' ||
-    type === 'ir_gauge' ||
-    type === 'bore_gauge' ||
-    type === 'sf_check' ||
-    type === 'eddy_check' ||
-    type === 'dimension_check' ||
-    type === 'flexibility_check' ||
-    type === 'vibration_check' ||
-    type === 'visual_check'
+    type === 'general_inspection' ||
+    type === 'qa_a' ||
+    type === 'qa_b' ||
+    type === 'qa_c' ||
+    type === 'final_qa' ||
+    type === 'inspection_a' ||
+    type === 'inspection_b' ||
+    type === 'functional_check' ||
+    type === 'performance_check' ||
+    type === 'visual_inspection'
   ) {
-    const isBore = type === 'bore_gauge';
-    const isSf = type === 'sf_check' || type === 'vibration_check' || type === 'flexibility_check';
+    const isProcessCCheck = type === 'qa_c';
+    const isFinalOrPerformanceCheck = type === 'final_qa' || type === 'performance_check' || type === 'functional_check';
     return (
       <svg {...common}>
-        {isSf ? <path d="M12 49c5-8 9 8 14 0s9 8 14 0 9 8 14 0" strokeWidth="2.5" /> : ring(27, 33, isBore ? 17 : 15, isBore ? 7 : 9)}
+        {isFinalOrPerformanceCheck ? (
+          <path d="M12 49c5-8 9 8 14 0s9 8 14 0 9 8 14 0" strokeWidth="2.5" />
+        ) : (
+          partSymbol(27, 33, isProcessCCheck ? 17 : 15, isProcessCCheck ? 7 : 9)
+        )}
         <path d="M53 15L38 29" strokeWidth="3" />
         <circle cx="36" cy="31" r="3" fill="currentColor" strokeWidth="0" />
         <path d="M45 15h9v9" strokeWidth="2.4" />
-        {type === 'eddy_check' ? <path d="M16 17c7 4 7 10 0 14M22 17c7 4 7 10 0 14" strokeWidth="2.1" opacity="0.75" /> : null}
-        {type === 'dimension_check' ? <path d="M12 15h22M12 15v8M34 15v8" strokeWidth="2.2" opacity="0.75" /> : null}
-        {type === 'visual_check' ? <path d="M16 18c8-7 22-7 30 0M20 20c5 4 17 4 22 0" strokeWidth="2.2" opacity="0.75" /> : null}
-        {isSf ? <path d="M18 25h27M18 33h20" strokeWidth="2.4" opacity="0.7" /> : null}
+        {type === 'inspection_a' ? <path d="M16 17c7 4 7 10 0 14M22 17c7 4 7 10 0 14" strokeWidth="2.1" opacity="0.75" /> : null}
+        {type === 'inspection_b' ? <path d="M12 15h22M12 15v8M34 15v8" strokeWidth="2.2" opacity="0.75" /> : null}
+        {type === 'visual_inspection' ? <path d="M16 18c8-7 22-7 30 0M20 20c5 4 17 4 22 0" strokeWidth="2.2" opacity="0.75" /> : null}
+        {isFinalOrPerformanceCheck ? <path d="M18 25h27M18 33h20" strokeWidth="2.4" opacity="0.7" /> : null}
       </svg>
     );
   }
@@ -273,7 +277,7 @@ export function DeviceIcon({ type, className }: DeviceIconProps) {
 
   return (
     <svg {...common}>
-      {ring()}
+      {partSymbol()}
       <path d="M52 14L39 27" strokeWidth="3" />
     </svg>
   );

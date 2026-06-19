@@ -68,17 +68,17 @@ export function CanvasContextMenu({
     >
       {state.kind === 'pane' && position ? (
         <>
-          <button className={itemClass} onClick={() => run(() => onAddDevice('or_grinder', position))}>
-            {zh ? '添加大沟' : 'Add big groove'}
+          <button className={itemClass} onClick={() => run(() => onAddDevice('process_a', position))}>
+            {zh ? '添加工序A' : 'Add Process A'}
           </button>
           <button className={itemClass} onClick={() => run(() => onAddDevice('material_source', position))}>
             {zh ? '添加料源' : 'Add source'}
           </button>
-          <button className={itemClass} onClick={() => run(() => onAddDevice('ir_grinder', position))}>
-            {zh ? '添加小沟' : 'Add small groove'}
+          <button className={itemClass} onClick={() => run(() => onAddDevice('process_b', position))}>
+            {zh ? '添加工序B' : 'Add Process B'}
           </button>
-          <button className={itemClass} onClick={() => run(() => onAddDevice('general_gauge', position))}>
-            {zh ? '添加通用检测' : 'Add gauge'}
+          <button className={itemClass} onClick={() => run(() => onAddDevice('general_inspection', position))}>
+            {zh ? '添加通用检测' : 'Add inspection'}
           </button>
           <button className={itemClass} onClick={() => run(() => onAddDevice('spin_dryer', position))}>
             {zh ? '添加甩干机' : 'Add dryer'}

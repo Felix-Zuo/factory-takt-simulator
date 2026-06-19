@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security-sensitive report
+    url: https://github.com/Felix-Zuo/factory-takt-simulator/security/advisories/new
+    about: Use a private advisory for vulnerability reports or sensitive data exposure.

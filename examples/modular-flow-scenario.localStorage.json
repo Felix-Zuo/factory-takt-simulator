@@ -1,0 +1,394 @@
+{
+  "version": "0.6.0-beta",
+  "name": "Generic modular process line template",
+  "savedAt": "2026-06-19T00:00:00.000Z",
+  "elapsedSec": 0,
+  "speed": 2,
+  "nodes": [
+    {
+      "id": "template-feed",
+      "type": "deviceNode",
+      "position": {
+        "x": 0,
+        "y": 190
+      },
+      "data": {
+        "label": "FEED",
+        "params": {
+          "deviceType": "storage_feeder",
+          "deviceShortName": "FEED",
+          "deviceCode": "FEED-01",
+          "storageCapacity": 2000,
+          "currentStorageCount": 1600,
+          "outputPortCount": 2,
+          "output1MaterialKind": "part_a",
+          "output2MaterialKind": "part_b",
+          "materialKind": "mixed",
+          "feedBatchSize": 1,
+          "feedIntervalSec": 3
+        }
+      }
+    },
+    {
+      "id": "template-proc-a",
+      "type": "deviceNode",
+      "position": {
+        "x": 280,
+        "y": 95
+      },
+      "data": {
+        "label": "PROC-A",
+        "params": {
+          "deviceType": "process_a",
+          "deviceShortName": "PROC-A",
+          "deviceCode": "PROC-A-01",
+          "materialKind": "part_a",
+          "processTimeSec": 13
+        }
+      }
+    },
+    {
+      "id": "template-proc-b",
+      "type": "deviceNode",
+      "position": {
+        "x": 280,
+        "y": 285
+      },
+      "data": {
+        "label": "PROC-B",
+        "params": {
+          "deviceType": "process_b",
+          "deviceShortName": "PROC-B",
+          "deviceCode": "PROC-B-01",
+          "materialKind": "part_b",
+          "processTimeSec": 15
+        }
+      }
+    },
+    {
+      "id": "template-fin-a",
+      "type": "deviceNode",
+      "position": {
+        "x": 560,
+        "y": 95
+      },
+      "data": {
+        "label": "FIN-A",
+        "params": {
+          "deviceType": "finishing",
+          "deviceShortName": "FIN-A",
+          "deviceCode": "FIN-A-01",
+          "materialKind": "part_a",
+          "processTimeSec": 12
+        }
+      }
+    },
+    {
+      "id": "template-proc-c",
+      "type": "deviceNode",
+      "position": {
+        "x": 560,
+        "y": 285
+      },
+      "data": {
+        "label": "PROC-C",
+        "params": {
+          "deviceType": "process_c",
+          "deviceShortName": "PROC-C",
+          "deviceCode": "PROC-C-01",
+          "materialKind": "part_b",
+          "processTimeSec": 18
+        }
+      }
+    },
+    {
+      "id": "template-fin-b",
+      "type": "deviceNode",
+      "position": {
+        "x": 840,
+        "y": 285
+      },
+      "data": {
+        "label": "FIN-B",
+        "params": {
+          "deviceType": "finishing_b",
+          "deviceShortName": "FIN-B",
+          "deviceCode": "FIN-B-01",
+          "materialKind": "part_b",
+          "processTimeSec": 16
+        }
+      }
+    },
+    {
+      "id": "template-merge",
+      "type": "deviceNode",
+      "position": {
+        "x": 1120,
+        "y": 190
+      },
+      "data": {
+        "label": "MERGE",
+        "params": {
+          "deviceType": "merge_buffer",
+          "deviceShortName": "MERGE",
+          "deviceCode": "MERGE-01",
+          "inputPortCount": 2,
+          "outputPortCount": 2,
+          "materialKind": "mixed",
+          "output1MaterialKind": "part_a",
+          "output2MaterialKind": "part_b"
+        }
+      }
+    },
+    {
+      "id": "template-join",
+      "type": "deviceNode",
+      "position": {
+        "x": 1400,
+        "y": 190
+      },
+      "data": {
+        "label": "JOIN",
+        "params": {
+          "deviceType": "join_station",
+          "deviceShortName": "JOIN",
+          "deviceCode": "JOIN-01",
+          "inputPortCount": 2
+        }
+      }
+    },
+    {
+      "id": "template-qa",
+      "type": "deviceNode",
+      "position": {
+        "x": 1680,
+        "y": 190
+      },
+      "data": {
+        "label": "FINAL QA",
+        "params": {
+          "deviceType": "final_qa",
+          "deviceShortName": "FINAL QA",
+          "deviceCode": "FINAL-QA-01",
+          "processTimeSec": 4
+        }
+      }
+    },
+    {
+      "id": "template-pack",
+      "type": "deviceNode",
+      "position": {
+        "x": 1960,
+        "y": 190
+      },
+      "data": {
+        "label": "PACK",
+        "params": {
+          "deviceType": "packing_sink",
+          "deviceShortName": "PACK",
+          "deviceCode": "PACK-01"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "template-edge-template-feed-template-proc-a-feed-proc-a",
+      "source": "template-feed",
+      "target": "template-proc-a",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "FEED -> PROC-A",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 3,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-feed-template-proc-b-feed-proc-b",
+      "source": "template-feed",
+      "target": "template-proc-b",
+      "sourceHandle": "out-2",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "FEED -> PROC-B",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 3,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-proc-a-template-fin-a-proc-a-fin-a",
+      "source": "template-proc-a",
+      "target": "template-fin-a",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "PROC-A -> FIN-A",
+        "transportType": "loader_arm",
+        "edgeShape": "orthogonal",
+        "batchSize": 5,
+        "pickCount": 5,
+        "triggerBatch": 5,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-proc-b-template-proc-c-proc-b-proc-c",
+      "source": "template-proc-b",
+      "target": "template-proc-c",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "PROC-B -> PROC-C",
+        "transportType": "loader_arm",
+        "edgeShape": "orthogonal",
+        "batchSize": 5,
+        "pickCount": 5,
+        "triggerBatch": 5,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-proc-c-template-fin-b-proc-c-fin-b",
+      "source": "template-proc-c",
+      "target": "template-fin-b",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "PROC-C -> FIN-B",
+        "transportType": "loader_arm",
+        "edgeShape": "orthogonal",
+        "batchSize": 5,
+        "pickCount": 5,
+        "triggerBatch": 5,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-fin-a-template-merge-fin-a-merge",
+      "source": "template-fin-a",
+      "target": "template-merge",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "FIN-A -> MERGE",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 40,
+        "lineBufferCapacity": 100
+      }
+    },
+    {
+      "id": "template-edge-template-fin-b-template-merge-fin-b-merge",
+      "source": "template-fin-b",
+      "target": "template-merge",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-2",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "FIN-B -> MERGE",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 40,
+        "lineBufferCapacity": 100
+      }
+    },
+    {
+      "id": "template-edge-template-merge-template-join-merge-a-join",
+      "source": "template-merge",
+      "target": "template-join",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "MERGE-A -> JOIN",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 6,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-merge-template-join-merge-b-join",
+      "source": "template-merge",
+      "target": "template-join",
+      "sourceHandle": "out-2",
+      "targetHandle": "in-2",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "MERGE-B -> JOIN",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 6,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-join-template-qa-join-final-qa",
+      "source": "template-join",
+      "target": "template-qa",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "JOIN -> FINAL QA",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 6,
+        "lineBufferCapacity": 40
+      }
+    },
+    {
+      "id": "template-edge-template-qa-template-pack-final-qa-pack",
+      "source": "template-qa",
+      "target": "template-pack",
+      "sourceHandle": "out-1",
+      "targetHandle": "in-1",
+      "type": "flowEdge",
+      "animated": true,
+      "data": {
+        "label": "FINAL QA -> PACK",
+        "transportType": "conveyor",
+        "edgeShape": "orthogonal",
+        "batchSize": 1,
+        "dispatchIntervalSec": 3,
+        "travelTimeSec": 6,
+        "lineBufferCapacity": 40
+      }
+    }
+  ]
+}

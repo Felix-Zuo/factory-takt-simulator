@@ -88,17 +88,17 @@ export const acceptedMaterialsForInput = (
   params: DeviceParameters,
   handleId = 'in-1',
 ): MaterialKind[] => {
-  if (params.deviceType === 'assembly_storage' || params.deviceType === 'pairing_station') {
-    return handleId === 'in-2' ? ['small_ring'] : ['big_ring'];
+  if (params.deviceType === 'merge_buffer' || params.deviceType === 'join_station') {
+    return handleId === 'in-2' ? ['part_b'] : ['part_a'];
   }
   const byMachine: MaterialKind[] =
-    params.deviceType === 'or_grinder' || params.deviceType === 'superfinishing'
-      ? ['big_ring']
-      : params.deviceType === 'ir_grinder' ||
-          params.deviceType === 'bore_grinder' ||
-          params.deviceType === 'small_superfinishing'
-        ? ['small_ring']
-        : ['big_ring', 'small_ring', 'mixed'];
+    params.deviceType === 'process_a' || params.deviceType === 'finishing'
+      ? ['part_a']
+      : params.deviceType === 'process_b' ||
+          params.deviceType === 'process_c' ||
+          params.deviceType === 'finishing_b'
+        ? ['part_b']
+        : ['part_a', 'part_b', 'mixed'];
   const filter = params.inputPortRules?.[handleId]?.materialFilter ?? 'any';
   if (filter === 'any' || filter === 'mixed') return [...byMachine];
   const material = materialFromFilter(filter, 'mixed');
@@ -120,7 +120,7 @@ export const canConnectByMaterial = (
   const material = materialFromFilter(outputFilter, source.data.params.materialKind ?? 'mixed');
   const accepted = acceptedMaterialsForInput(target.data.params, targetHandle);
   if (material !== 'mixed' && !accepted.includes(material)) {
-    const materialName = material === 'big_ring' ? 'big ring' : 'small ring';
+    const materialName = material === 'part_a' ? 'part A' : 'part B';
     return {
       ok: false,
       reason: `${source.data.params.deviceShortName} ${sourceHandle} outputs ${materialName}, incompatible with ${target.data.params.deviceShortName} ${targetHandle}.`,

@@ -248,7 +248,7 @@ export function ParameterPanel() {
           ) : null}
           <label
             className="editable-field col-span-2 block rounded border border-slate-800 bg-slate-900/52 px-3 py-2"
-            data-help={label('定义该设备处理的料型，用于防止大圈、小圈混线并辅助端口筛选。', 'Defines material kind to prevent big/small ring mixing and support port filtering.')}
+            data-help={label('定义该设备处理的料型，用于防止大圈、小圈混线并辅助端口筛选。', 'Defines material kind to prevent big/part B mixing and support port filtering.')}
           >
             <span className="text-[11px] text-slate-500">{label('工件料型', 'Material kind')}</span>
             <select
@@ -257,8 +257,8 @@ export function ParameterPanel() {
               className="mt-1 w-full bg-slate-950 text-sm font-semibold text-slate-100 outline-none"
             >
               <option value="mixed">{label('混合/不限', 'Mixed')}</option>
-              <option value="big_ring">{label('大圈', 'Big ring')}</option>
-              <option value="small_ring">{label('小圈', 'Small ring')}</option>
+              <option value="part_a">{label('A件', 'Part A')}</option>
+              <option value="part_b">{label('B件', 'Part B')}</option>
             </select>
           </label>
           {params.deviceType === 'storage_feeder' || params.deviceType === 'material_source' ? (
@@ -273,14 +273,14 @@ export function ParameterPanel() {
                   onChange={(event) => onPatch({ output1MaterialKind: event.target.value as DeviceParameters['output1MaterialKind'] })}
                   className="mt-1 w-full bg-slate-950 text-sm font-semibold text-slate-100 outline-none"
                 >
-                  <option value="big_ring">{label('大圈', 'Big ring')}</option>
-                  <option value="small_ring">{label('小圈', 'Small ring')}</option>
+                  <option value="part_a">{label('A件', 'Part A')}</option>
+                  <option value="part_b">{label('B件', 'Part B')}</option>
                   <option value="mixed">{label('混合', 'Mixed')}</option>
                 </select>
               </label>
               <label
                 className="editable-field block rounded border border-slate-800 bg-slate-900/52 px-3 py-2"
-                data-help={label('设置第二个输出口吐出的物料类型，适合一台送料机分大圈和小圈。', 'Sets material type emitted by output 2 for feeders splitting big and small rings.')}
+                data-help={label('设置第二个输出口吐出的物料类型，适合一台送料机分大圈和小圈。', 'Sets material type emitted by output 2 for feeders splitting big and part Bs.')}
               >
                 <span className="text-[11px] text-slate-500">{label('输出2料型', 'Output 2 material')}</span>
                 <select
@@ -288,8 +288,8 @@ export function ParameterPanel() {
                   onChange={(event) => onPatch({ output2MaterialKind: event.target.value as DeviceParameters['output2MaterialKind'] })}
                   className="mt-1 w-full bg-slate-950 text-sm font-semibold text-slate-100 outline-none"
                 >
-                  <option value="big_ring">{label('大圈', 'Big ring')}</option>
-                  <option value="small_ring">{label('小圈', 'Small ring')}</option>
+                  <option value="part_a">{label('A件', 'Part A')}</option>
+                  <option value="part_b">{label('B件', 'Part B')}</option>
                   <option value="mixed">{label('混合', 'Mixed')}</option>
                 </select>
               </label>
@@ -335,16 +335,16 @@ export function ParameterPanel() {
           </Section>
         ) : null}
 
-        {params.deviceType === 'assembly_storage' ? (
+        {params.deviceType === 'merge_buffer' ? (
           <Section title={label('装配储料机', 'Assembly storage feeder')}>
-            <NumberField label={label('大圈储料上限', 'Big ring storage cap')} params={params} paramKey="assemblyBigStorageCapacity" onPatch={onPatch} min={0} />
-            <NumberField label={label('当前大圈储料', 'Current big rings')} params={params} paramKey="assemblyBigStorageCount" onPatch={onPatch} min={0} />
-            <NumberField label={label('小圈储料上限', 'Small ring storage cap')} params={params} paramKey="assemblySmallStorageCapacity" onPatch={onPatch} min={0} />
-            <NumberField label={label('当前小圈储料', 'Current small rings')} params={params} paramKey="assemblySmallStorageCount" onPatch={onPatch} min={0} />
+            <NumberField label={label('A件储料上限', 'Part A storage cap')} params={params} paramKey="partAStorageCapacity" onPatch={onPatch} min={0} />
+            <NumberField label={label('当前大圈储料', 'Current part As')} params={params} paramKey="partAStorageCount" onPatch={onPatch} min={0} />
+            <NumberField label={label('B件储料上限', 'Part B storage cap')} params={params} paramKey="partBStorageCapacity" onPatch={onPatch} min={0} />
+            <NumberField label={label('当前小圈储料', 'Current part Bs')} params={params} paramKey="partBStorageCount" onPatch={onPatch} min={0} />
             <NumberField label={label('主动吐料数量', 'Backup feed batch')} params={params} paramKey="feedBatchSize" onPatch={onPatch} min={1} />
             <NumberField label={label('主动吐料间隔 秒', 'Backup feed interval sec')} params={params} paramKey="feedIntervalSec" onPatch={onPatch} step={0.1} min={0.1} />
             <div className="col-span-2 rounded border border-cyan-300/18 bg-cyan-300/8 px-3 py-2 text-xs text-cyan-100">
-              {label('in-1/out-1 为大圈侧，in-2/out-2 为小圈侧；下游有空间时连线直接拉料，下游缺料且大连线暂时无料时由储料侧补料。', 'in-1/out-1 are big-ring side, in-2/out-2 are small-ring side. Downstream links pull through when available; stored material backs up the line when upstream pauses.')}
+              {label('in-1/out-1 为大圈侧，in-2/out-2 为小圈侧；下游有空间时连线直接拉料，下游缺料且大连线暂时无料时由储料侧补料。', 'in-1/out-1 are part-A side, in-2/out-2 are part-B side. Downstream links pull through when available; stored material backs up the line when upstream pauses.')}
             </div>
           </Section>
         ) : null}
@@ -356,7 +356,7 @@ export function ParameterPanel() {
           </Section>
         ) : null}
 
-        {params.deviceType === 'assembly_cleaner' ? (
+        {params.deviceType === 'wash_dry' ? (
           <Section title={label('清洗与风干', 'Cleaning and air dry')}>
             <NumberField label={label('通道数量', 'Lane count')} params={params} paramKey="cleanerLaneCount" onPatch={onPatch} min={1} />
             <NumberField label={label('单通道在途容量', 'Capacity per lane')} params={params} paramKey="cleanerLaneCapacity" onPatch={onPatch} min={1} />
@@ -413,7 +413,7 @@ export function ParameterPanel() {
         <div className="text-xs uppercase tracking-[0.16em] text-slate-500">{label('工序阶段识别', 'Stage recognition')}</div>
         {summary.stageAnalysis.length === 0 ? (
           <div className="rounded border border-slate-800 bg-slate-900/45 p-3 text-xs text-slate-500">
-            {label('搭建并连接产线后，这里会自动归并大沟、大超、小沟、内径、小超等阶段。', 'Build and connect a line to recognize stages automatically.')}
+            {label('搭建并连接产线后，这里会自动归并工序A、精加工A、工序B、工序C、精加工B等阶段。', 'Build and connect a line to recognize stages automatically.')}
           </div>
         ) : (
           summary.stageAnalysis.map((stage) => (

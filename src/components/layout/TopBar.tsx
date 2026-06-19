@@ -56,7 +56,7 @@ export function TopBar({ view, setView }: TopBarProps) {
     deleteSavedScenario,
     importScenarioJson,
     createDemoScenario,
-    createBearingRacewayScenario,
+    createFullLineScenario,
     createAssemblyScenario,
     captureRecord,
     exportScenario,
@@ -187,7 +187,7 @@ export function TopBar({ view, setView }: TopBarProps) {
                 icon={<WandSparkles className="h-4 w-4" />}
                 label={zh ? '完整产线示例' : 'Full line example'}
                 onClick={() => {
-                  createBearingRacewayScenario();
+                  createFullLineScenario();
                   refreshScenarioList();
                   setMoreOpen(false);
                   setView('simulator');

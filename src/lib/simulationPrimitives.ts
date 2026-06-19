@@ -8,31 +8,31 @@ export const clamp = (value: number, min: number, max: number) => Math.min(max, 
 export const inputSpace = (node: FactoryNode) =>
   Math.max(0, node.data.params.inputBufferCapacity - node.data.params.inputBufferCount);
 
-export const isParallelSuperfinish = (node: FactoryNode) =>
-  node.data.params.processFamily === 'superfinishing' && node.data.params.superfinishingMode === 'parallel_once';
+export const isParallelFinish = (node: FactoryNode) =>
+  node.data.params.processFamily === 'finishing' && node.data.params.finishingMode === 'parallel_once';
 
-export const isSerialSuperfinish = (node: FactoryNode) =>
-  node.data.params.processFamily === 'superfinishing' && node.data.params.superfinishingMode === 'serial_twice';
+export const isSerialFinish = (node: FactoryNode) =>
+  node.data.params.processFamily === 'finishing' && node.data.params.finishingMode === 'serial_twice';
 
-export const isAssemblyStorage = (node: FactoryNode) => node.data.params.deviceType === 'assembly_storage';
+export const isAssemblyStorage = (node: FactoryNode) => node.data.params.deviceType === 'merge_buffer';
 
 export const isSplitStorageFeeder = (node: FactoryNode) =>
   node.data.params.deviceType === 'storage_feeder' && (node.data.params.outputPortCount ?? 1) >= 2;
 
-export const isPairingStation = (node: FactoryNode) => node.data.params.deviceType === 'pairing_station';
+export const isPairingStation = (node: FactoryNode) => node.data.params.deviceType === 'join_station';
 
 export const inputBufferCountForHandle = (node: FactoryNode, handleId?: string | null) => {
   const { params } = node.data;
   if (isAssemblyStorage(node)) {
-    return handleId === 'in-2' ? params.assemblySmallStorageCount : params.assemblyBigStorageCount;
+    return handleId === 'in-2' ? params.partBStorageCount : params.partAStorageCount;
   }
   if (isPairingStation(node)) {
     return handleId === 'in-2' ? params.station2InputBufferCount : params.station1InputBufferCount;
   }
-  if (isParallelSuperfinish(node)) {
+  if (isParallelFinish(node)) {
     return handleId === 'in-2' ? params.station2InputBufferCount : params.station1InputBufferCount;
   }
-  if (isSerialSuperfinish(node)) return params.station1InputBufferCount;
+  if (isSerialFinish(node)) return params.station1InputBufferCount;
   return params.inputBufferCount;
 };
 
@@ -40,20 +40,20 @@ export const inputSpaceForHandle = (node: FactoryNode, handleId?: string | null)
   const { params } = node.data;
   if (isAssemblyStorage(node)) {
     return handleId === 'in-2'
-      ? Math.max(0, params.assemblySmallStorageCapacity - params.assemblySmallStorageCount)
-      : Math.max(0, params.assemblyBigStorageCapacity - params.assemblyBigStorageCount);
+      ? Math.max(0, params.partBStorageCapacity - params.partBStorageCount)
+      : Math.max(0, params.partAStorageCapacity - params.partAStorageCount);
   }
   if (isPairingStation(node)) {
     return handleId === 'in-2'
       ? Math.max(0, params.station2InputBufferCapacity - params.station2InputBufferCount)
       : Math.max(0, params.station1InputBufferCapacity - params.station1InputBufferCount);
   }
-  if (isParallelSuperfinish(node)) {
+  if (isParallelFinish(node)) {
     return handleId === 'in-2'
       ? Math.max(0, params.station2InputBufferCapacity - params.station2InputBufferCount)
       : Math.max(0, params.station1InputBufferCapacity - params.station1InputBufferCount);
   }
-  if (isSerialSuperfinish(node)) {
+  if (isSerialFinish(node)) {
     return handleId === 'in-1'
       ? Math.max(0, params.station1InputBufferCapacity - params.station1InputBufferCount)
       : 0;
@@ -67,9 +67,9 @@ export const inputSpaceForHandle = (node: FactoryNode, handleId?: string | null)
 export const addInputToHandle = (node: FactoryNode, amount: number, handleId?: string | null) => {
   const { params } = node.data;
   if (isAssemblyStorage(node)) {
-    if (handleId === 'in-2') params.assemblySmallStorageCount += amount;
-    else params.assemblyBigStorageCount += amount;
-    params.currentStorageCount = params.assemblyBigStorageCount + params.assemblySmallStorageCount;
+    if (handleId === 'in-2') params.partBStorageCount += amount;
+    else params.partAStorageCount += amount;
+    params.currentStorageCount = params.partAStorageCount + params.partBStorageCount;
     params.inputBufferCount = params.currentStorageCount;
     params.outputBufferCount = params.currentStorageCount;
     return;
@@ -80,13 +80,13 @@ export const addInputToHandle = (node: FactoryNode, amount: number, handleId?: s
     params.inputBufferCount = params.station1InputBufferCount + params.station2InputBufferCount;
     return;
   }
-  if (isParallelSuperfinish(node)) {
+  if (isParallelFinish(node)) {
     if (handleId === 'in-2') params.station2InputBufferCount += amount;
     else params.station1InputBufferCount += amount;
     params.inputBufferCount = params.station1InputBufferCount + params.station2InputBufferCount;
     return;
   }
-  if (isSerialSuperfinish(node)) {
+  if (isSerialFinish(node)) {
     params.station1InputBufferCount += amount;
     params.inputBufferCount = params.station1InputBufferCount + params.station2InputBufferCount;
     return;
@@ -110,7 +110,7 @@ export const canReceiveInput = (node: FactoryNode, amount: number, handleId?: st
 export const outputBufferCountForHandle = (node: FactoryNode, handleId?: string | null) => {
   const { params } = node.data;
   if (isAssemblyStorage(node) || isSplitStorageFeeder(node)) {
-    return handleId === 'out-2' ? params.assemblySmallStorageCount : params.assemblyBigStorageCount;
+    return handleId === 'out-2' ? params.partBStorageCount : params.partAStorageCount;
   }
   return params.outputBufferCount;
 };
@@ -118,9 +118,9 @@ export const outputBufferCountForHandle = (node: FactoryNode, handleId?: string 
 export const takeOutputFromHandle = (node: FactoryNode, amount: number, handleId?: string | null) => {
   const { params } = node.data;
   if (isAssemblyStorage(node) || isSplitStorageFeeder(node)) {
-    if (handleId === 'out-2') params.assemblySmallStorageCount = Math.max(0, params.assemblySmallStorageCount - amount);
-    else params.assemblyBigStorageCount = Math.max(0, params.assemblyBigStorageCount - amount);
-    params.currentStorageCount = params.assemblyBigStorageCount + params.assemblySmallStorageCount;
+    if (handleId === 'out-2') params.partBStorageCount = Math.max(0, params.partBStorageCount - amount);
+    else params.partAStorageCount = Math.max(0, params.partAStorageCount - amount);
+    params.currentStorageCount = params.partAStorageCount + params.partBStorageCount;
     if (isAssemblyStorage(node)) params.inputBufferCount = params.currentStorageCount;
     params.outputBufferCount = params.currentStorageCount;
     return;

@@ -4,7 +4,7 @@ export type Language = 'zh-CN' | 'en';
 export type ThemeMode = 'dark' | 'light';
 export type AnimationIntensity = 'off' | 'low' | 'standard' | 'showcase';
 export type CardDensity = 'compact' | 'standard';
-export type MaterialKind = 'big_ring' | 'small_ring' | 'mixed';
+export type MaterialKind = 'part_a' | 'part_b' | 'mixed';
 export type SimulationTargetMode = 'time' | 'output';
 export type TaktMode = 'calculated' | 'manual';
 export type PortSide = 'input' | 'output';
@@ -24,41 +24,41 @@ export type PortBlockedBehavior = 'skip_blocked' | 'wait_blocked';
 export type DeviceType =
   | 'material_source'
   | 'storage_feeder'
-  | 'assembly_storage'
-  | 'assembly_cleaner'
-  | 'eddy_check'
-  | 'dimension_check'
-  | 'pairing_station'
-  | 'riveting_station'
-  | 'flexibility_check'
-  | 'vibration_check'
-  | 'grease_injection'
-  | 'cap_press'
-  | 'visual_check'
+  | 'merge_buffer'
+  | 'wash_dry'
+  | 'inspection_a'
+  | 'inspection_b'
+  | 'join_station'
+  | 'fasten_station'
+  | 'functional_check'
+  | 'performance_check'
+  | 'fill_station'
+  | 'press_station'
+  | 'visual_inspection'
   | 'manual_buffer'
-  | 'rust_proof'
+  | 'surface_treatment'
   | 'packing_sink'
-  | 'or_grinder'
-  | 'ir_grinder'
-  | 'superfinishing'
-  | 'small_superfinishing'
-  | 'bore_grinder'
+  | 'process_a'
+  | 'process_b'
+  | 'finishing'
+  | 'finishing_b'
+  | 'process_c'
   | 'spin_dryer'
   | 'robot'
   | 'conveyor'
-  | 'or_gauge'
-  | 'ir_gauge'
-  | 'bore_gauge'
-  | 'sf_check'
-  | 'general_gauge'
+  | 'qa_a'
+  | 'qa_b'
+  | 'qa_c'
+  | 'final_qa'
+  | 'general_inspection'
   | 'finished_sink';
 
 export type ProcessFamily =
   | 'source'
   | 'feeder'
-  | 'grinding'
-  | 'superfinishing'
-  | 'gauge'
+  | 'processing'
+  | 'finishing'
+  | 'inspection'
   | 'assembly'
   | 'cleaning'
   | 'buffer'
@@ -79,26 +79,26 @@ export type DeviceStatus =
   | 'arm_wait_space'
   | 'transporting';
 
-export type SuperfinishingMode = 'single_station_once' | 'parallel_once' | 'serial_twice';
+export type FinishingMode = 'single_station_once' | 'parallel_once' | 'serial_twice';
 export type MaintenanceKind = 'dressing' | 'changing_consumable' | null;
 export type TransportType = 'conveyor' | 'loader_arm' | 'manual' | 'buffer_transfer';
 export type ArmPhase = 'home' | 'picking' | 'moving' | 'placing' | 'returning';
 export type EdgeShape = 'smooth' | 'orthogonal';
 export type StageKey =
-  | 'big_groove'
-  | 'big_super'
-  | 'small_groove'
-  | 'bore'
-  | 'small_super'
-  | 'general_gauge'
+  | 'process_a'
+  | 'finish_a'
+  | 'process_b'
+  | 'process_c'
+  | 'finish_b'
+  | 'general_inspection'
   | 'dryer'
   | 'source'
-  | 'assembly_storage'
-  | 'assembly_cleaning'
-  | 'assembly_inspection'
-  | 'pairing'
-  | 'riveting'
-  | 'post_assembly'
+  | 'merge_buffer'
+  | 'wash_dry'
+  | 'line_inspection'
+  | 'join'
+  | 'fasten'
+  | 'post_process'
   | 'packaging'
   | 'sink'
   | 'other';
@@ -147,7 +147,7 @@ export interface DeviceParameters {
   dressingDurationSec: number;
   consumableIntervalUnits: number;
   consumableChangeSec: number;
-  superfinishingMode: SuperfinishingMode;
+  finishingMode: FinishingMode;
   firstPassProcessTimeSec: number;
   secondPassProcessTimeSec: number;
   storageCapacity: number;
@@ -159,10 +159,10 @@ export interface DeviceParameters {
   dryerDryTimeSec: number;
   dryerLoadedColumns: number;
   dryerDriedColumns: number;
-  assemblyBigStorageCapacity: number;
-  assemblyBigStorageCount: number;
-  assemblySmallStorageCapacity: number;
-  assemblySmallStorageCount: number;
+  partAStorageCapacity: number;
+  partAStorageCount: number;
+  partBStorageCapacity: number;
+  partBStorageCount: number;
   cleanerLaneCount: number;
   cleanerLaneCapacity: number;
   cleanerPushIntervalSec: number;

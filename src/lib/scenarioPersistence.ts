@@ -1,20 +1,24 @@
-import { createDefaultPortRule, createEmptyMetrics, createRuntime, getCatalogItem } from '../data/deviceCatalog';
+import { createDefaultPortRule, createEmptyMetrics, createRuntime, deviceCatalog, getCatalogItem } from '../data/deviceCatalog';
 import { createFlowEdgeData } from '../data/edgeDefaults';
 import { nanoid } from './uid';
 import type {
   AppSettings,
   DeviceRuntime,
+  DeviceType,
   FactoryEdge,
   FactoryNode,
+  MaterialKind,
   PanelState,
+  PortMaterialFilter,
   PortRule,
+  ProcessFamily,
   SavedScenarioSummary,
-  SuperfinishingMode,
+  FinishingMode,
 } from '../types/factory';
 import type { SimulationRecord } from './reporting';
 
-export const LATEST_SCENARIO_KEY = 'factory-takt-simulator:v2';
-export const SCENARIO_LIBRARY_KEY = 'factory-takt-simulator:saved-scenarios:v2';
+export const LATEST_SCENARIO_KEY = 'factory-takt-simulator:v3';
+export const SCENARIO_LIBRARY_KEY = 'factory-takt-simulator:saved-scenarios:v3';
 export const REPORT_MEMORY_KEY = 'factory-takt-simulator:reports:v1';
 
 export type LegacySettingsPatch = Partial<AppSettings> & { accent?: unknown; digitalTwinScene?: unknown };
@@ -53,10 +57,63 @@ export const sanitizeSettingsPatch = (settings?: LegacySettingsPatch): Partial<A
   return rest;
 };
 
-const migrateSuperfinishingMode = (mode: unknown): SuperfinishingMode => {
+const migrateFinishingMode = (mode: unknown): FinishingMode => {
   if (mode === 'parallel_once' || mode === 'serial_twice' || mode === 'single_station_once') return mode;
   if (mode === 'double') return 'serial_twice';
   return 'single_station_once';
+};
+
+const legacyDeviceTypes: Record<string, DeviceType> = {
+  assembly_storage: 'merge_buffer',
+  assembly_cleaner: 'wash_dry',
+  eddy_check: 'inspection_a',
+  dimension_check: 'inspection_b',
+  pairing_station: 'join_station',
+  riveting_station: 'fasten_station',
+  flexibility_check: 'functional_check',
+  vibration_check: 'performance_check',
+  grease_injection: 'fill_station',
+  cap_press: 'press_station',
+  visual_check: 'visual_inspection',
+  rust_proof: 'surface_treatment',
+  or_grinder: 'process_a',
+  ir_grinder: 'process_b',
+  bore_grinder: 'process_c',
+  superfinishing: 'finishing',
+  small_superfinishing: 'finishing_b',
+  or_gauge: 'qa_a',
+  ir_gauge: 'qa_b',
+  bore_gauge: 'qa_c',
+  sf_check: 'final_qa',
+  general_gauge: 'general_inspection',
+};
+
+const validDeviceTypes = new Set(deviceCatalog.map((item) => item.type));
+
+const normalizeDeviceType = (value: unknown): DeviceType => {
+  const key = String(value ?? '');
+  if (key in legacyDeviceTypes) return legacyDeviceTypes[key];
+  if (validDeviceTypes.has(key as DeviceType)) return key as DeviceType;
+  return 'general_inspection';
+};
+
+const normalizeMaterialKind = (value: unknown, fallback: MaterialKind = 'mixed'): MaterialKind => {
+  if (value === 'part_a' || value === 'big_ring') return 'part_a';
+  if (value === 'part_b' || value === 'small_ring') return 'part_b';
+  if (value === 'mixed') return 'mixed';
+  return fallback;
+};
+
+const normalizeMaterialFilter = (value: unknown, fallback: PortMaterialFilter): PortMaterialFilter => {
+  if (value === 'any') return 'any';
+  return normalizeMaterialKind(value, fallback === 'any' ? 'mixed' : fallback);
+};
+
+const normalizeProcessFamily = (value: unknown, fallback: ProcessFamily): ProcessFamily => {
+  if (value === 'grinding') return 'processing';
+  if (value === 'gauge') return 'inspection';
+  if (value === 'superfinishing') return 'finishing';
+  return typeof value === 'string' ? (value as ProcessFamily) : fallback;
 };
 
 const ensurePortRules = (
@@ -72,20 +129,31 @@ const ensurePortRules = (
     rules[handleId] = {
       ...base,
       ...(existing?.[handleId] ?? {}),
-      materialFilter: existing?.[handleId]?.materialFilter ?? materialForIndex(index),
+      materialFilter: normalizeMaterialFilter(existing?.[handleId]?.materialFilter, materialForIndex(index)),
     };
   }
   return rules;
 };
 
 const hydrateNodeParams = (node: FactoryNode) => {
-  const defaults = getCatalogItem(node.data.params.deviceType).defaultParams;
+  const rawParams = node.data.params as typeof node.data.params & Record<string, unknown>;
+  const deviceType = normalizeDeviceType(rawParams.deviceType);
+  const defaults = getCatalogItem(deviceType).defaultParams;
   const params = {
     ...defaults,
-    ...node.data.params,
-    taktMode: node.data.params.taktMode ?? 'calculated',
-    manualTaktSec: node.data.params.manualTaktSec ?? node.data.params.processTimeSec ?? defaults.manualTaktSec,
-    superfinishingMode: migrateSuperfinishingMode(node.data.params.superfinishingMode),
+    ...rawParams,
+    deviceType,
+    processFamily: normalizeProcessFamily(rawParams.processFamily, defaults.processFamily),
+    materialKind: normalizeMaterialKind(rawParams.materialKind, defaults.materialKind),
+    output1MaterialKind: normalizeMaterialKind(rawParams.output1MaterialKind, defaults.output1MaterialKind),
+    output2MaterialKind: normalizeMaterialKind(rawParams.output2MaterialKind, defaults.output2MaterialKind),
+    taktMode: rawParams.taktMode ?? 'calculated',
+    manualTaktSec: rawParams.manualTaktSec ?? rawParams.processTimeSec ?? defaults.manualTaktSec,
+    finishingMode: migrateFinishingMode(rawParams.finishingMode ?? rawParams.superfinishingMode),
+    partAStorageCapacity: rawParams.partAStorageCapacity ?? rawParams.assemblyBigStorageCapacity ?? defaults.partAStorageCapacity,
+    partAStorageCount: rawParams.partAStorageCount ?? rawParams.assemblyBigStorageCount ?? defaults.partAStorageCount,
+    partBStorageCapacity: rawParams.partBStorageCapacity ?? rawParams.assemblySmallStorageCapacity ?? defaults.partBStorageCapacity,
+    partBStorageCount: rawParams.partBStorageCount ?? rawParams.assemblySmallStorageCount ?? defaults.partBStorageCount,
   };
   params.inputPortRules = ensurePortRules(
     params.inputPortRules,

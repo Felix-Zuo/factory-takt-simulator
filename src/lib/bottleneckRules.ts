@@ -1,21 +1,21 @@
 import type { BottleneckIssue, FactoryEdge, FactoryNode, StageKey } from '../types/factory';
 
 export const CORE_STAGES = new Set<StageKey>([
-  'big_groove',
-  'big_super',
-  'small_groove',
-  'bore',
-  'small_super',
-  'pairing',
-  'riveting',
-  'post_assembly',
+  'process_a',
+  'finish_a',
+  'process_b',
+  'process_c',
+  'finish_b',
+  'join',
+  'fasten',
+  'post_process',
 ]);
 const SUPPORT_STAGES = new Set<StageKey>([
   'source',
-  'assembly_storage',
-  'assembly_cleaning',
-  'assembly_inspection',
-  'general_gauge',
+  'merge_buffer',
+  'wash_dry',
+  'line_inspection',
+  'general_inspection',
   'dryer',
   'packaging',
   'sink',
@@ -36,20 +36,20 @@ export interface BottleneckCandidate {
 }
 
 export const stageLabels: Record<StageKey, string> = {
-  big_groove: '大沟',
-  big_super: '大超',
-  small_groove: '小沟',
-  bore: '内径',
-  small_super: '小超',
-  general_gauge: '通用检测',
-  dryer: '甩干',
+  process_a: '工序A',
+  finish_a: '精加工A',
+  process_b: '工序B',
+  process_c: '工序C',
+  finish_b: '精加工B',
+  general_inspection: '通用检测',
+  dryer: '干燥',
   source: '料源',
-  assembly_storage: '装配储料',
-  assembly_cleaning: '装配清洗',
-  assembly_inspection: '装配检测',
-  pairing: '合套',
-  riveting: '铆合',
-  post_assembly: '后装配',
+  merge_buffer: '合流缓存',
+  wash_dry: '清洗干燥',
+  line_inspection: '在线检测',
+  join: '合流工序',
+  fasten: '紧固工序',
+  post_process: '后处理',
   packaging: '包装',
   sink: '成品',
   other: '其他',
@@ -57,18 +57,18 @@ export const stageLabels: Record<StageKey, string> = {
 
 export const stageOrder: StageKey[] = [
   'source',
-  'big_groove',
-  'big_super',
-  'small_groove',
-  'bore',
-  'small_super',
-  'assembly_storage',
-  'assembly_cleaning',
-  'assembly_inspection',
-  'pairing',
-  'riveting',
-  'post_assembly',
-  'general_gauge',
+  'process_a',
+  'finish_a',
+  'process_b',
+  'process_c',
+  'finish_b',
+  'merge_buffer',
+  'wash_dry',
+  'line_inspection',
+  'join',
+  'fasten',
+  'post_process',
+  'general_inspection',
   'dryer',
   'packaging',
   'sink',
@@ -83,32 +83,32 @@ export const nodeCode = (node: FactoryNode) => node.data.params.deviceCode || no
 export const classifyStage = (node: FactoryNode): StageKey => {
   const params = node.data.params;
   if (params.deviceType === 'material_source' || params.deviceType === 'storage_feeder') return 'source';
-  if (params.deviceType === 'assembly_storage') return 'assembly_storage';
-  if (params.deviceType === 'assembly_cleaner') return 'assembly_cleaning';
+  if (params.deviceType === 'merge_buffer') return 'merge_buffer';
+  if (params.deviceType === 'wash_dry') return 'wash_dry';
   if (
-    params.deviceType === 'eddy_check' ||
-    params.deviceType === 'dimension_check' ||
-    params.deviceType === 'flexibility_check' ||
-    params.deviceType === 'vibration_check' ||
-    params.deviceType === 'visual_check'
-  ) return 'assembly_inspection';
-  if (params.deviceType === 'pairing_station') return 'pairing';
-  if (params.deviceType === 'riveting_station') return 'riveting';
+    params.deviceType === 'inspection_a' ||
+    params.deviceType === 'inspection_b' ||
+    params.deviceType === 'functional_check' ||
+    params.deviceType === 'performance_check' ||
+    params.deviceType === 'visual_inspection'
+  ) return 'line_inspection';
+  if (params.deviceType === 'join_station') return 'join';
+  if (params.deviceType === 'fasten_station') return 'fasten';
   if (
-    params.deviceType === 'grease_injection' ||
-    params.deviceType === 'cap_press' ||
-    params.deviceType === 'rust_proof'
-  ) return 'post_assembly';
+    params.deviceType === 'fill_station' ||
+    params.deviceType === 'press_station' ||
+    params.deviceType === 'surface_treatment'
+  ) return 'post_process';
   if (params.deviceType === 'manual_buffer' || params.deviceType === 'packing_sink') return 'packaging';
-  if (params.deviceType === 'or_grinder') return 'big_groove';
-  if (params.deviceType === 'ir_grinder') return 'small_groove';
-  if (params.deviceType === 'bore_grinder') return 'bore';
-  if (params.deviceType === 'small_superfinishing') return 'small_super';
-  if (params.deviceType === 'superfinishing') {
+  if (params.deviceType === 'process_a') return 'process_a';
+  if (params.deviceType === 'process_b') return 'process_b';
+  if (params.deviceType === 'process_c') return 'process_c';
+  if (params.deviceType === 'finishing_b') return 'finish_b';
+  if (params.deviceType === 'finishing') {
     const text = `${params.deviceShortName} ${params.deviceName} ${params.deviceCode}`.toLowerCase();
-    return text.includes('小') || text.includes('ir') || text.includes('inner') ? 'small_super' : 'big_super';
+    return text.includes('b') || text.includes('part-b') ? 'finish_b' : 'finish_a';
   }
-  if (params.deviceType === 'general_gauge') return 'general_gauge';
+  if (params.deviceType === 'general_inspection') return 'general_inspection';
   if (params.deviceType === 'spin_dryer') return 'dryer';
   if (params.deviceType === 'finished_sink') return 'sink';
   return 'other';
