@@ -6,45 +6,45 @@ import { useFactoryStore } from '../../store/factoryStore';
 import type { DeviceType } from '../../types/factory';
 import { DeviceIcon } from '../DeviceIcon';
 
-type ModuleTab = 'grinding' | 'assembly' | 'logistics';
+type ModuleTab = 'processing' | 'assembly' | 'logistics';
 
 const deviceTypesByTab: Record<ModuleTab, DeviceType[]> = {
-  grinding: [
+  processing: [
     'material_source',
     'storage_feeder',
-    'or_grinder',
-    'superfinishing',
-    'ir_grinder',
-    'bore_grinder',
-    'small_superfinishing',
-    'general_gauge',
+    'process_a',
+    'finishing',
+    'process_b',
+    'process_c',
+    'finishing_b',
+    'general_inspection',
     'spin_dryer',
     'finished_sink',
   ],
   assembly: [
-    'assembly_storage',
-    'assembly_cleaner',
-    'eddy_check',
-    'dimension_check',
-    'pairing_station',
-    'riveting_station',
-    'flexibility_check',
-    'vibration_check',
-    'grease_injection',
-    'cap_press',
-    'visual_check',
+    'merge_buffer',
+    'wash_dry',
+    'inspection_a',
+    'inspection_b',
+    'join_station',
+    'fasten_station',
+    'functional_check',
+    'performance_check',
+    'fill_station',
+    'press_station',
+    'visual_inspection',
     'manual_buffer',
-    'rust_proof',
+    'surface_treatment',
     'spin_dryer',
     'packing_sink',
   ],
-  logistics: ['material_source', 'storage_feeder', 'assembly_storage', 'conveyor', 'robot', 'finished_sink', 'packing_sink'],
+  logistics: ['material_source', 'storage_feeder', 'merge_buffer', 'conveyor', 'robot', 'finished_sink', 'packing_sink'],
 };
 
-const tabOrder: ModuleTab[] = ['grinding', 'assembly', 'logistics'];
+const tabOrder: ModuleTab[] = ['processing', 'assembly', 'logistics'];
 
 export function ModuleLibrary() {
-  const [activeTab, setActiveTab] = useState<ModuleTab>('grinding');
+  const [activeTab, setActiveTab] = useState<ModuleTab>('processing');
   const settings = useFactoryStore((state) => state.settings);
   const panels = useFactoryStore((state) => state.panels);
   const collapsed = panels.leftCollapsed;
@@ -58,9 +58,9 @@ export function ModuleLibrary() {
   );
 
   const tabLabel = (tab: ModuleTab) => {
-    if (tab === 'assembly') return settings.language === 'zh-CN' ? '装配' : 'Assembly';
-    if (tab === 'logistics') return settings.language === 'zh-CN' ? '物流' : 'Logistics';
-    return settings.language === 'zh-CN' ? '磨加工' : 'Grinding';
+    if (tab === 'assembly') return settings.language === 'zh-CN' ? '后段' : 'Post';
+    if (tab === 'logistics') return settings.language === 'zh-CN' ? '物流' : 'Flow';
+    return settings.language === 'zh-CN' ? '加工' : 'Proc';
   };
 
   const onDragStart = (event: React.DragEvent, type: DeviceType) => {
@@ -109,7 +109,7 @@ export function ModuleLibrary() {
             <button
               key={tab}
               type="button"
-              className={`rounded px-2 py-2 text-xs font-semibold transition ${
+              className={`truncate rounded px-1.5 py-2 text-xs font-semibold transition ${
                 activeTab === tab
                   ? 'border border-cyan-200/42 bg-cyan-300/18 text-cyan-50 shadow-[inset_0_0_0_1px_rgba(255,255,255,.04)]'
                   : 'border border-transparent text-slate-500 hover:border-slate-700 hover:bg-slate-800/70 hover:text-slate-200'

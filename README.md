@@ -1,12 +1,10 @@
 # Factory Takt Simulator
 
-Factory Takt Simulator is a visual production-line takt sandbox for building process routes, tuning buffers and transfer rules, running discrete simulation, and exporting capacity reports.
+Factory Takt Simulator is a visual takt-time and flow-simulation workstation for modular discrete-manufacturing lines. It helps users sketch process routes, tune buffers and transfer rules, run live or background simulation, and export capacity reports without binding the model to one product category.
 
-中文定位：面向轴承产线的模块化节拍仿真沙盘。设备是模块，路线由用户连线决定，系统负责节拍计算、缓存流转、机械手搬运、瓶颈识别和报告输出。
+中文定位：面向离散制造产线的模块化节拍仿真工作台。设备是模块，路线由用户连线决定，系统负责节拍计算、缓存流转、机械手搬运、瓶颈识别和报告输出。
 
-Public scenarios are synthetic examples for simulation and portfolio review.
-Do not commit real production routes, customer programs, machine parameters, or
-factory files unless they have been intentionally sanitized.
+This public repository is a sanitized showcase build. The included scenarios are synthetic and use generic process names such as Process A, Process B, Process C, Finishing, Merge, Join, QA, and Packing. Do not commit real customer programs, production routes, machine parameters, operator names, or factory files unless they have been intentionally sanitized.
 
 ![Line overview](docs/showcase/screenshots/01-line-overview.png)
 
@@ -37,12 +35,13 @@ Full report: [docs/showcase/report-example.md](docs/showcase/report-example.md)
 ## Core Features
 
 - Drag process modules onto the canvas and connect input/output ports.
-- Configure conveyors, loader-arm buses, travel time, batch size, route shape, and buffer capacity.
-- Model OR / IR grinding, superfinishing, bore grinding, drying, assembly storage, washing, inspection, pairing, riveting, vibration check, grease filling, cap pressing, rust prevention, and final packing.
-- Switch between detailed takt calculation and direct single-piece takt mode.
-- Count waiting, blocking, maintenance, consumable-change, utilization, output, and line balance metrics.
-- Run live simulation or background simulation by time / target output.
+- Configure conveyors, loader-arm buses, dispatch interval, travel time, batch size, route shape, and line-buffer capacity.
+- Model generic source, feeder, Process A/B/C, finishing, QA, merge buffer, wash/dry, join, fasten, fill, press, surface treatment, and packing modules.
+- Switch between calculated takt mode and direct single-piece takt mode.
+- Track waiting, blocking, maintenance, consumable change, utilization, output, capacity, and line-balance metrics.
+- Run live simulation or background simulation by target time / target output.
 - Save, load, import, export, and restore scenarios locally.
+- Load a synthetic public template from `public/scenarios/modular-line-template.json`.
 - Expose a browser-side integration bridge for external tools:
 
 ```ts
@@ -50,6 +49,10 @@ window.FactoryTaktAgent.getSnapshot()
 window.FactoryTaktAgent.runCommand({ type: 'createFullLineExample' })
 window.FactoryTaktAgent.runCommand({ type: 'runBackgroundSimulation' })
 ```
+
+## Showcase History
+
+The public project history is documented in [docs/PROJECT_HISTORY.md](docs/PROJECT_HISTORY.md). It is a sanitized product-evolution record, not a fabricated git history and not a disclosure of any private factory deployment.
 
 ## Quick Start
 
@@ -85,7 +88,7 @@ src/
   store/           Application state
   types/           Shared domain types
 electron/          Desktop shell
-examples/          Scenario examples
+examples/          Synthetic scenario examples
 docs/              Showcase assets, integration notes, packaging notes
 ```
 
@@ -95,6 +98,7 @@ docs/              Showcase assets, integration notes, packaging notes
 npm run build
 npm run lint
 npm run maintain:check
+npm run test:smoke
 ```
 
 ## License

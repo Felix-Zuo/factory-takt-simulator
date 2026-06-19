@@ -97,7 +97,7 @@ const runCommand = (command: AgentCommand) => {
     case 'createDemoScenario':
       return state.createDemoScenario();
     case 'createFullLineExample':
-      return state.createBearingRacewayScenario();
+      return state.createFullLineScenario();
     case 'createAssemblyExample':
       return state.createAssemblyScenario();
     default:

@@ -23,7 +23,7 @@ const releaseFinalOutput = (node: FactoryNode, key: 'station1PendingOutput' | 's
   return true;
 };
 
-const syncSuperfinishInput = (node: FactoryNode) => {
+const syncFinishInput = (node: FactoryNode) => {
   const { params } = node.data;
   params.station1InputBufferCount = Math.max(0, params.station1InputBufferCount ?? 0);
   params.station2InputBufferCount = Math.max(0, params.station2InputBufferCount ?? 0);
@@ -33,12 +33,12 @@ const syncSuperfinishInput = (node: FactoryNode) => {
     let legacy = params.inputBufferCount - stationTotal;
     while (legacy > 0) {
       const preferStation2 =
-        params.superfinishingMode === 'parallel_once' &&
+        params.finishingMode === 'parallel_once' &&
         params.station2InputBufferCount < params.station2InputBufferCapacity &&
         params.station2InputBufferCount <= params.station1InputBufferCount;
       if (preferStation2) params.station2InputBufferCount += 1;
       else if (params.station1InputBufferCount < params.station1InputBufferCapacity) params.station1InputBufferCount += 1;
-      else if (params.superfinishingMode === 'parallel_once' && params.station2InputBufferCount < params.station2InputBufferCapacity) {
+      else if (params.finishingMode === 'parallel_once' && params.station2InputBufferCount < params.station2InputBufferCapacity) {
         params.station2InputBufferCount += 1;
       } else {
         break;
@@ -80,7 +80,7 @@ const tickConsumableStop = (node: FactoryNode, dt: number, elapsedSec: number) =
 
 const tickParallelOnce = (node: FactoryNode, dt: number, elapsedSec: number) => {
   const { params, runtime, metrics } = node.data;
-  syncSuperfinishInput(node);
+  syncFinishInput(node);
 
   if (!releaseFinalOutput(node, 'station1PendingOutput') || !releaseFinalOutput(node, 'station2PendingOutput')) {
     runtime.status = 'blocked';
@@ -130,7 +130,7 @@ const tickParallelOnce = (node: FactoryNode, dt: number, elapsedSec: number) => 
 
 const tickSerialTwice = (node: FactoryNode, dt: number, elapsedSec: number) => {
   const { params, runtime, metrics } = node.data;
-  syncSuperfinishInput(node);
+  syncFinishInput(node);
 
   if (!releaseFinalOutput(node, 'station2PendingOutput')) {
     runtime.status = 'blocked';
@@ -194,10 +194,10 @@ const tickSerialTwice = (node: FactoryNode, dt: number, elapsedSec: number) => {
   updateDerivedMetrics(node, elapsedSec);
 };
 
-export const tickSuperfinishingNode = (node: FactoryNode, dt: number, elapsedSec: number) => {
-  if (node.data.params.processFamily !== 'superfinishing') return false;
-  if (node.data.params.superfinishingMode === 'parallel_once') tickParallelOnce(node, dt, elapsedSec);
-  else if (node.data.params.superfinishingMode === 'serial_twice') tickSerialTwice(node, dt, elapsedSec);
+export const tickFinishingNode = (node: FactoryNode, dt: number, elapsedSec: number) => {
+  if (node.data.params.processFamily !== 'finishing') return false;
+  if (node.data.params.finishingMode === 'parallel_once') tickParallelOnce(node, dt, elapsedSec);
+  else if (node.data.params.finishingMode === 'serial_twice') tickSerialTwice(node, dt, elapsedSec);
   else return false;
   node.data.params.inputBufferCount =
     node.data.params.station1InputBufferCount + node.data.params.station2InputBufferCount;

@@ -6,7 +6,7 @@ Scenario exports are local-first JSON documents.
 
 ```json
 {
-  "version": "0.5.4-beta",
+  "version": "0.6.0-beta",
   "name": "Example line",
   "nodes": [],
   "edges": [],
@@ -35,8 +35,10 @@ Each edge should include:
 - `source`
 - `target`
 - Optional source and target handles
-- `data.transferType`
-- `data.params`
+- `data.label`
+- `data.transportType`
+- Optional `data.edgeShape`
+- Optional transfer fields such as `dispatchIntervalSec`, `travelTimeSec`, `batchSize`, `pickCount`, `triggerBatch`, and `lineBufferCapacity`
 
 ## Public Sharing Rules
 
@@ -47,3 +49,4 @@ Before adding a scenario to the repository:
 - Remove operator names.
 - Remove private takt targets or internal production plans.
 - State clearly whether the scenario is synthetic.
+- Prefer generic stage names such as Process A/B/C, Finishing, QA, Merge, Join, and Pack.

@@ -38,7 +38,7 @@
   <rect width="1440" height="560" rx="28" fill="url(#bg)"/>
   <rect width="1440" height="560" rx="28" fill="url(#grid)" opacity=".75"/>
   <text x="56" y="72" class="title">Factory Takt Simulator</text>
-  <text x="56" y="104" class="sub">Bearing raceway grinding to assembly, built as a live takt sandbox</text>
+  <text x="56" y="104" class="sub">Modular process flow to finished output, built as a live takt sandbox</text>
 
   <path d="M150 270H340" class="line"/>
   <path d="M410 205H585" class="arm"/>
@@ -58,31 +58,31 @@
   <g transform="translate(56 206)">
     <rect class="card2" width="128" height="128" rx="14"/>
     <text x="22" y="38" class="tag">FEED</text>
-    <text x="22" y="64" class="meta">OR / IR outlets</text>
+    <text x="22" y="64" class="meta">PROC-A / PROC-B outlets</text>
     <text x="22" y="104" class="num">3.0s</text>
   </g>
   <g transform="translate(330 138)">
     <rect class="card" width="150" height="116" rx="14"/>
-    <text x="22" y="36" class="tag">OR</text>
-    <text x="22" y="61" class="meta">outer groove</text>
+    <text x="22" y="36" class="tag">PROC-A</text>
+    <text x="22" y="61" class="meta">process A</text>
     <text x="22" y="94" class="num">13.0s</text>
   </g>
   <g transform="translate(330 306)">
     <rect class="card" width="150" height="116" rx="14"/>
-    <text x="22" y="36" class="tag">IR</text>
-    <text x="22" y="61" class="meta">inner groove</text>
+    <text x="22" y="36" class="tag">PROC-B</text>
+    <text x="22" y="61" class="meta">process B</text>
     <text x="22" y="94" class="num">13.0s</text>
   </g>
   <g transform="translate(575 138)">
     <rect class="card" width="150" height="116" rx="14"/>
-    <text x="22" y="36" class="tag">SF</text>
-    <text x="22" y="61" class="meta">superfinish</text>
+    <text x="22" y="36" class="tag">FIN</text>
+    <text x="22" y="61" class="meta">finish</text>
     <text x="22" y="94" class="num">12.5s</text>
   </g>
   <g transform="translate(575 306)">
     <rect class="card" width="150" height="116" rx="14"/>
-    <text x="22" y="36" class="tag">BORE</text>
-    <text x="22" y="61" class="meta">bore grinding</text>
+    <text x="22" y="36" class="tag">PROC-C</text>
+    <text x="22" y="61" class="meta">process C</text>
     <text x="22" y="94" class="num">12.8s</text>
   </g>
   <g transform="translate(805 206)">
@@ -99,8 +99,8 @@
   </g>
   <g transform="translate(1060 306)">
     <rect class="card" width="150" height="116" rx="14"/>
-    <text x="22" y="36" class="tag">PAIR</text>
-    <text x="22" y="61" class="meta">OR + IR merge</text>
+    <text x="22" y="36" class="tag">JOIN</text>
+    <text x="22" y="61" class="meta">Part A + Part B merge</text>
     <text x="22" y="94" class="num">4.5s</text>
   </g>
   <g transform="translate(1280 206)">

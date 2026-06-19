@@ -2,7 +2,7 @@ import { nanoid } from './uid';
 import { getSimulationBatchSize, getSimulationCycleTime } from './takt';
 import { getPortRule } from './portRules';
 import { loaderArmGroupId, tickLoaderArmGroup } from './simulationLoaderArm';
-import { tickSuperfinishingNode } from './simulationSuperfinishing';
+import { tickFinishingNode } from './simulationFinishing';
 import {
   canReceiveInput,
   clamp,
@@ -92,10 +92,10 @@ const tickStorageFeeder = (node: FactoryNode, dt: number, elapsedSec: number) =>
   const feedInterval = params.taktMode === 'manual' ? Math.max(0.2, params.manualTaktSec * batch) : params.feedIntervalSec;
 
   if (isSplitStorageFeeder(node)) {
-    const bigSpace = Math.max(0, params.assemblyBigStorageCapacity - params.assemblyBigStorageCount);
-    const smallSpace = Math.max(0, params.assemblySmallStorageCapacity - params.assemblySmallStorageCount);
+    const bigSpace = Math.max(0, params.partAStorageCapacity - params.partAStorageCount);
+    const smallSpace = Math.max(0, params.partBStorageCapacity - params.partBStorageCount);
     const syncCounts = () => {
-      params.outputBufferCount = params.assemblyBigStorageCount + params.assemblySmallStorageCount;
+      params.outputBufferCount = params.partAStorageCount + params.partBStorageCount;
       params.currentStorageCount = Math.max(0, params.currentStorageCount);
       params.inputBufferCount = Math.min(params.inputBufferCapacity, params.currentStorageCount);
     };
@@ -107,12 +107,12 @@ const tickStorageFeeder = (node: FactoryNode, dt: number, elapsedSec: number) =>
       if (runtime.processRemainingSec === 0) {
         let moved = 0;
         if (params.currentStorageCount >= batch && bigSpace >= batch) {
-          params.assemblyBigStorageCount += batch;
+          params.partAStorageCount += batch;
           params.currentStorageCount -= batch;
           moved += batch;
         }
         if (params.currentStorageCount >= batch && smallSpace >= batch) {
-          params.assemblySmallStorageCount += batch;
+          params.partBStorageCount += batch;
           params.currentStorageCount -= batch;
           moved += batch;
         }
@@ -232,7 +232,7 @@ const tickFinishedSink = (node: FactoryNode, dt: number, elapsedSec: number) => 
 
 const syncAssemblyStorageTotals = (node: FactoryNode) => {
   const { params } = node.data;
-  params.currentStorageCount = params.assemblyBigStorageCount + params.assemblySmallStorageCount;
+  params.currentStorageCount = params.partAStorageCount + params.partBStorageCount;
   params.inputBufferCount = params.currentStorageCount;
   params.outputBufferCount = params.currentStorageCount;
 };
@@ -471,17 +471,17 @@ const tickProcessNode = (node: FactoryNode, dt: number, elapsedSec: number) => {
     return;
   }
 
-  if (params.deviceType === 'assembly_storage') {
+  if (params.deviceType === 'merge_buffer') {
     tickAssemblyStorage(node, dt, elapsedSec);
     return;
   }
 
-  if (params.deviceType === 'pairing_station') {
+  if (params.deviceType === 'join_station') {
     tickPairingStation(node, dt, elapsedSec);
     return;
   }
 
-  if (params.deviceType === 'assembly_cleaner') {
+  if (params.deviceType === 'wash_dry') {
     tickAssemblyCleaner(node, dt, elapsedSec);
     return;
   }
@@ -491,7 +491,7 @@ const tickProcessNode = (node: FactoryNode, dt: number, elapsedSec: number) => {
     return;
   }
 
-  if (tickSuperfinishingNode(node, dt, elapsedSec)) return;
+  if (tickFinishingNode(node, dt, elapsedSec)) return;
 
   if (params.taktMode === 'manual' && runtime.maintenanceRemainingSec > 0) {
     runtime.maintenanceRemainingSec = 0;

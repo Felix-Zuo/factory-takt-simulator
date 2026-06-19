@@ -48,9 +48,9 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
   const cycleSec =
     params.deviceType === 'spin_dryer'
       ? params.dryerDryTimeSec
-      : params.deviceType === 'assembly_cleaner'
+      : params.deviceType === 'wash_dry'
         ? params.cleanerPushIntervalSec
-        : params.deviceType === 'material_source' || params.deviceType === 'storage_feeder' || params.deviceType === 'assembly_storage'
+        : params.deviceType === 'material_source' || params.deviceType === 'storage_feeder' || params.deviceType === 'merge_buffer'
           ? params.feedIntervalSec
           : params.processTimeSec;
   const cycleProgress =
@@ -62,17 +62,17 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
   const internalCount =
     params.deviceType === 'spin_dryer'
       ? (params.dryerLoadedColumns + params.dryerDriedColumns) * params.dryerColumnBatchSize
-      : params.deviceType === 'assembly_storage'
-        ? params.assemblyBigStorageCount + params.assemblySmallStorageCount
-        : params.deviceType === 'assembly_cleaner'
+      : params.deviceType === 'merge_buffer'
+        ? params.partAStorageCount + params.partBStorageCount
+        : params.deviceType === 'wash_dry'
           ? params.cleanerInternalCount + params.cleanerReadyCount + runtime.cleanerOutputQueue
           : runtime.pendingOutput + (runtime.status === 'running' ? params.batchSize : 0);
   const internalCapacity =
     params.deviceType === 'spin_dryer'
       ? Math.max(1, params.dryerColumnBatchSize * params.dryerColumnCount)
-      : params.deviceType === 'assembly_storage'
-        ? Math.max(1, params.assemblyBigStorageCapacity + params.assemblySmallStorageCapacity)
-        : params.deviceType === 'assembly_cleaner'
+      : params.deviceType === 'merge_buffer'
+        ? Math.max(1, params.partAStorageCapacity + params.partBStorageCapacity)
+        : params.deviceType === 'wash_dry'
           ? Math.max(1, params.cleanerLaneCapacity * params.cleanerLaneCount + params.cleanerAirBatchSize)
           : Math.max(1, params.batchSize + runtime.pendingOutput);
   const internalRatio = Math.max(0, Math.min(1, internalCount / internalCapacity));
@@ -82,29 +82,29 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
   const portAccent = (kind: 'in' | 'out', handleId: string) => {
     const rule = portRule(kind, handleId);
     if (!rule.enabled) return '#64748b';
-    if (rule.materialFilter === 'big_ring') return '#38bdf8';
-    if (rule.materialFilter === 'small_ring') return '#a78bfa';
+    if (rule.materialFilter === 'part_a') return '#38bdf8';
+    if (rule.materialFilter === 'part_b') return '#a78bfa';
     if (rule.materialFilter === 'mixed') return '#22c55e';
     return kind === 'out' ? '#06b6d4' : '#f59e0b';
   };
   const portBadge = (kind: 'in' | 'out', handleId: string, fallback: number) => {
     const rule = portRule(kind, handleId);
     if (!rule.enabled) return 'X';
-    if (rule.materialFilter === 'big_ring') return 'B';
-    if (rule.materialFilter === 'small_ring') return 'S';
+    if (rule.materialFilter === 'part_a') return 'A';
+    if (rule.materialFilter === 'part_b') return 'B';
     if (rule.materialFilter === 'mixed') return 'M';
     if (rule.routingStrategy === 'force_round_robin') return 'R';
     if (rule.routingStrategy === 'lowest_inventory_first') return 'L';
     return String(fallback);
   };
-  const superMode = params.processFamily === 'superfinishing' ? params.superfinishingMode : null;
+  const finishingMode = params.processFamily === 'finishing' ? params.finishingMode : null;
   const station1Cycle = Math.max(0.1, params.firstPassProcessTimeSec || params.station1ProcessTimeSec || params.processTimeSec);
   const station2Cycle = Math.max(0.1, params.secondPassProcessTimeSec || params.station2ProcessTimeSec || params.processTimeSec);
   const station1Progress =
     runtime.station1ProcessRemainingSec > 0 ? 1 - runtime.station1ProcessRemainingSec / station1Cycle : runtime.station1PendingOutput > 0 ? 1 : 0;
   const station2Progress =
     runtime.station2ProcessRemainingSec > 0 ? 1 - runtime.station2ProcessRemainingSec / station2Cycle : runtime.station2PendingOutput > 0 ? 1 : 0;
-  const isGaugeFamily = params.processFamily === 'gauge';
+  const isInspectionFamily = params.processFamily === 'inspection';
   const isAssemblyFamily =
     params.processFamily === 'assembly' ||
     params.processFamily === 'cleaning' ||
@@ -118,8 +118,8 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
         : runtime.status === 'waiting_material'
           ? 'node-showcase-aura node-showcase-aura-wait'
           : '';
-  const compactCardWidth = isGaugeFamily ? 'w-[124px]' : isAssemblyFamily ? 'w-[128px]' : 'w-[136px]';
-  const standardCardWidth = isGaugeFamily ? 'w-[134px]' : isAssemblyFamily ? 'w-[138px]' : 'w-[154px]';
+  const compactCardWidth = isInspectionFamily ? 'w-[124px]' : isAssemblyFamily ? 'w-[128px]' : 'w-[136px]';
+  const standardCardWidth = isInspectionFamily ? 'w-[134px]' : isAssemblyFamily ? 'w-[138px]' : 'w-[154px]';
   const cardWidth = hideText ? 'w-[58px]' : compact ? compactCardWidth : standardCardWidth;
 
   const handlePortClick = (event: React.MouseEvent, kind: 'in' | 'out', handleId: string) => {
@@ -300,12 +300,12 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
                 {zh ? '入' : 'IN'} {params.inputBufferCount}/∞ <span className="text-slate-600">|</span>{' '}
                 {zh ? '成品' : 'FIN'} {metrics.totalOutput}
               </div>
-            ) : params.deviceType === 'assembly_storage' ? (
+            ) : params.deviceType === 'merge_buffer' ? (
               <div className="truncate">
-                B {params.assemblyBigStorageCount}/{params.assemblyBigStorageCapacity} <span className="text-slate-600">|</span> S{' '}
-                {params.assemblySmallStorageCount}/{params.assemblySmallStorageCapacity}
+                A {params.partAStorageCount}/{params.partAStorageCapacity} <span className="text-slate-600">|</span> B{' '}
+                {params.partBStorageCount}/{params.partBStorageCapacity}
               </div>
-            ) : params.deviceType === 'assembly_cleaner' ? (
+            ) : params.deviceType === 'wash_dry' ? (
               <div className="truncate">
                 MID {params.cleanerInternalCount}/{params.cleanerLaneCapacity * params.cleanerLaneCount}{' '}
                 <span className="text-slate-600">|</span> AIR {params.cleanerReadyCount}/{params.cleanerAirBatchSize}
@@ -337,10 +337,10 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
                 </b>
               </div>
             </div>
-            {superMode ? (
+            {finishingMode ? (
               <div
-                className={`sf-station-strip ${superMode === 'single_station_once' ? 'sf-station-strip-single' : ''} ${
-                  superMode === 'serial_twice' ? 'sf-station-strip-serial' : ''
+                className={`sf-station-strip ${finishingMode === 'single_station_once' ? 'sf-station-strip-single' : ''} ${
+                  finishingMode === 'serial_twice' ? 'sf-station-strip-serial' : ''
                 }`}
               >
                 <div className="sf-station">
@@ -350,9 +350,9 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
                     {params.station1InputBufferCount}/{params.station1InputBufferCapacity}
                   </b>
                 </div>
-                {superMode !== 'single_station_once' ? (
+                {finishingMode !== 'single_station_once' ? (
                   <>
-                    <em>{superMode === 'serial_twice' ? '>' : '||'}</em>
+                    <em>{finishingMode === 'serial_twice' ? '>' : '||'}</em>
                     <div className="sf-station">
                       <span>S2</span>
                       <i style={{ width: `${Math.max(0, Math.min(1, station2Progress)) * 100}%` }} />

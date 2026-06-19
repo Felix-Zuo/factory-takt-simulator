@@ -114,7 +114,7 @@ interface FactoryState {
   cancelConfigBrush: () => void;
   applyConfigBrushToTarget: (targetNodeId: string) => number;
   createDemoScenario: () => void;
-  createBearingRacewayScenario: () => void;
+  createFullLineScenario: () => void;
   createAssemblyScenario: () => void;
   updateSettings: (patch: Partial<AppSettings>) => void;
   togglePanel: (panel: keyof PanelState) => void;
@@ -658,19 +658,19 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     if (get().nodes.length > 0) return;
     const latest = findScenarioPayload();
     if (!latest || !Array.isArray(latest.nodes) || !Array.isArray(latest.edges)) {
-      get().createBearingRacewayScenario();
+      get().createFullLineScenario();
       return;
     }
-    const payload = latest && Array.isArray(latest.nodes) && Array.isArray(latest.edges) ? latest : { ...fallback, name: '深沟球后磨部分' };
+    const payload = latest && Array.isArray(latest.nodes) && Array.isArray(latest.edges) ? latest : { ...fallback, name: '通用工艺线模板' };
     if (!latest) {
       putScenarioRecord({
         ...payload,
-        id: 'scenario-built-in-deep-groove-post-grind',
-        name: '深沟球后磨部分',
+        id: 'scenario-built-in-modular-line',
+        name: '通用工艺线模板',
         savedAt: new Date().toISOString(),
       });
     }
-    set((state) => scenarioStatePatch(payload, state, latest ? 'Recovered last workspace from local memory.' : 'Loaded built-in template: 深沟球后磨部分.'));
+    set((state) => scenarioStatePatch(payload, state, latest ? 'Recovered last workspace from local memory.' : 'Loaded built-in template: generic modular line.'));
   },
 
   startConfigBrush: (sourceNodeId, mode) =>
@@ -742,20 +742,20 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         currentStorageCount: 1600,
         outputBufferCapacity: 140,
         outputPortCount: 2,
-        output1MaterialKind: 'big_ring',
-        output2MaterialKind: 'small_ring',
+        output1MaterialKind: 'part_a',
+        output2MaterialKind: 'part_b',
       }),
-      makeNode('or_grinder', 285, 80, 2),
-      makeNode('ir_grinder', 285, 255, 3, { processTimeSec: 42 }),
-      makeNode('superfinishing', 555, 86, 4, { machineCount: 1, batchSize: 1 }),
-      makeNode('superfinishing', 555, 260, 5, {
-        superfinishingMode: 'serial_twice',
+      makeNode('process_a', 285, 80, 2),
+      makeNode('process_b', 285, 255, 3, { processTimeSec: 42 }),
+      makeNode('finishing', 555, 86, 4, { machineCount: 1, batchSize: 1 }),
+      makeNode('finishing', 555, 260, 5, {
+        finishingMode: 'serial_twice',
         firstPassProcessTimeSec: 14,
         secondPassProcessTimeSec: 16,
       }),
-      makeNode('bore_grinder', 825, 260, 6, { batchSize: 1, processTimeSec: 38 }),
-      makeNode('general_gauge', 1095, 82, 7, { deviceShortName: '检测', batchSize: 1, processTimeSec: 26 }),
-      makeNode('general_gauge', 1095, 260, 8, { deviceShortName: '检测', batchSize: 1, processTimeSec: 30 }),
+      makeNode('process_c', 825, 260, 6, { batchSize: 1, processTimeSec: 38 }),
+      makeNode('general_inspection', 1095, 82, 7, { deviceShortName: 'QA', batchSize: 1, processTimeSec: 26 }),
+      makeNode('general_inspection', 1095, 260, 8, { deviceShortName: 'QA', batchSize: 1, processTimeSec: 30 }),
     ];
 
     const edge = (
@@ -779,16 +779,16 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     });
 
     const edges: FactoryEdge[] = [
-      edge('demo-storage_feeder-1', 'demo-or_grinder-2', 'FEED -> OR', 'conveyor', { batchSize: 8, travelTimeSec: 2.5 }),
+      edge('demo-storage_feeder-1', 'demo-process_a-2', 'FEED -> PROC-A', 'conveyor', { batchSize: 8, travelTimeSec: 2.5 }),
       {
-        ...edge('demo-storage_feeder-1', 'demo-ir_grinder-3', 'FEED -> IR', 'conveyor', { batchSize: 6, travelTimeSec: 2.5 }),
+        ...edge('demo-storage_feeder-1', 'demo-process_b-3', 'FEED -> PROC-B', 'conveyor', { batchSize: 6, travelTimeSec: 2.5 }),
         sourceHandle: 'out-2',
       },
-      edge('demo-or_grinder-2', 'demo-superfinishing-4', 'OR Arm -> SF', 'loader_arm', { pickCount: 5, triggerBatch: 5 }),
-      edge('demo-ir_grinder-3', 'demo-superfinishing-5', 'IR Arm -> SF', 'loader_arm', { pickCount: 5, triggerBatch: 5 }),
-      edge('demo-superfinishing-4', 'demo-general_gauge-7', 'SF -> Gauge', 'conveyor', { batchSize: 8, travelTimeSec: 3 }),
-      edge('demo-superfinishing-5', 'demo-bore_grinder-6', 'SF -> BORE', 'conveyor', { batchSize: 6, travelTimeSec: 3 }),
-      edge('demo-bore_grinder-6', 'demo-general_gauge-8', 'BORE Arm -> Gauge', 'loader_arm', { pickCount: 5, triggerBatch: 5 }),
+      edge('demo-process_a-2', 'demo-finishing-4', 'PROC-A Arm -> FIN-A', 'loader_arm', { pickCount: 5, triggerBatch: 5 }),
+      edge('demo-process_b-3', 'demo-finishing-5', 'PROC-B Arm -> FIN-B', 'loader_arm', { pickCount: 5, triggerBatch: 5 }),
+      edge('demo-finishing-4', 'demo-general_inspection-7', 'FIN-A -> QA', 'conveyor', { batchSize: 8, travelTimeSec: 3 }),
+      edge('demo-finishing-5', 'demo-process_c-6', 'FIN-B -> PROC-C', 'conveyor', { batchSize: 6, travelTimeSec: 3 }),
+      edge('demo-process_c-6', 'demo-general_inspection-8', 'PROC-C Arm -> QA', 'loader_arm', { pickCount: 5, triggerBatch: 5 }),
     ];
 
     set((state) => ({
@@ -806,7 +806,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     }));
   },
 
-  createBearingRacewayScenario: () => {
+  createFullLineScenario: () => {
     const makeNode = (
       id: string,
       type: DeviceType,
@@ -842,8 +842,8 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     };
 
     const nodes: FactoryNode[] = [
-      makeNode('bearing-feed', 'storage_feeder', 0, 335, 1, {
-        deviceName: 'Big / Small Ring Storage Feeder',
+      makeNode('line-feed', 'storage_feeder', 0, 335, 1, {
+        deviceName: 'Part A / Part B Storage Feeder',
         deviceShortName: 'FEED',
         deviceCode: 'FEED-01',
         feedBatchSize: 1,
@@ -853,213 +853,213 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         outputBufferCapacity: 180,
         outputPortCount: 2,
         materialKind: 'mixed',
-        output1MaterialKind: 'big_ring',
-        output2MaterialKind: 'small_ring',
-        assemblyBigStorageCapacity: 180,
-        assemblyBigStorageCount: 0,
-        assemblySmallStorageCapacity: 180,
-        assemblySmallStorageCount: 0,
+        output1MaterialKind: 'part_a',
+        output2MaterialKind: 'part_b',
+        partAStorageCapacity: 180,
+        partAStorageCount: 0,
+        partBStorageCapacity: 180,
+        partBStorageCount: 0,
       }),
-      makeNode('bearing-feed-or-gauge', 'general_gauge', 170, 100, 3, {
-        deviceName: 'Big Ring Feeder Gauge',
-        deviceShortName: '检测',
+      makeNode('line-feed-a-inspection', 'general_inspection', 170, 100, 3, {
+        deviceName: 'Part A Feeder Inspection',
+        deviceShortName: 'QA',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-feed-ir-gauge', 'general_gauge', 170, 570, 4, {
-        deviceName: 'Small Ring Feeder Gauge',
-        deviceShortName: '检测',
+      makeNode('line-feed-b-inspection', 'general_inspection', 170, 570, 4, {
+        deviceName: 'Part B Feeder Inspection',
+        deviceShortName: 'QA',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-or-1', 'or_grinder', 340, 40, 5, {
-        deviceName: 'OR Grinder 1',
-        deviceCode: 'OR-01',
+      makeNode('line-a-1', 'process_a', 340, 40, 5, {
+        deviceName: 'Process A 1',
+        deviceCode: 'PROC-A-01',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('bearing-or-2', 'or_grinder', 340, 175, 6, {
-        deviceName: 'OR Grinder 2',
-        deviceCode: 'OR-02',
+      makeNode('line-a-2', 'process_a', 340, 175, 6, {
+        deviceName: 'Process A 2',
+        deviceCode: 'PROC-A-02',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('bearing-ir-1', 'ir_grinder', 340, 505, 7, {
-        deviceName: 'IR Grinder 1',
-        deviceCode: 'IR-01',
+      makeNode('line-b-1', 'process_b', 340, 505, 7, {
+        deviceName: 'Process B 1',
+        deviceCode: 'PROC-B-01',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('bearing-ir-2', 'ir_grinder', 340, 640, 8, {
-        deviceName: 'IR Grinder 2',
-        deviceCode: 'IR-02',
+      makeNode('line-b-2', 'process_b', 340, 640, 8, {
+        deviceName: 'Process B 2',
+        deviceCode: 'PROC-B-02',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('bearing-or-gauge-1', 'general_gauge', 510, 40, 9, {
-        deviceName: 'OR Gauge 1',
-        deviceShortName: '检测',
-        deviceCode: 'OR-GAUGE-01',
+      makeNode('line-a-inspection-1', 'general_inspection', 510, 40, 9, {
+        deviceName: 'QA A 1',
+        deviceShortName: 'QA',
+        deviceCode: 'QA-A-01',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-or-gauge-2', 'general_gauge', 510, 175, 10, {
-        deviceName: 'OR Gauge 2',
-        deviceShortName: '检测',
-        deviceCode: 'OR-GAUGE-02',
+      makeNode('line-a-inspection-2', 'general_inspection', 510, 175, 10, {
+        deviceName: 'QA A 2',
+        deviceShortName: 'QA',
+        deviceCode: 'QA-A-02',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-ir-gauge-1', 'general_gauge', 510, 505, 11, {
-        deviceName: 'IR Gauge 1',
-        deviceShortName: '检测',
-        deviceCode: 'IR-GAUGE-01',
+      makeNode('line-b-inspection-1', 'general_inspection', 510, 505, 11, {
+        deviceName: 'QA B 1',
+        deviceShortName: 'QA',
+        deviceCode: 'QA-B-01',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-ir-gauge-2', 'general_gauge', 510, 640, 12, {
-        deviceName: 'IR Gauge 2',
-        deviceShortName: '检测',
-        deviceCode: 'IR-GAUGE-02',
+      makeNode('line-b-inspection-2', 'general_inspection', 510, 640, 12, {
+        deviceName: 'QA B 2',
+        deviceShortName: 'QA',
+        deviceCode: 'QA-B-02',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-bore-1', 'bore_grinder', 680, 505, 13, {
-        deviceName: 'Bore Grinder 1',
-        deviceCode: 'BORE-01',
+      makeNode('line-c-1', 'process_c', 680, 505, 13, {
+        deviceName: 'Process C 1',
+        deviceCode: 'PROC-C-01',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('bearing-bore-2', 'bore_grinder', 680, 640, 14, {
-        deviceName: 'Bore Grinder 2',
-        deviceCode: 'BORE-02',
+      makeNode('line-c-2', 'process_c', 680, 640, 14, {
+        deviceName: 'Process C 2',
+        deviceCode: 'PROC-C-02',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('bearing-bore-gauge-1', 'general_gauge', 850, 505, 15, {
-        deviceName: 'Bore Gauge 1',
-        deviceShortName: '检测',
-        deviceCode: 'BORE-GAUGE-01',
+      makeNode('line-c-inspection-1', 'general_inspection', 850, 505, 15, {
+        deviceName: 'QA C 1',
+        deviceShortName: 'QA',
+        deviceCode: 'QA-C-01',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-bore-gauge-2', 'general_gauge', 850, 640, 16, {
-        deviceName: 'Bore Gauge 2',
-        deviceShortName: '检测',
-        deviceCode: 'BORE-GAUGE-02',
+      makeNode('line-c-inspection-2', 'general_inspection', 850, 640, 16, {
+        deviceName: 'QA C 2',
+        deviceShortName: 'QA',
+        deviceCode: 'QA-C-02',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('bearing-sf-or-1', 'superfinishing', 680, 40, 17, {
-        deviceName: 'OR Superfinishing 1',
-        deviceCode: 'SF-OR-01',
+      makeNode('line-fin-a-1', 'finishing', 680, 40, 17, {
+        deviceName: 'Finishing A 1',
+        deviceCode: 'FIN-A-01',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('bearing-sf-or-2', 'superfinishing', 680, 175, 18, {
-        deviceName: 'OR Superfinishing 2',
-        deviceCode: 'SF-OR-02',
+      makeNode('line-fin-a-2', 'finishing', 680, 175, 18, {
+        deviceName: 'Finishing A 2',
+        deviceCode: 'FIN-A-02',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('bearing-sf-ir-1', 'small_superfinishing', 1020, 505, 19, {
-        deviceName: 'IR Superfinishing 1',
-        deviceShortName: '小超',
-        deviceCode: 'SF-IR-01',
+      makeNode('line-fin-b-1', 'finishing_b', 1020, 505, 19, {
+        deviceName: 'Finishing B 1',
+        deviceShortName: 'FIN-B',
+        deviceCode: 'FIN-B-01',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('bearing-sf-ir-2', 'small_superfinishing', 1020, 640, 20, {
-        deviceName: 'IR Superfinishing 2',
-        deviceShortName: '小超',
-        deviceCode: 'SF-IR-02',
+      makeNode('line-fin-b-2', 'finishing_b', 1020, 640, 20, {
+        deviceName: 'Finishing B 2',
+        deviceShortName: 'FIN-B',
+        deviceCode: 'FIN-B-02',
         batchSize: 1,
         processTimeSec: 13,
         station1ProcessTimeSec: 13,
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('bearing-dry-or', 'spin_dryer', 850, 110, 21, {
-        deviceName: 'Big Ring Spin Dryer',
-        deviceShortName: 'DRY-OR',
-        deviceCode: 'DRY-OR-01',
+      makeNode('line-dry-a', 'spin_dryer', 850, 110, 21, {
+        deviceName: 'Part A Batch Dryer',
+        deviceShortName: 'DRY-A',
+        deviceCode: 'DRY-A-01',
         inputBufferCapacity: 80,
         outputBufferCapacity: 120,
         dryerColumnBatchSize: 5,
         dryerColumnCount: 5,
         dryerDryTimeSec: 35,
       }),
-      makeNode('bearing-dry-ir', 'spin_dryer', 1190, 500, 22, {
-        deviceName: 'Small Ring Spin Dryer',
-        deviceShortName: 'DRY-IR',
-        deviceCode: 'DRY-IR-01',
+      makeNode('line-dry-b', 'spin_dryer', 1190, 500, 22, {
+        deviceName: 'Part B Batch Dryer',
+        deviceShortName: 'DRY-B',
+        deviceCode: 'DRY-B-01',
         inputBufferCapacity: 80,
         outputBufferCapacity: 120,
         dryerColumnBatchSize: 5,
         dryerColumnCount: 5,
         dryerDryTimeSec: 35,
       }),
-      makeNode('bearing-asm-store', 'assembly_storage', 1360, 335, 23),
-      makeNode('bearing-asm-wash-big', 'assembly_cleaner', 1530, 170, 24, {
-        deviceShortName: 'WASH-B',
-        materialKind: 'big_ring',
+      makeNode('line-join-store', 'merge_buffer', 1360, 335, 23),
+      makeNode('line-join-wash-a', 'wash_dry', 1530, 170, 24, {
+        deviceShortName: 'WASH-A',
+        materialKind: 'part_a',
         cleanerLaneCount: 1,
         cleanerLaneCapacity: 20,
         cleanerPushIntervalSec: 2.5,
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 3,
       }),
-      makeNode('bearing-asm-wash-small', 'assembly_cleaner', 1530, 430, 25, {
-        deviceShortName: 'WASH-S',
-        materialKind: 'small_ring',
+      makeNode('line-join-wash-b', 'wash_dry', 1530, 430, 25, {
+        deviceShortName: 'WASH-B',
+        materialKind: 'part_b',
         cleanerLaneCount: 1,
         cleanerLaneCapacity: 25,
         cleanerPushIntervalSec: 2.5,
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 3,
       }),
-      makeNode('bearing-asm-eddy-big', 'eddy_check', 1700, 170, 26, { deviceShortName: 'EDDY-B', materialKind: 'big_ring' }),
-      makeNode('bearing-asm-eddy-small', 'eddy_check', 1700, 430, 27, { deviceShortName: 'EDDY-S', materialKind: 'small_ring' }),
-      makeNode('bearing-asm-size-big', 'dimension_check', 1870, 170, 28, { deviceShortName: 'SIZE-B', materialKind: 'big_ring' }),
-      makeNode('bearing-asm-size-small', 'dimension_check', 1870, 430, 29, { deviceShortName: 'SIZE-S', materialKind: 'small_ring' }),
-      makeNode('bearing-asm-pair', 'pairing_station', 2040, 300, 30),
-      makeNode('bearing-asm-rivet', 'riveting_station', 2210, 300, 31),
-      makeNode('bearing-asm-wash-1', 'assembly_cleaner', 2380, 300, 32, {
+      makeNode('line-join-qa-a1', 'inspection_a', 1700, 170, 26, { deviceShortName: 'QA-A1', materialKind: 'part_a' }),
+      makeNode('line-join-qa-b1', 'inspection_a', 1700, 430, 27, { deviceShortName: 'QA-B1', materialKind: 'part_b' }),
+      makeNode('line-join-qa-a2', 'inspection_b', 1870, 170, 28, { deviceShortName: 'QA-A2', materialKind: 'part_a' }),
+      makeNode('line-join-qa-b2', 'inspection_b', 1870, 430, 29, { deviceShortName: 'QA-B2', materialKind: 'part_b' }),
+      makeNode('line-join-merge', 'join_station', 2040, 300, 30),
+      makeNode('line-join-fasten', 'fasten_station', 2210, 300, 31),
+      makeNode('line-join-wash-1', 'wash_dry', 2380, 300, 32, {
         deviceShortName: 'WASH-2CH',
         cleanerLaneCount: 2,
         cleanerLaneCapacity: 24,
@@ -1067,9 +1067,9 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 8.4,
       }),
-      makeNode('bearing-asm-flex', 'flexibility_check', 2550, 300, 33),
-      makeNode('bearing-asm-vib-open', 'vibration_check', 2720, 300, 34, { deviceShortName: 'VIB-OPEN' }),
-      makeNode('bearing-asm-wash-2', 'assembly_cleaner', 2720, 525, 35, {
+      makeNode('line-join-func', 'functional_check', 2550, 300, 33),
+      makeNode('line-join-perf-open', 'performance_check', 2720, 300, 34, { deviceShortName: 'PERF-1' }),
+      makeNode('line-join-wash-2', 'wash_dry', 2720, 525, 35, {
         deviceShortName: 'WASH-2',
         cleanerLaneCount: 2,
         cleanerLaneCapacity: 24,
@@ -1077,22 +1077,22 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 8.4,
       }),
-      makeNode('bearing-asm-dryer', 'spin_dryer', 2550, 525, 36, {
-        deviceShortName: 'DRY-ASM',
+      makeNode('line-join-dryer', 'spin_dryer', 2550, 525, 36, {
+        deviceShortName: 'DRY-M',
         dryerColumnBatchSize: 4,
         dryerColumnCount: 4,
         dryerDryTimeSec: 17,
         inputBufferCapacity: 80,
         outputBufferCapacity: 80,
       }),
-      makeNode('bearing-asm-vib-final', 'vibration_check', 2380, 525, 37, { deviceShortName: 'VIB-FIN' }),
-      makeNode('bearing-asm-grease', 'grease_injection', 2210, 525, 38),
-      makeNode('bearing-asm-cap', 'cap_press', 2040, 525, 39),
-      makeNode('bearing-asm-vib-closed', 'vibration_check', 1870, 525, 40, { deviceShortName: 'VIB-CLOSE' }),
-      makeNode('bearing-asm-visual', 'visual_check', 1700, 650, 41),
-      makeNode('bearing-asm-manual', 'manual_buffer', 1530, 650, 42),
-      makeNode('bearing-asm-rust', 'rust_proof', 1360, 650, 43),
-      makeNode('bearing-asm-pack', 'packing_sink', 1190, 650, 44),
+      makeNode('line-join-perf-final', 'performance_check', 2380, 525, 37, { deviceShortName: 'PERF-2' }),
+      makeNode('line-join-fill', 'fill_station', 2210, 525, 38),
+      makeNode('line-join-press', 'press_station', 2040, 525, 39),
+      makeNode('line-join-perf-closed', 'performance_check', 1870, 525, 40, { deviceShortName: 'PERF-3' }),
+      makeNode('line-join-visual', 'visual_inspection', 1700, 650, 41),
+      makeNode('line-join-manual', 'manual_buffer', 1530, 650, 42),
+      makeNode('line-join-surface', 'surface_treatment', 1360, 650, 43),
+      makeNode('line-join-pack', 'packing_sink', 1190, 650, 44),
     ];
 
     const edge = (
@@ -1104,7 +1104,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     ): FactoryEdge => {
       const { sourceHandle = 'out-1', targetHandle = 'in-1', ...dataPatch } = patch;
       return {
-        id: `bearing-edge-${source}-${target}`,
+        id: `line-edge-${source}-${target}`,
         source,
         target,
         sourceHandle,
@@ -1147,85 +1147,85 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
       travelTimeSec: 40,
       lineBufferCapacity: 100,
       capacity: 100,
-      shape: 'orthogonal',
+      edgeShape: 'orthogonal',
     };
 
     const edges: FactoryEdge[] = [
-      edge('bearing-feed', 'bearing-feed-or-gauge', 'FEED-OR Gauge', 'conveyor', { ...conveyorDefaults, sourceHandle: 'out-1' }),
-      edge('bearing-feed', 'bearing-feed-ir-gauge', 'FEED-IR Gauge', 'conveyor', { ...conveyorDefaults, sourceHandle: 'out-2' }),
-      edge('bearing-feed-or-gauge', 'bearing-or-1', 'ARM-FEED-OR', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-OR' }),
-      edge('bearing-feed-or-gauge', 'bearing-or-2', 'ARM-FEED-OR', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-OR' }),
-      edge('bearing-feed-ir-gauge', 'bearing-ir-1', 'ARM-FEED-IR', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-IR' }),
-      edge('bearing-feed-ir-gauge', 'bearing-ir-2', 'ARM-FEED-IR', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-IR' }),
-      edge('bearing-or-1', 'bearing-or-gauge-1', 'OR-01 Gauge', 'conveyor', conveyorDefaults),
-      edge('bearing-or-2', 'bearing-or-gauge-2', 'OR-02 Gauge', 'conveyor', conveyorDefaults),
-      edge('bearing-or-gauge-1', 'bearing-sf-or-1', 'ARM-OR-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-OR-SF' }),
-      edge('bearing-or-gauge-1', 'bearing-sf-or-2', 'ARM-OR-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-OR-SF' }),
-      edge('bearing-or-gauge-2', 'bearing-sf-or-1', 'ARM-OR-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-OR-SF' }),
-      edge('bearing-or-gauge-2', 'bearing-sf-or-2', 'ARM-OR-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-OR-SF' }),
-      edge('bearing-ir-1', 'bearing-ir-gauge-1', 'IR-01 Gauge', 'conveyor', conveyorDefaults),
-      edge('bearing-ir-2', 'bearing-ir-gauge-2', 'IR-02 Gauge', 'conveyor', conveyorDefaults),
-      edge('bearing-ir-gauge-1', 'bearing-bore-1', 'ARM-IR-BORE', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-IR-BORE' }),
-      edge('bearing-ir-gauge-1', 'bearing-bore-2', 'ARM-IR-BORE', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-IR-BORE' }),
-      edge('bearing-ir-gauge-2', 'bearing-bore-1', 'ARM-IR-BORE', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-IR-BORE' }),
-      edge('bearing-ir-gauge-2', 'bearing-bore-2', 'ARM-IR-BORE', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-IR-BORE' }),
-      edge('bearing-bore-1', 'bearing-bore-gauge-1', 'BORE-01 Gauge', 'conveyor', conveyorDefaults),
-      edge('bearing-bore-2', 'bearing-bore-gauge-2', 'BORE-02 Gauge', 'conveyor', conveyorDefaults),
-      edge('bearing-bore-gauge-1', 'bearing-sf-ir-1', 'ARM-BORE-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-BORE-SF' }),
-      edge('bearing-bore-gauge-1', 'bearing-sf-ir-2', 'ARM-BORE-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-BORE-SF' }),
-      edge('bearing-bore-gauge-2', 'bearing-sf-ir-1', 'ARM-BORE-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-BORE-SF' }),
-      edge('bearing-bore-gauge-2', 'bearing-sf-ir-2', 'ARM-BORE-SF', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-BORE-SF' }),
-      edge('bearing-sf-or-1', 'bearing-dry-or', 'SF-OR -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
-      edge('bearing-sf-or-2', 'bearing-dry-or', 'SF-OR -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
-      edge('bearing-sf-ir-1', 'bearing-dry-ir', 'SF-IR -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
-      edge('bearing-sf-ir-2', 'bearing-dry-ir', 'SF-IR -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
-      edge('bearing-dry-or', 'bearing-asm-store', 'OR main line -> ASM', 'conveyor', {
+      edge('line-feed', 'line-feed-a-inspection', 'FEED-QA A', 'conveyor', { ...conveyorDefaults, sourceHandle: 'out-1' }),
+      edge('line-feed', 'line-feed-b-inspection', 'FEED-QA B', 'conveyor', { ...conveyorDefaults, sourceHandle: 'out-2' }),
+      edge('line-feed-a-inspection', 'line-a-1', 'ARM-FEED-A', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-A' }),
+      edge('line-feed-a-inspection', 'line-a-2', 'ARM-FEED-A', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-A' }),
+      edge('line-feed-b-inspection', 'line-b-1', 'ARM-FEED-B', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-B' }),
+      edge('line-feed-b-inspection', 'line-b-2', 'ARM-FEED-B', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-FEED-B' }),
+      edge('line-a-1', 'line-a-inspection-1', 'PROC-A-01 QA', 'conveyor', conveyorDefaults),
+      edge('line-a-2', 'line-a-inspection-2', 'PROC-A-02 QA', 'conveyor', conveyorDefaults),
+      edge('line-a-inspection-1', 'line-fin-a-1', 'ARM-A-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-A-FIN' }),
+      edge('line-a-inspection-1', 'line-fin-a-2', 'ARM-A-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-A-FIN' }),
+      edge('line-a-inspection-2', 'line-fin-a-1', 'ARM-A-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-A-FIN' }),
+      edge('line-a-inspection-2', 'line-fin-a-2', 'ARM-A-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-A-FIN' }),
+      edge('line-b-1', 'line-b-inspection-1', 'PROC-B-01 QA', 'conveyor', conveyorDefaults),
+      edge('line-b-2', 'line-b-inspection-2', 'PROC-B-02 QA', 'conveyor', conveyorDefaults),
+      edge('line-b-inspection-1', 'line-c-1', 'ARM-B-C', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-B-C' }),
+      edge('line-b-inspection-1', 'line-c-2', 'ARM-B-C', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-B-C' }),
+      edge('line-b-inspection-2', 'line-c-1', 'ARM-B-C', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-B-C' }),
+      edge('line-b-inspection-2', 'line-c-2', 'ARM-B-C', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-B-C' }),
+      edge('line-c-1', 'line-c-inspection-1', 'PROC-C-01 QA', 'conveyor', conveyorDefaults),
+      edge('line-c-2', 'line-c-inspection-2', 'PROC-C-02 QA', 'conveyor', conveyorDefaults),
+      edge('line-c-inspection-1', 'line-fin-b-1', 'ARM-C-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-C-FIN' }),
+      edge('line-c-inspection-1', 'line-fin-b-2', 'ARM-C-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-C-FIN' }),
+      edge('line-c-inspection-2', 'line-fin-b-1', 'ARM-C-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-C-FIN' }),
+      edge('line-c-inspection-2', 'line-fin-b-2', 'ARM-C-FIN', 'loader_arm', { ...armDefaults, armGroupId: 'ARM-C-FIN' }),
+      edge('line-fin-a-1', 'line-dry-a', 'FIN-A -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
+      edge('line-fin-a-2', 'line-dry-a', 'FIN-A -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
+      edge('line-fin-b-1', 'line-dry-b', 'FIN-B -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
+      edge('line-fin-b-2', 'line-dry-b', 'FIN-B -> DRY', 'conveyor', { ...conveyorDefaults, travelTimeSec: 3 }),
+      edge('line-dry-a', 'line-join-store', 'Part A main line -> MERGE', 'conveyor', {
         ...mainLineConveyor,
         targetHandle: 'in-1',
       }),
-      edge('bearing-dry-ir', 'bearing-asm-store', 'IR main line -> ASM', 'conveyor', {
+      edge('line-dry-b', 'line-join-store', 'Part B main line -> MERGE', 'conveyor', {
         ...mainLineConveyor,
         targetHandle: 'in-2',
       }),
-      edge('bearing-asm-store', 'bearing-asm-wash-big', 'ASM-B -> WASH', 'conveyor', {
+      edge('line-join-store', 'line-join-wash-a', 'MERGE-A -> WASH', 'conveyor', {
         ...assemblyConveyor,
         sourceHandle: 'out-1',
       }),
-      edge('bearing-asm-store', 'bearing-asm-wash-small', 'ASM-S -> WASH', 'conveyor', {
+      edge('line-join-store', 'line-join-wash-b', 'MERGE-B -> WASH', 'conveyor', {
         ...assemblyConveyor,
         sourceHandle: 'out-2',
       }),
-      edge('bearing-asm-wash-big', 'bearing-asm-eddy-big', 'WASH-B -> EDDY', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-wash-small', 'bearing-asm-eddy-small', 'WASH-S -> EDDY', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-eddy-big', 'bearing-asm-size-big', 'EDDY-B -> SIZE', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-eddy-small', 'bearing-asm-size-small', 'EDDY-S -> SIZE', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-size-big', 'bearing-asm-pair', 'SIZE-B -> PAIR', 'conveyor', {
+      edge('line-join-wash-a', 'line-join-qa-a1', 'WASH-A -> QA-A1', 'conveyor', assemblyConveyor),
+      edge('line-join-wash-b', 'line-join-qa-b1', 'WASH-B -> QA-B1', 'conveyor', assemblyConveyor),
+      edge('line-join-qa-a1', 'line-join-qa-a2', 'QA-A1 -> QA-A2', 'conveyor', assemblyConveyor),
+      edge('line-join-qa-b1', 'line-join-qa-b2', 'QA-B1 -> QA-B2', 'conveyor', assemblyConveyor),
+      edge('line-join-qa-a2', 'line-join-merge', 'QA-A2 -> JOIN', 'conveyor', {
         ...assemblyConveyor,
         targetHandle: 'in-1',
       }),
-      edge('bearing-asm-size-small', 'bearing-asm-pair', 'SIZE-S -> PAIR', 'conveyor', {
+      edge('line-join-qa-b2', 'line-join-merge', 'QA-B2 -> JOIN', 'conveyor', {
         ...assemblyConveyor,
         targetHandle: 'in-2',
       }),
-      edge('bearing-asm-pair', 'bearing-asm-rivet', 'PAIR -> RIVET', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-rivet', 'bearing-asm-wash-1', 'RIVET -> WASH-1', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-wash-1', 'bearing-asm-flex', 'WASH-1 -> FLEX', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-flex', 'bearing-asm-vib-open', 'FLEX -> VIB-OPEN', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-vib-open', 'bearing-asm-wash-2', 'VIB-OPEN -> WASH-2', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-wash-2', 'bearing-asm-dryer', 'WASH-2 -> DRY-ASM', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-dryer', 'bearing-asm-vib-final', 'DRY-ASM -> VIB-FIN', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-vib-final', 'bearing-asm-grease', 'VIB-FIN -> GREASE', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-grease', 'bearing-asm-cap', 'GREASE -> CAP', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-cap', 'bearing-asm-vib-closed', 'CAP -> VIB-CLOSE', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-vib-closed', 'bearing-asm-visual', 'VIB-CLOSE -> VISUAL', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-visual', 'bearing-asm-manual', 'VISUAL -> MANUAL', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-manual', 'bearing-asm-rust', 'MANUAL -> RUST', 'conveyor', assemblyConveyor),
-      edge('bearing-asm-rust', 'bearing-asm-pack', 'RUST -> PACK', 'conveyor', assemblyConveyor),
+      edge('line-join-merge', 'line-join-fasten', 'JOIN -> FASTEN', 'conveyor', assemblyConveyor),
+      edge('line-join-fasten', 'line-join-wash-1', 'FASTEN -> WASH-1', 'conveyor', assemblyConveyor),
+      edge('line-join-wash-1', 'line-join-func', 'WASH-1 -> FUNC', 'conveyor', assemblyConveyor),
+      edge('line-join-func', 'line-join-perf-open', 'FUNC -> PERF-1', 'conveyor', assemblyConveyor),
+      edge('line-join-perf-open', 'line-join-wash-2', 'PERF-1 -> WASH-2', 'conveyor', assemblyConveyor),
+      edge('line-join-wash-2', 'line-join-dryer', 'WASH-2 -> DRY-M', 'conveyor', assemblyConveyor),
+      edge('line-join-dryer', 'line-join-perf-final', 'DRY-M -> PERF-2', 'conveyor', assemblyConveyor),
+      edge('line-join-perf-final', 'line-join-fill', 'PERF-2 -> FILL', 'conveyor', assemblyConveyor),
+      edge('line-join-fill', 'line-join-press', 'FILL -> PRESS', 'conveyor', assemblyConveyor),
+      edge('line-join-press', 'line-join-perf-closed', 'PRESS -> PERF-3', 'conveyor', assemblyConveyor),
+      edge('line-join-perf-closed', 'line-join-visual', 'PERF-3 -> VISUAL', 'conveyor', assemblyConveyor),
+      edge('line-join-visual', 'line-join-manual', 'VISUAL -> MANUAL', 'conveyor', assemblyConveyor),
+      edge('line-join-manual', 'line-join-surface', 'MANUAL -> SURFACE', 'conveyor', assemblyConveyor),
+      edge('line-join-surface', 'line-join-pack', 'SURFACE -> PACK', 'conveyor', assemblyConveyor),
     ];
 
     const scenario: SavedScenarioRecord = {
       id: `scenario-${nanoid()}`,
-      name: 'Bearing Raceway OR/IR/SF/BORE/Dryer Demo',
+      name: 'Modular Process A/B/C/Finishing Demo',
       nodes,
       edges,
       elapsedSec: 0,
@@ -1250,7 +1250,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
       selectedPort: null,
       pendingConnectFrom: null,
       summary: withSummary(nodes, edges, 0),
-      logs: ['Bearing raceway scenario generated and saved to localStorage.', ...state.logs].slice(0, 80),
+      logs: ['Modular flow scenario generated and saved to localStorage.', ...state.logs].slice(0, 80),
     }));
   },
 
@@ -1287,50 +1287,50 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     };
 
     const nodes: FactoryNode[] = [
-      makeNode('asm-big-line', 'material_source', 0, 80, 1, {
-        deviceName: 'Post-grind big ring main line',
-        deviceShortName: 'OR LINE',
-        materialKind: 'big_ring',
-        output1MaterialKind: 'big_ring',
+      makeNode('post-a-line', 'material_source', 0, 80, 1, {
+        deviceName: 'Part A upstream line',
+        deviceShortName: 'PART-A',
+        materialKind: 'part_a',
+        output1MaterialKind: 'part_a',
         feedBatchSize: 1,
         feedIntervalSec: 3,
         outputBufferCapacity: 100,
       }),
-      makeNode('asm-small-line', 'material_source', 0, 260, 2, {
-        deviceName: 'Post-grind small ring main line',
-        deviceShortName: 'IR LINE',
-        materialKind: 'small_ring',
-        output1MaterialKind: 'small_ring',
+      makeNode('post-b-line', 'material_source', 0, 260, 2, {
+        deviceName: 'Part B upstream line',
+        deviceShortName: 'PART-B',
+        materialKind: 'part_b',
+        output1MaterialKind: 'part_b',
         feedBatchSize: 1,
         feedIntervalSec: 3,
         outputBufferCapacity: 100,
       }),
-      makeNode('asm-store', 'assembly_storage', 250, 170, 3),
-      makeNode('asm-wash-big', 'assembly_cleaner', 520, 70, 4, {
-        deviceShortName: 'WASH-B',
-        materialKind: 'big_ring',
+      makeNode('post-merge', 'merge_buffer', 250, 170, 3),
+      makeNode('post-wash-a', 'wash_dry', 520, 70, 4, {
+        deviceShortName: 'WASH-A',
+        materialKind: 'part_a',
         cleanerLaneCount: 1,
         cleanerLaneCapacity: 20,
         cleanerPushIntervalSec: 2.5,
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 3,
       }),
-      makeNode('asm-wash-small', 'assembly_cleaner', 520, 270, 5, {
-        deviceShortName: 'WASH-S',
-        materialKind: 'small_ring',
+      makeNode('post-wash-b', 'wash_dry', 520, 270, 5, {
+        deviceShortName: 'WASH-B',
+        materialKind: 'part_b',
         cleanerLaneCount: 1,
         cleanerLaneCapacity: 25,
         cleanerPushIntervalSec: 2.5,
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 3,
       }),
-      makeNode('asm-eddy-big', 'eddy_check', 790, 70, 6, { deviceShortName: 'EDDY-B', materialKind: 'big_ring' }),
-      makeNode('asm-eddy-small', 'eddy_check', 790, 270, 7, { deviceShortName: 'EDDY-S', materialKind: 'small_ring' }),
-      makeNode('asm-size-big', 'dimension_check', 1060, 70, 8, { deviceShortName: 'SIZE-B', materialKind: 'big_ring' }),
-      makeNode('asm-size-small', 'dimension_check', 1060, 270, 9, { deviceShortName: 'SIZE-S', materialKind: 'small_ring' }),
-      makeNode('asm-pair', 'pairing_station', 1330, 170, 10),
-      makeNode('asm-rivet', 'riveting_station', 1600, 170, 11),
-      makeNode('asm-wash-1', 'assembly_cleaner', 1870, 170, 12, {
+      makeNode('post-qa-a1', 'inspection_a', 790, 70, 6, { deviceShortName: 'QA-A1', materialKind: 'part_a' }),
+      makeNode('post-qa-b1', 'inspection_a', 790, 270, 7, { deviceShortName: 'QA-B1', materialKind: 'part_b' }),
+      makeNode('post-qa-a2', 'inspection_b', 1060, 70, 8, { deviceShortName: 'QA-A2', materialKind: 'part_a' }),
+      makeNode('post-qa-b2', 'inspection_b', 1060, 270, 9, { deviceShortName: 'QA-B2', materialKind: 'part_b' }),
+      makeNode('post-join', 'join_station', 1330, 170, 10),
+      makeNode('post-fasten', 'fasten_station', 1600, 170, 11),
+      makeNode('post-wash-1', 'wash_dry', 1870, 170, 12, {
         deviceShortName: 'WASH-2CH',
         cleanerLaneCount: 2,
         cleanerLaneCapacity: 24,
@@ -1338,9 +1338,9 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 8.4,
       }),
-      makeNode('asm-flex', 'flexibility_check', 2140, 170, 13),
-      makeNode('asm-vib-open', 'vibration_check', 2410, 170, 14, { deviceShortName: 'VIB-OPEN' }),
-      makeNode('asm-wash-2', 'assembly_cleaner', 2680, 170, 15, {
+      makeNode('post-func', 'functional_check', 2140, 170, 13),
+      makeNode('post-perf-open', 'performance_check', 2410, 170, 14, { deviceShortName: 'PERF-1' }),
+      makeNode('post-wash-2', 'wash_dry', 2680, 170, 15, {
         deviceShortName: 'WASH-2',
         cleanerLaneCount: 2,
         cleanerLaneCapacity: 24,
@@ -1348,22 +1348,22 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 8.4,
       }),
-      makeNode('asm-dryer', 'spin_dryer', 2950, 170, 16, {
-        deviceShortName: 'DRY-ASM',
+      makeNode('post-dryer', 'spin_dryer', 2950, 170, 16, {
+        deviceShortName: 'DRY-M',
         dryerColumnBatchSize: 4,
         dryerColumnCount: 4,
         dryerDryTimeSec: 17,
         inputBufferCapacity: 80,
         outputBufferCapacity: 80,
       }),
-      makeNode('asm-vib-final', 'vibration_check', 3220, 170, 17, { deviceShortName: 'VIB-FIN' }),
-      makeNode('asm-grease', 'grease_injection', 3490, 170, 18),
-      makeNode('asm-cap', 'cap_press', 3760, 170, 19),
-      makeNode('asm-vib-closed', 'vibration_check', 4030, 170, 20, { deviceShortName: 'VIB-CLOSE' }),
-      makeNode('asm-visual', 'visual_check', 4300, 170, 21),
-      makeNode('asm-manual', 'manual_buffer', 4570, 170, 22),
-      makeNode('asm-rust', 'rust_proof', 4840, 170, 23),
-      makeNode('asm-pack', 'packing_sink', 5110, 170, 24),
+      makeNode('post-perf-final', 'performance_check', 3220, 170, 17, { deviceShortName: 'PERF-2' }),
+      makeNode('post-fill', 'fill_station', 3490, 170, 18),
+      makeNode('post-press', 'press_station', 3760, 170, 19),
+      makeNode('post-perf-closed', 'performance_check', 4030, 170, 20, { deviceShortName: 'PERF-3' }),
+      makeNode('post-visual', 'visual_inspection', 4300, 170, 21),
+      makeNode('post-manual', 'manual_buffer', 4570, 170, 22),
+      makeNode('post-surface', 'surface_treatment', 4840, 170, 23),
+      makeNode('post-pack', 'packing_sink', 5110, 170, 24),
     ];
 
     const edge = (
@@ -1392,35 +1392,35 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     const fast = { batchSize: 1, travelTimeSec: 0.4, capacity: 8, lineBufferCapacity: 20 };
     const normal = { batchSize: 1, travelTimeSec: 1, capacity: 8, lineBufferCapacity: 20 };
     const edges: FactoryEdge[] = [
-      edge('asm-edge-big-to-store', 'asm-big-line', 'asm-store', { targetHandle: 'in-1', data: { label: 'Big main line', travelTimeSec: 3, lineBufferCapacity: 100 } }),
-      edge('asm-edge-small-to-store', 'asm-small-line', 'asm-store', { targetHandle: 'in-2', data: { label: 'Small main line', travelTimeSec: 3, lineBufferCapacity: 100 } }),
-      edge('asm-edge-store-big-wash', 'asm-store', 'asm-wash-big', { sourceHandle: 'out-1', data: { label: 'Store big feed', ...fast } }),
-      edge('asm-edge-store-small-wash', 'asm-store', 'asm-wash-small', { sourceHandle: 'out-2', data: { label: 'Store small feed', ...fast } }),
-      edge('asm-edge-wash-big-eddy', 'asm-wash-big', 'asm-eddy-big', { data: { label: 'Wash B -> Eddy B', ...normal } }),
-      edge('asm-edge-wash-small-eddy', 'asm-wash-small', 'asm-eddy-small', { data: { label: 'Wash S -> Eddy S', ...normal } }),
-      edge('asm-edge-eddy-big-size', 'asm-eddy-big', 'asm-size-big', { data: { label: 'Eddy B -> Size B', ...normal } }),
-      edge('asm-edge-eddy-small-size', 'asm-eddy-small', 'asm-size-small', { data: { label: 'Eddy S -> Size S', ...normal } }),
-      edge('asm-edge-size-big-pair', 'asm-size-big', 'asm-pair', { targetHandle: 'in-1', data: { label: 'Big ring to pair', ...normal } }),
-      edge('asm-edge-size-small-pair', 'asm-size-small', 'asm-pair', { targetHandle: 'in-2', data: { label: 'Small ring to pair', ...normal } }),
-      edge('asm-edge-pair-rivet', 'asm-pair', 'asm-rivet', { data: { label: 'Pair -> Rivet', ...normal } }),
-      edge('asm-edge-rivet-wash1', 'asm-rivet', 'asm-wash-1', { data: { label: 'Rivet -> Wash', ...normal } }),
-      edge('asm-edge-wash1-flex', 'asm-wash-1', 'asm-flex', { data: { label: 'Wash -> Flex', ...normal } }),
-      edge('asm-edge-flex-vib-open', 'asm-flex', 'asm-vib-open', { data: { label: 'Flex -> Vibration', ...normal } }),
-      edge('asm-edge-vib-open-wash2', 'asm-vib-open', 'asm-wash-2', { data: { label: 'Open vib -> Wash', ...normal } }),
-      edge('asm-edge-wash2-dryer', 'asm-wash-2', 'asm-dryer', { data: { label: 'Wash -> Dryer', ...normal } }),
-      edge('asm-edge-dryer-vib-final', 'asm-dryer', 'asm-vib-final', { data: { label: 'Dry -> Vibration', ...normal } }),
-      edge('asm-edge-vib-final-grease', 'asm-vib-final', 'asm-grease', { data: { label: 'Vibration -> Grease', ...normal } }),
-      edge('asm-edge-grease-cap', 'asm-grease', 'asm-cap', { data: { label: 'Grease -> Cap', ...normal } }),
-      edge('asm-edge-cap-vib-closed', 'asm-cap', 'asm-vib-closed', { data: { label: 'Cap -> Closed vib', ...normal } }),
-      edge('asm-edge-vib-closed-visual', 'asm-vib-closed', 'asm-visual', { data: { label: 'Closed vib -> Visual', ...normal } }),
-      edge('asm-edge-visual-manual', 'asm-visual', 'asm-manual', { data: { label: 'Visual -> Manual table', ...normal } }),
-      edge('asm-edge-manual-rust', 'asm-manual', 'asm-rust', { data: { label: 'Manual -> Rust proof', ...normal } }),
-      edge('asm-edge-rust-pack', 'asm-rust', 'asm-pack', { data: { label: 'Rust proof -> Pack', ...normal } }),
+      edge('post-edge-big-to-store', 'post-a-line', 'post-merge', { targetHandle: 'in-1', data: { label: 'Part A main line', travelTimeSec: 3, lineBufferCapacity: 100 } }),
+      edge('post-edge-small-to-store', 'post-b-line', 'post-merge', { targetHandle: 'in-2', data: { label: 'Part B main line', travelTimeSec: 3, lineBufferCapacity: 100 } }),
+      edge('post-edge-store-big-wash', 'post-merge', 'post-wash-a', { sourceHandle: 'out-1', data: { label: 'MERGE-A -> WASH', ...fast } }),
+      edge('post-edge-store-small-wash', 'post-merge', 'post-wash-b', { sourceHandle: 'out-2', data: { label: 'MERGE-B -> WASH', ...fast } }),
+      edge('post-edge-wash-big-eddy', 'post-wash-a', 'post-qa-a1', { data: { label: 'WASH-A -> QA-A1', ...normal } }),
+      edge('post-edge-wash-small-eddy', 'post-wash-b', 'post-qa-b1', { data: { label: 'WASH-B -> QA-B1', ...normal } }),
+      edge('post-edge-eddy-big-size', 'post-qa-a1', 'post-qa-a2', { data: { label: 'QA-A1 -> QA-A2', ...normal } }),
+      edge('post-edge-eddy-small-size', 'post-qa-b1', 'post-qa-b2', { data: { label: 'QA-B1 -> QA-B2', ...normal } }),
+      edge('post-edge-size-big-pair', 'post-qa-a2', 'post-join', { targetHandle: 'in-1', data: { label: 'QA-A2 -> JOIN', ...normal } }),
+      edge('post-edge-size-small-pair', 'post-qa-b2', 'post-join', { targetHandle: 'in-2', data: { label: 'QA-B2 -> JOIN', ...normal } }),
+      edge('post-edge-pair-rivet', 'post-join', 'post-fasten', { data: { label: 'JOIN -> FASTEN', ...normal } }),
+      edge('post-edge-rivet-wash1', 'post-fasten', 'post-wash-1', { data: { label: 'FASTEN -> WASH', ...normal } }),
+      edge('post-edge-wash1-flex', 'post-wash-1', 'post-func', { data: { label: 'WASH -> FUNC', ...normal } }),
+      edge('post-edge-flex-vib-open', 'post-func', 'post-perf-open', { data: { label: 'FUNC -> PERF-1', ...normal } }),
+      edge('post-edge-vib-open-wash2', 'post-perf-open', 'post-wash-2', { data: { label: 'PERF-1 -> WASH', ...normal } }),
+      edge('post-edge-wash2-dryer', 'post-wash-2', 'post-dryer', { data: { label: 'Wash -> Dryer', ...normal } }),
+      edge('post-edge-dryer-vib-final', 'post-dryer', 'post-perf-final', { data: { label: 'DRY -> PERF-2', ...normal } }),
+      edge('post-edge-vib-final-grease', 'post-perf-final', 'post-fill', { data: { label: 'PERF-2 -> FILL', ...normal } }),
+      edge('post-edge-grease-cap', 'post-fill', 'post-press', { data: { label: 'FILL -> PRESS', ...normal } }),
+      edge('post-edge-cap-vib-closed', 'post-press', 'post-perf-closed', { data: { label: 'PRESS -> PERF-3', ...normal } }),
+      edge('post-edge-vib-closed-visual', 'post-perf-closed', 'post-visual', { data: { label: 'PERF-3 -> VISUAL', ...normal } }),
+      edge('post-edge-visual-manual', 'post-visual', 'post-manual', { data: { label: 'Visual -> Manual table', ...normal } }),
+      edge('post-edge-manual-rust', 'post-manual', 'post-surface', { data: { label: 'MANUAL -> SURFACE', ...normal } }),
+      edge('post-edge-rust-pack', 'post-surface', 'post-pack', { data: { label: 'SURFACE -> PACK', ...normal } }),
     ];
 
     const scenario: SavedScenarioRecord = {
       id: `scenario-${nanoid()}`,
-      name: 'Assembly line demo',
+      name: 'Generic post-process line demo',
       nodes,
       edges,
       elapsedSec: 0,

@@ -1,22 +1,22 @@
 import type { DeviceParameters } from '../types/factory';
 
 const processTypes = new Set<DeviceParameters['deviceType']>([
-  'or_grinder',
-  'ir_grinder',
-  'bore_grinder',
-  'superfinishing',
-  'small_superfinishing',
-  'general_gauge',
-  'eddy_check',
-  'dimension_check',
-  'pairing_station',
-  'riveting_station',
-  'flexibility_check',
-  'vibration_check',
-  'grease_injection',
-  'cap_press',
-  'visual_check',
-  'rust_proof',
+  'process_a',
+  'process_b',
+  'process_c',
+  'finishing',
+  'finishing_b',
+  'general_inspection',
+  'inspection_a',
+  'inspection_b',
+  'join_station',
+  'fasten_station',
+  'functional_check',
+  'performance_check',
+  'fill_station',
+  'press_station',
+  'visual_inspection',
+  'surface_treatment',
 ]);
 
 export const supportsTaktSettings = (params: DeviceParameters) => processTypes.has(params.deviceType);

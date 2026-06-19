@@ -48,7 +48,7 @@ export function ScenarioLibraryModal({
           <input
             value={scenarioName}
             onChange={(event) => onScenarioNameChange(event.target.value)}
-            placeholder={zh ? '输入方案名称，例如：大沟-大超-甩干示例' : 'Scenario name, e.g. OR-SF-dryer demo'}
+            placeholder={zh ? '输入方案名称，例如：工序A-精加工-干燥示例' : 'Scenario name, e.g. Process A-Finishing-Dryer demo'}
             className="min-w-0 flex-1 rounded border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/70"
           />
           <button

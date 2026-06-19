@@ -22,7 +22,7 @@ const TAKT_KEYS: Array<keyof DeviceParameters> = [
   'dressingDurationSec',
   'consumableIntervalUnits',
   'consumableChangeSec',
-  'superfinishingMode',
+  'finishingMode',
   'firstPassProcessTimeSec',
   'secondPassProcessTimeSec',
 ];
@@ -60,12 +60,12 @@ const pick = (params: DeviceParameters, keys: Array<keyof DeviceParameters>) =>
   Object.fromEntries(keys.map((key) => [key, structuredClone(params[key])])) as Partial<DeviceParameters>;
 
 const lineTaktTypes = new Set<DeviceParameters['deviceType']>([
-  'or_grinder',
-  'ir_grinder',
-  'bore_grinder',
-  'superfinishing',
-  'small_superfinishing',
-  'general_gauge',
+  'process_a',
+  'process_b',
+  'process_c',
+  'finishing',
+  'finishing_b',
+  'general_inspection',
 ]);
 
 const handleIndex = (handleId?: string | null) => Number(handleId?.split('-')[1] ?? 1);

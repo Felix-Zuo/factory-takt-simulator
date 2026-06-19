@@ -15,8 +15,8 @@ export const resetNodeForSimulation = (node: FactoryNode): FactoryNode => {
     station2InputBufferCount: 0,
     dryerLoadedColumns: 0,
     dryerDriedColumns: 0,
-    assemblyBigStorageCount: 0,
-    assemblySmallStorageCount: 0,
+    partAStorageCount: 0,
+    partBStorageCount: 0,
     cleanerInternalCount: 0,
     cleanerReadyCount: 0,
   };

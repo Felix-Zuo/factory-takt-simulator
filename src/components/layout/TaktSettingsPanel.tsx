@@ -19,10 +19,10 @@ export function TaktSettingsPanel({
   const notes = getTaktFormulaNotes(params, language);
   const stationTakts = calculateStationTakts(params);
   const isCalculated = params.taktMode !== 'manual';
-  const isSf = params.processFamily === 'superfinishing';
-  const isGauge = params.processFamily === 'gauge';
-  const isGrinding = params.processFamily === 'grinding';
-  const stationFieldsEnabled = params.deviceType !== 'spin_dryer' && !isSf;
+  const isFinishing = params.processFamily === 'finishing';
+  const isInspection = params.processFamily === 'inspection';
+  const isProcessing = params.processFamily === 'processing';
+  const stationFieldsEnabled = params.deviceType !== 'spin_dryer' && !isFinishing;
 
   return (
     <>
@@ -62,19 +62,19 @@ export function TaktSettingsPanel({
 
       {isCalculated ? (
         <div data-testid="calculated-takt-panel">
-          {isSf ? (
-            <SuperfinishingCalculatedPanel params={params} language={language} onPatch={onPatch} />
+          {isFinishing ? (
+            <FinishingCalculatedPanel params={params} language={language} onPatch={onPatch} />
           ) : (
             <Section title={label('参数精算', 'Calculated parameters')}>
               <NumberField
-                label={isGauge ? label('单次检测数量', 'Inspect quantity') : label('单次加工数量', 'Batch quantity')}
+                label={isInspection ? label('单次检测数量', 'Inspect quantity') : label('单次加工数量', 'Batch quantity')}
                 params={params}
                 paramKey="batchSize"
                 onPatch={onPatch}
                 min={1}
               />
               <NumberField
-                label={isGauge ? label('检测一轮时间 秒', 'Inspection cycle sec') : label('正常加工一轮时间 秒', 'Process cycle sec')}
+                label={isInspection ? label('检测一轮时间 秒', 'Inspection cycle sec') : label('正常加工一轮时间 秒', 'Process cycle sec')}
                 params={params}
                 paramKey="processTimeSec"
                 onPatch={onPatch}
@@ -84,7 +84,7 @@ export function TaktSettingsPanel({
               <NumberField label={label('设备数量', 'Machine count')} params={params} paramKey="machineCount" onPatch={onPatch} min={1} />
               <NumberField label={label('稼动率 0-1', 'Availability 0-1')} params={params} paramKey="availability" onPatch={onPatch} step={0.01} min={0} />
               <NumberField label={label('良率 0-1', 'Yield 0-1')} params={params} paramKey="yieldRate" onPatch={onPatch} step={0.001} min={0} />
-              {isGauge ? (
+              {isInspection ? (
                 <NumberField label={label('NG 比例 0-1', 'NG ratio 0-1')} params={params} paramKey="ngRate" onPatch={onPatch} step={0.001} min={0} />
               ) : null}
             </Section>
@@ -117,9 +117,9 @@ export function TaktSettingsPanel({
         </Section>
       ) : null}
 
-      {isCalculated && (isGrinding || isSf) ? (
+      {isCalculated && (isProcessing || isFinishing) ? (
         <Section title={label('修整与耗材', 'Dressing and consumables')}>
-          {isGrinding ? (
+          {isProcessing ? (
             <>
               <NumberField label={label('修整间隔 件', 'Dressing interval pcs')} params={params} paramKey="dressingIntervalUnits" onPatch={onPatch} min={0} />
               <NumberField label={label('修整时间 秒', 'Dressing time sec')} params={params} paramKey="dressingDurationSec" onPatch={onPatch} min={0} />
@@ -146,7 +146,7 @@ export function TaktSettingsPanel({
   );
 }
 
-function SuperfinishingCalculatedPanel({
+function FinishingCalculatedPanel({
   params,
   language,
   onPatch,
@@ -159,20 +159,20 @@ function SuperfinishingCalculatedPanel({
   const stationTakts = calculateStationTakts(params);
   return (
     <>
-      <Section title={label('超精结构', 'Superfinishing structure')}>
+      <Section title={label('精加工结构', 'Finishing structure')}>
         <label
           className="editable-field col-span-2 block rounded border border-slate-800 bg-slate-900/52 px-3 py-2"
-          data-help={label('选择超精内部结构；不同模式会改变输入口、工位流向和节拍计算方式。', 'Choose SF internal structure; this changes ports, station flow and takt calculation.')}
+          data-help={label('选择精加工内部结构；不同模式会改变输入口、工位流向和节拍计算方式。', 'Choose finishing structure; this changes ports, station flow and takt calculation.')}
         >
-          <span className="text-[11px] text-slate-500">{label('超精模式', 'Superfinishing mode')}</span>
+          <span className="text-[11px] text-slate-500">{label('精加工模式', 'Finishing mode')}</span>
           <select
-            value={params.superfinishingMode}
-            onChange={(event) => onPatch({ superfinishingMode: event.target.value as DeviceParameters['superfinishingMode'] })}
+            value={params.finishingMode}
+            onChange={(event) => onPatch({ finishingMode: event.target.value as DeviceParameters['finishingMode'] })}
             className="mt-1 w-full bg-slate-950 text-sm font-semibold text-slate-100 outline-none"
           >
-            <option value="single_station_once">{label('一次超精 / 单工位', 'Single station once')}</option>
-            <option value="parallel_once">{label('一次超精 / 双工位并联', 'Parallel stations once')}</option>
-            <option value="serial_twice">{label('二次超精 / 串联双工位', 'Serial stations twice')}</option>
+            <option value="single_station_once">{label('一次精加工 / 单工位', 'Single station once')}</option>
+            <option value="parallel_once">{label('一次精加工 / 双工位并联', 'Parallel stations once')}</option>
+            <option value="serial_twice">{label('二次精加工 / 串联双工位', 'Serial stations twice')}</option>
           </select>
         </label>
         <NumberField label={label('设备数量', 'Machine count')} params={params} paramKey="machineCount" onPatch={onPatch} min={1} />
@@ -181,22 +181,22 @@ function SuperfinishingCalculatedPanel({
         <NumberField label={label('NG 比例 0-1', 'NG ratio 0-1')} params={params} paramKey="ngRate" onPatch={onPatch} step={0.001} min={0} />
       </Section>
 
-      {params.superfinishingMode === 'single_station_once' ? (
-        <Section title={label('一次超精单工位', 'Single-station once')}>
+      {params.finishingMode === 'single_station_once' ? (
+        <Section title={label('一次精加工单工位', 'Single-station once')}>
           <NumberField label={label('单次加工数量', 'Batch quantity')} params={params} paramKey="station1BatchSize" onPatch={onPatch} min={1} />
-          <NumberField label={label('单工位超精时间 秒', 'Superfinishing time sec')} params={params} paramKey="station1ProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
+          <NumberField label={label('单工位精加工时间 秒', 'Finishing time sec')} params={params} paramKey="station1ProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
           <div className="col-span-2 rounded border border-cyan-300/18 bg-cyan-300/8 px-3 py-2 text-xs text-cyan-100">
-            {label('参与计算：单工位超精时间 / 单次加工数量。', 'Used in calculation: station time / batch quantity.')}
+            {label('参与计算：单工位精加工时间 / 单次加工数量。', 'Used in calculation: station time / batch quantity.')}
           </div>
         </Section>
       ) : null}
 
-      {params.superfinishingMode === 'parallel_once' ? (
-        <Section title={label('一次超精双工位并联', 'Parallel stations once')}>
+      {params.finishingMode === 'parallel_once' ? (
+        <Section title={label('一次精加工双工位并联', 'Parallel stations once')}>
           <NumberField label={label('工位1单次数量', 'Station 1 batch')} params={params} paramKey="station1BatchSize" onPatch={onPatch} min={1} />
-          <NumberField label={label('工位1超精时间 秒', 'Station 1 time sec')} params={params} paramKey="station1ProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
+          <NumberField label={label('工位1精加工时间 秒', 'Station 1 time sec')} params={params} paramKey="station1ProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
           <NumberField label={label('工位2单次数量', 'Station 2 batch')} params={params} paramKey="station2BatchSize" onPatch={onPatch} min={1} />
-          <NumberField label={label('工位2超精时间 秒', 'Station 2 time sec')} params={params} paramKey="station2ProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
+          <NumberField label={label('工位2精加工时间 秒', 'Station 2 time sec')} params={params} paramKey="station2ProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
           <NumberField label={label('工位1前缓存上限', 'Station 1 input cap')} params={params} paramKey="station1InputBufferCapacity" onPatch={onPatch} min={0} />
           <NumberField label={label('工位2前缓存上限', 'Station 2 input cap')} params={params} paramKey="station2InputBufferCapacity" onPatch={onPatch} min={0} />
           <div className="col-span-2 rounded border border-cyan-300/18 bg-cyan-300/8 px-3 py-2 text-xs text-cyan-100">
@@ -205,12 +205,12 @@ function SuperfinishingCalculatedPanel({
         </Section>
       ) : null}
 
-      {params.superfinishingMode === 'serial_twice' ? (
-        <Section title={label('二次超精串联', 'Serial two-pass superfinishing')}>
-          <NumberField label={label('一次超精单次数量', 'First pass batch')} params={params} paramKey="station1BatchSize" onPatch={onPatch} min={1} />
-          <NumberField label={label('一次超精时间 秒', 'First pass time sec')} params={params} paramKey="firstPassProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
-          <NumberField label={label('二次超精单次数量', 'Second pass batch')} params={params} paramKey="station2BatchSize" onPatch={onPatch} min={1} />
-          <NumberField label={label('二次超精时间 秒', 'Second pass time sec')} params={params} paramKey="secondPassProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
+      {params.finishingMode === 'serial_twice' ? (
+        <Section title={label('二次精加工串联', 'Serial two-pass finishing')}>
+          <NumberField label={label('一次精加工单次数量', 'First pass batch')} params={params} paramKey="station1BatchSize" onPatch={onPatch} min={1} />
+          <NumberField label={label('一次精加工时间 秒', 'First pass time sec')} params={params} paramKey="firstPassProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
+          <NumberField label={label('二次精加工单次数量', 'Second pass batch')} params={params} paramKey="station2BatchSize" onPatch={onPatch} min={1} />
+          <NumberField label={label('二次精加工时间 秒', 'Second pass time sec')} params={params} paramKey="secondPassProcessTimeSec" onPatch={onPatch} step={0.1} min={0.1} />
           <NumberField label={label('工位1前缓存上限', 'Station 1 input cap')} params={params} paramKey="station1InputBufferCapacity" onPatch={onPatch} min={0} />
           <NumberField label={label('工位2前缓存上限', 'Station 2 input cap')} params={params} paramKey="station2InputBufferCapacity" onPatch={onPatch} min={0} />
           <div className="col-span-2 rounded border border-violet-300/18 bg-violet-300/8 px-3 py-2 text-xs text-violet-100">

@@ -47,7 +47,7 @@ window.FactoryTaktAgent.runCommand({ type: 'importScenario', json, name: 'Import
 Editing commands:
 
 ```ts
-window.FactoryTaktAgent.runCommand({ type: 'addDevice', deviceType: 'general_gauge', x: 400, y: 240 })
+window.FactoryTaktAgent.runCommand({ type: 'addDevice', deviceType: 'general_inspection', x: 400, y: 240 })
 window.FactoryTaktAgent.runCommand({ type: 'updateNode', nodeId: 'node-id', patch: { processTimeSec: 8 } })
 window.FactoryTaktAgent.runCommand({ type: 'updateEdge', edgeId: 'edge-id', patch: { travelTimeSec: 4 } })
 ```

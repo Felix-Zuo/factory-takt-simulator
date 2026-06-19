@@ -72,15 +72,15 @@ try {
   await page.waitForTimeout(200);
 
   const asideButtons = await page.locator('aside button').evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim() ?? ''));
-  asideButtons.some((text) => text === 'Assembly' || text === '装配')
-    ? pass('left module library exposes Assembly tab')
-    : fail('left module library exposes Assembly tab', asideButtons.join(' | '));
-  await page.locator('aside button').filter({ hasText: /Assembly|装配/ }).first().click({ timeout: 5000 });
+  asideButtons.some((text) => text === 'Post' || text === '后段')
+    ? pass('left module library exposes post-process tab')
+    : fail('left module library exposes post-process tab', asideButtons.join(' | '));
+  await page.locator('aside button').filter({ hasText: /Post|后段/ }).first().click({ timeout: 5000 });
   await page.waitForTimeout(250);
-  (await page.locator('[data-device-type="assembly_storage"]').isVisible().catch(() => false))
-    ? pass('Assembly tab shows assembly process cards')
-    : fail('Assembly tab shows assembly process cards');
-  await page.screenshot({ path: `${out}/02-assembly-tab.png` });
+  (await page.locator('[data-device-type="merge_buffer"]').isVisible().catch(() => false))
+    ? pass('post-process tab shows merge and downstream process cards')
+    : fail('post-process tab shows merge and downstream process cards');
+  await page.screenshot({ path: `${out}/02-post-process-tab.png` });
 
   await page.getByRole('button', { name: /Settings|设置/ }).click({ timeout: 5000 });
   await page.getByRole('button', { name: /Showcase|展示/ }).click({ timeout: 5000 });
@@ -101,29 +101,29 @@ try {
   await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
   await page.getByText(/Full line example|完整产线示例/).click({ timeout: 5000 });
   await page.waitForTimeout(900);
-  await page.screenshot({ path: `${out}/03-bearing-to-assembly.png` });
+  await page.screenshot({ path: `${out}/03-generic-full-line.png` });
 
   const scenarioChecks = await page.evaluate(() => {
     const rawValues = Object.values(localStorage).join('\n');
     return {
-      hasAsmStore: rawValues.includes('bearing-asm-store'),
-      hasAsmPack: rawValues.includes('bearing-asm-pack'),
-      hasMainLineOr: rawValues.includes('OR main line -> ASM'),
-      hasMainLineIr: rawValues.includes('IR main line -> ASM'),
+      hasMergeStore: rawValues.includes('line-join-store'),
+      hasPack: rawValues.includes('line-join-pack'),
+      hasPartAMain: rawValues.includes('Part A main line -> MERGE'),
+      hasPartBMain: rawValues.includes('Part B main line -> MERGE'),
       hasTravel40: rawValues.includes('"travelTimeSec":40'),
       hasDispatch3: rawValues.includes('"dispatchIntervalSec":3'),
       visibleNodes: document.querySelectorAll('.react-flow__node').length,
       visibleEdges: document.querySelectorAll('.react-flow__edge').length,
     };
   });
-  scenarioChecks.hasAsmStore &&
-  scenarioChecks.hasAsmPack &&
-  scenarioChecks.hasMainLineOr &&
-  scenarioChecks.hasMainLineIr &&
+  scenarioChecks.hasMergeStore &&
+  scenarioChecks.hasPack &&
+  scenarioChecks.hasPartAMain &&
+  scenarioChecks.hasPartBMain &&
   scenarioChecks.hasTravel40 &&
   scenarioChecks.hasDispatch3
-    ? pass('bearing demo is connected into assembly with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks))
-    : fail('bearing demo is connected into assembly with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks));
+    ? pass('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks))
+    : fail('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks));
 
   const canvasBox = await page.locator('[data-testid="factory-canvas"]').boundingBox();
   canvasBox && canvasBox.width > 700 && canvasBox.height > 420
@@ -163,13 +163,15 @@ try {
   await page.waitForTimeout(350);
   const edgeCountAfterClickConnect = await page.locator('.react-flow__edge').count();
   edgeCountAfterClickConnect > edgeCountBeforeClickConnect
-    ? pass('click connection works from feeder output to gauge input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`)
-    : fail('click connection works from feeder output to gauge input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`);
+    ? pass('click connection works from feeder output to inspection input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`)
+    : fail('click connection works from feeder output to inspection input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`);
 
   await page.locator('.node-port-label-out').first().click({ force: true, timeout: 5000 });
   (await page.locator('[data-testid="port-rule-editor"]').isVisible().catch(() => false))
     ? pass('clicking an output port opens port rule editor')
     : fail('clicking an output port opens port rule editor');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(150);
 
   await page.locator('.edge-label').first().click({ timeout: 5000 });
   await page.waitForTimeout(150);

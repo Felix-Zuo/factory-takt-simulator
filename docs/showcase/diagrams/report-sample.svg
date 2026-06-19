@@ -31,7 +31,7 @@
   </defs>
   <rect width="1440" height="820" rx="28" fill="url(#bg)"/>
   <text x="56" y="64" class="title">Factory Takt Simulation Report</text>
-  <text x="56" y="94" class="sub">Bearing raceway grinding + assembly line, 8 h background simulation</text>
+  <text x="56" y="94" class="sub">Modular process flow + post-process line, 8 h background simulation</text>
 
   <g transform="translate(56 126)">
     <rect class="panel" width="205" height="112" rx="15"/>
@@ -48,7 +48,7 @@
   <g transform="translate(506 126)">
     <rect class="panel2" width="205" height="112" rx="15"/>
     <text x="22" y="34" class="k">bottleneck</text>
-    <text x="22" y="76" class="warn">SF-IR-01</text>
+    <text x="22" y="76" class="warn">FIN-B-01</text>
   </g>
   <g transform="translate(731 126)">
     <rect class="panel" width="205" height="112" rx="15"/>
@@ -57,7 +57,7 @@
   </g>
   <g transform="translate(956 126)">
     <rect class="panel" width="205" height="112" rx="15"/>
-    <text x="22" y="34" class="k">assembly paired</text>
+    <text x="22" y="34" class="k">joined output</text>
     <text x="22" y="76" class="v">4,861</text>
     <text x="138" y="77" class="unit">sets</text>
   </g>
@@ -72,19 +72,19 @@
     <rect class="panel" width="420" height="220" rx="18"/>
     <text x="24" y="38" class="name">Bottleneck ranking</text>
     <line x1="24" y1="62" x2="396" y2="62" class="line"/>
-    <text x="24" y="92" class="desc">SF-IR-01</text>
+    <text x="24" y="92" class="desc">FIN-B-01</text>
     <rect x="142" y="78" width="220" height="12" rx="6" fill="#142238"/>
     <rect x="142" y="78" width="62" height="12" rx="6" fill="url(#amber)"/>
     <text x="386" y="91" class="desc" text-anchor="end">146 pcs/h</text>
-    <text x="24" y="126" class="desc">SF-IR-02</text>
+    <text x="24" y="126" class="desc">FIN-B-02</text>
     <rect x="142" y="112" width="220" height="12" rx="6" fill="#142238"/>
     <rect x="142" y="112" width="65" height="12" rx="6" fill="url(#amber)"/>
     <text x="386" y="125" class="desc" text-anchor="end">148 pcs/h</text>
-    <text x="24" y="160" class="desc">BORE group</text>
+    <text x="24" y="160" class="desc">PROC-C group</text>
     <rect x="142" y="146" width="220" height="12" rx="6" fill="#142238"/>
     <rect x="142" y="146" width="156" height="12" rx="6" fill="url(#cyan)"/>
     <text x="386" y="159" class="desc" text-anchor="end">487 pcs/h</text>
-    <text x="24" y="194" class="desc">OR group</text>
+    <text x="24" y="194" class="desc">PROC-A group</text>
     <rect x="142" y="180" width="220" height="12" rx="6" fill="#142238"/>
     <rect x="142" y="180" width="162" height="12" rx="6" fill="url(#cyan)"/>
     <text x="386" y="193" class="desc" text-anchor="end">504 pcs/h</text>
@@ -92,11 +92,11 @@
 
   <g transform="translate(510 278)">
     <rect class="panel" width="420" height="220" rx="18"/>
-    <text x="24" y="38" class="name">Gauge reserve</text>
+    <text x="24" y="38" class="name">Inspection reserve</text>
     <line x1="24" y1="62" x2="396" y2="62" class="line"/>
-    <text x="24" y="92" class="desc">Feed gauge</text><text x="190" y="92" class="desc">2.30x</text><circle cx="354" cy="87" r="7" class="good"/>
-    <text x="24" y="126" class="desc">OR gauge</text><text x="190" y="126" class="desc">2.16x</text><circle cx="354" cy="121" r="7" class="good"/>
-    <text x="24" y="160" class="desc">IR gauge</text><text x="190" y="160" class="desc">2.17x</text><circle cx="354" cy="155" r="7" class="good"/>
+    <text x="24" y="92" class="desc">Feed inspection</text><text x="190" y="92" class="desc">2.30x</text><circle cx="354" cy="87" r="7" class="good"/>
+    <text x="24" y="126" class="desc">PROC-A inspection</text><text x="190" y="126" class="desc">2.16x</text><circle cx="354" cy="121" r="7" class="good"/>
+    <text x="24" y="160" class="desc">PROC-B inspection</text><text x="190" y="160" class="desc">2.17x</text><circle cx="354" cy="155" r="7" class="good"/>
     <text x="24" y="194" class="desc">Vision</text><text x="190" y="194" class="desc">1.83x</text><circle cx="354" cy="189" r="7" class="good"/>
   </g>
 
@@ -104,8 +104,8 @@
     <rect class="panel" width="420" height="220" rx="18"/>
     <text x="24" y="38" class="name">Loader and transfer</text>
     <line x1="24" y1="62" x2="396" y2="62" class="line"/>
-    <text x="24" y="92" class="desc">OR arm bus</text><text x="190" y="92" class="desc">5 pcs / round-robin</text>
-    <text x="24" y="126" class="desc">IR arm bus</text><text x="190" y="126" class="desc">wait-space protected</text>
+    <text x="24" y="92" class="desc">PROC-A arm bus</text><text x="190" y="92" class="desc">5 pcs / round-robin</text>
+    <text x="24" y="126" class="desc">PROC-B arm bus</text><text x="190" y="126" class="desc">wait-space protected</text>
     <text x="24" y="160" class="desc">Main line</text><text x="190" y="160" class="desc">3 s dispatch / 40 s travel</text>
     <text x="24" y="194" class="desc">2CH wash</text><text x="190" y="194" class="desc">blocked channel skipped</text>
   </g>
@@ -114,19 +114,19 @@
     <rect class="panel" width="420" height="218" rx="18"/>
     <text x="24" y="38" class="name">Buffer pressure</text>
     <line x1="24" y1="62" x2="396" y2="62" class="line"/>
-    <text x="24" y="92" class="desc">IR grinder output</text><text x="210" y="92" class="desc">peak 30/30</text><circle cx="354" cy="87" r="7" class="watch"/>
-    <text x="24" y="126" class="desc">SF-IR input</text><text x="210" y="126" class="desc">full 18.6%</text><circle cx="354" cy="121" r="7" class="bad"/>
-    <text x="24" y="160" class="desc">OR main line WIP</text><text x="210" y="160" class="desc">peak 62/100</text><circle cx="354" cy="155" r="7" class="good"/>
-    <text x="24" y="194" class="desc">ASM storage</text><text x="210" y="194" class="desc">226/400 max</text><circle cx="354" cy="189" r="7" class="good"/>
+    <text x="24" y="92" class="desc">PROC-B output</text><text x="210" y="92" class="desc">peak 30/30</text><circle cx="354" cy="87" r="7" class="watch"/>
+    <text x="24" y="126" class="desc">FIN-B input</text><text x="210" y="126" class="desc">full 18.6%</text><circle cx="354" cy="121" r="7" class="bad"/>
+    <text x="24" y="160" class="desc">Part A main line WIP</text><text x="210" y="160" class="desc">peak 62/100</text><circle cx="354" cy="155" r="7" class="good"/>
+    <text x="24" y="194" class="desc">MERGE storage</text><text x="210" y="194" class="desc">226/400 max</text><circle cx="354" cy="189" r="7" class="good"/>
   </g>
 
   <g transform="translate(510 532)">
     <rect class="panel" width="420" height="218" rx="18"/>
     <text x="24" y="38" class="name">State time</text>
     <line x1="24" y1="62" x2="396" y2="62" class="line"/>
-    <text x="24" y="92" class="desc">Grinding RUN</text><rect x="180" y="80" width="180" height="10" rx="5" fill="#142238"/><rect x="180" y="80" width="169" height="10" rx="5" fill="url(#cyan)"/>
-    <text x="24" y="126" class="desc">Gauge WAIT</text><rect x="180" y="114" width="180" height="10" rx="5" fill="#142238"/><rect x="180" y="114" width="82" height="10" rx="5" fill="#fbbf24"/>
-    <text x="24" y="160" class="desc">SF CHANGE</text><rect x="180" y="148" width="180" height="10" rx="5" fill="#142238"/><rect x="180" y="148" width="18" height="10" rx="5" fill="#a78bfa"/>
+    <text x="24" y="92" class="desc">Processing RUN</text><rect x="180" y="80" width="180" height="10" rx="5" fill="#142238"/><rect x="180" y="80" width="169" height="10" rx="5" fill="url(#cyan)"/>
+    <text x="24" y="126" class="desc">Inspection WAIT</text><rect x="180" y="114" width="180" height="10" rx="5" fill="#142238"/><rect x="180" y="114" width="82" height="10" rx="5" fill="#fbbf24"/>
+    <text x="24" y="160" class="desc">FIN CHANGE</text><rect x="180" y="148" width="180" height="10" rx="5" fill="#142238"/><rect x="180" y="148" width="18" height="10" rx="5" fill="#a78bfa"/>
     <text x="24" y="194" class="desc">BLOCK total</text><rect x="180" y="182" width="180" height="10" rx="5" fill="#142238"/><rect x="180" y="182" width="14" height="10" rx="5" fill="#fb7185"/>
   </g>
 
@@ -134,9 +134,9 @@
     <rect class="panel" width="420" height="218" rx="18"/>
     <text x="24" y="38" class="name">Final output</text>
     <line x1="24" y1="62" x2="396" y2="62" class="line"/>
-    <text x="24" y="92" class="desc">OR raceway output</text><text x="370" y="92" class="desc" text-anchor="end">4,932 pcs</text>
-    <text x="24" y="126" class="desc">IR raceway output</text><text x="370" y="126" class="desc" text-anchor="end">4,888 pcs</text>
-    <text x="24" y="160" class="desc">Assembly paired</text><text x="370" y="160" class="desc" text-anchor="end">4,861 sets</text>
+    <text x="24" y="92" class="desc">Process A output</text><text x="370" y="92" class="desc" text-anchor="end">4,932 pcs</text>
+    <text x="24" y="126" class="desc">Process B output</text><text x="370" y="126" class="desc" text-anchor="end">4,888 pcs</text>
+    <text x="24" y="160" class="desc">Joined output</text><text x="370" y="160" class="desc" text-anchor="end">4,861 sets</text>
     <text x="24" y="194" class="desc">Final packed</text><text x="370" y="194" class="desc" text-anchor="end">4,820 sets</text>
   </g>
 </svg>
