@@ -1,5 +1,7 @@
 # Factory Takt Simulator
 
+[![CI](https://github.com/Felix-Zuo/factory-takt-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/Felix-Zuo/factory-takt-simulator/actions/workflows/ci.yml)
+
 Factory Takt Simulator is a visual takt-time and flow-simulation workstation for modular discrete-manufacturing lines. It helps users sketch process routes, tune buffers and transfer rules, run live or background simulation, and export capacity reports without binding the model to one product category.
 
 中文定位：面向离散制造产线的模块化节拍仿真工作台。设备是模块，路线由用户连线决定，系统负责节拍计算、缓存流转、机械手搬运、瓶颈识别和报告输出。
@@ -54,6 +56,16 @@ window.FactoryTaktAgent.runCommand({ type: 'runBackgroundSimulation' })
 
 The public project history is documented in [docs/PROJECT_HISTORY.md](docs/PROJECT_HISTORY.md). It is a sanitized product-evolution record, not a fabricated git history and not a disclosure of any private factory deployment.
 
+## Project Documents
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Quality model](docs/QUALITY.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Scenario JSON notes](docs/SCENARIO_SCHEMA.md)
+- [Agent integration](docs/AGENT_INTEGRATION.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+
 ## Quick Start
 
 ```bash
@@ -98,6 +110,7 @@ docs/              Showcase assets, integration notes, packaging notes
 npm run build
 npm run lint
 npm run maintain:check
+npm audit --omit=dev
 npm run test:smoke
 ```
 

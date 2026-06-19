@@ -157,6 +157,79 @@ try {
     ? pass('storage feeder exposes an input port', `${feederInputPorts} input ports`)
     : fail('storage feeder exposes an input port', `${feederInputPorts} input ports`);
 
+  await page.locator('.edge-label').first().click({ timeout: 5000 });
+  await page.waitForTimeout(150);
+  const activeEdgeLabels = await page.locator('.edge-label').evaluateAll((labels) =>
+    labels.filter((label) => (label.textContent ?? '').includes('/h')).length,
+  );
+  activeEdgeLabels === 1 ? pass('selecting an edge expands only one edge label') : fail('selecting an edge expands only one edge label', `${activeEdgeLabels}`);
+
+  await page.evaluate(() => {
+    const api = window.FactoryTaktAgent;
+    const snapshot = api?.getSnapshot?.();
+    const edge = snapshot?.edges.find((item) => item.data?.label === 'FEED-QA A') ?? snapshot?.edges[0];
+    if (api && edge) {
+      api.runCommand({
+        type: 'updateEdge',
+        edgeId: edge.id,
+        patch: {
+          batchSize: 1,
+          dispatchIntervalSec: 1,
+          travelTimeSec: 20,
+          lineBufferCapacity: 20,
+        },
+      });
+      api.runCommand({ type: 'setSpeed', speed: 1 });
+    }
+  });
+  await page.getByRole('button', { name: /Start|开始/ }).click({ timeout: 5000 });
+  await page.waitForTimeout(5500);
+  const dotMotion = await page.evaluate(async () => {
+    const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+    const read = () =>
+      Array.from(document.querySelectorAll('.material-flow-dot')).map((node) => {
+        const element = node instanceof HTMLElement ? node : null;
+        return {
+          id: element?.dataset.packetId ?? '',
+          offset: element?.style.offsetDistance ?? '',
+        };
+      });
+    let before = [];
+    for (let attempt = 0; attempt < 25; attempt += 1) {
+      before = read();
+      if (before.length > 0) break;
+      await wait(100);
+    }
+    if (before.length === 0) return { seen: 0, observed: false, detail: 'no material dots visible while sampling' };
+    await wait(500);
+    const after = read();
+    const beforeById = new Map(before.map((dot) => [dot.id, dot.offset]));
+    const moved = after.filter((dot) => dot.id && beforeById.has(dot.id) && beforeById.get(dot.id) !== dot.offset).length;
+    const completed = after.length !== before.length;
+    return {
+      seen: before.length,
+      observed: moved > 0 || completed,
+      detail: `${moved}/${after.length} moved, completed=${completed}`,
+    };
+  });
+  dotMotion.seen > 0
+    ? pass('line motion renders real material dots', `movers=${dotMotion.seen}`)
+    : fail('line motion renders real material dots', `movers=${dotMotion.seen}`);
+  const groupedArmVisuals = await page.locator('.arm-carrier-dot-grouped').evaluateAll((nodes) =>
+    nodes.map((node) => ({
+      offsetPath: node instanceof HTMLElement ? (getComputedStyle(node).offsetPath || node.style.offsetPath) : '',
+      transform: node instanceof HTMLElement ? node.style.transform : '',
+    })),
+  );
+  groupedArmVisuals.length > 0 &&
+  groupedArmVisuals.every((item) => item.offsetPath.includes('path(') && !item.transform.includes('translate'))
+    ? pass('grouped loader arm stays bound to rail path', `${groupedArmVisuals.length} arm carriers`)
+    : fail('grouped loader arm stays bound to rail path', JSON.stringify(groupedArmVisuals));
+  dotMotion.observed
+    ? pass('material dots advance smoothly on active conveyors', dotMotion.detail)
+    : fail('material dots advance smoothly on active conveyors', dotMotion.detail);
+  await page.screenshot({ path: `${out}/04-showcase-running.png` });
+
   const edgeCountBeforeClickConnect = await page.locator('.react-flow__edge').count();
   await page.locator('[data-node-short-name="FEED"] .node-port-label-out').nth(1).click({ force: true, timeout: 5000 });
   await page.locator('.node-port-label-in').nth(1).click({ force: true, timeout: 5000 });
@@ -172,53 +245,6 @@ try {
     : fail('clicking an output port opens port rule editor');
   await page.keyboard.press('Escape');
   await page.waitForTimeout(150);
-
-  await page.locator('.edge-label').first().click({ timeout: 5000 });
-  await page.waitForTimeout(150);
-  const activeEdgeLabels = await page.locator('.edge-label').evaluateAll((labels) =>
-    labels.filter((label) => (label.textContent ?? '').includes('/h')).length,
-  );
-  activeEdgeLabels === 1 ? pass('selecting an edge expands only one edge label') : fail('selecting an edge expands only one edge label', `${activeEdgeLabels}`);
-
-  await page.getByRole('button', { name: /Start|开始/ }).click({ timeout: 5000 });
-  await page.waitForTimeout(5500);
-  await page
-    .waitForFunction(() => document.querySelectorAll('.material-flow-dot').length > 0, null, { timeout: 2500 })
-    .catch(() => undefined);
-  const motionCount = await page.locator('.material-flow-dot').count();
-  motionCount > 0
-    ? pass('line motion renders real material dots', `movers=${motionCount}`)
-    : fail('line motion renders real material dots', `movers=${motionCount}`);
-  const groupedArmVisuals = await page.locator('.arm-carrier-dot-grouped').evaluateAll((nodes) =>
-    nodes.map((node) => ({
-      offsetPath: node instanceof HTMLElement ? (getComputedStyle(node).offsetPath || node.style.offsetPath) : '',
-      transform: node instanceof HTMLElement ? node.style.transform : '',
-    })),
-  );
-  groupedArmVisuals.length > 0 &&
-  groupedArmVisuals.every((item) => item.offsetPath.includes('path(') && !item.transform.includes('translate'))
-    ? pass('grouped loader arm stays bound to rail path', `${groupedArmVisuals.length} arm carriers`)
-    : fail('grouped loader arm stays bound to rail path', JSON.stringify(groupedArmVisuals));
-  const readDotOffsets = () =>
-    page.locator('.material-flow-dot').evaluateAll((dots) =>
-      dots.map((node) => ({
-        id: node instanceof HTMLElement ? (node.dataset.packetId ?? '') : '',
-        offset: node instanceof HTMLElement ? node.style.offsetDistance : '',
-      })),
-    );
-  const dotOffsetsBefore = await readDotOffsets();
-  await page.waitForTimeout(300);
-  const dotOffsetsAfter = await readDotOffsets();
-  const beforeById = new Map(dotOffsetsBefore.map((dot) => [dot.id, dot.offset]));
-  const movedDots = dotOffsetsAfter.filter((dot) => dot.id && beforeById.has(dot.id) && beforeById.get(dot.id) !== dot.offset).length;
-  const completedDots = dotOffsetsBefore.length > 0 && dotOffsetsAfter.length !== dotOffsetsBefore.length;
-  movedDots > 0 || completedDots
-    ? pass('material dots advance smoothly on active conveyors', `${movedDots}/${dotOffsetsAfter.length} moved, completed=${completedDots}`)
-    : fail(
-        'material dots advance smoothly on active conveyors',
-        `${dotOffsetsBefore.map((dot) => `${dot.id}:${dot.offset}`).join(',')} -> ${dotOffsetsAfter.map((dot) => `${dot.id}:${dot.offset}`).join(',')}`,
-      );
-  await page.screenshot({ path: `${out}/04-showcase-running.png` });
 
   await page.mouse.click((canvasBox?.x ?? 300) + 220, (canvasBox?.y ?? 90) + 160, { button: 'right' });
   await page.waitForTimeout(200);

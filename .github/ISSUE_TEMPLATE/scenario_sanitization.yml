@@ -1,0 +1,35 @@
+name: Scenario sanitization review
+description: Review a scenario before it is committed to the public repository.
+title: "[Scenario]: "
+labels: ["data-safety", "documentation", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template before adding a scenario JSON, screenshot, report, or diagram derived from real work.
+  - type: textarea
+    id: source
+    attributes:
+      label: Source and intended use
+      description: Describe whether the asset is synthetic, derived from a private scenario, or generated only for the showcase.
+    validations:
+      required: true
+  - type: checkboxes
+    id: removed
+    attributes:
+      label: Sanitization checklist
+      options:
+        - label: Customer names removed.
+          required: true
+        - label: Real line, machine, station, operator, and route identifiers removed.
+          required: true
+        - label: Private takt targets, production plans, and capacity commitments removed.
+          required: true
+        - label: Screenshots and diagrams use generic Process A/B/C naming.
+          required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: List checks run after adding the asset.
+      placeholder: npm run build, npm run test:smoke

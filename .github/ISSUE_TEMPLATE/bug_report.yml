@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a reproducible problem in the simulator.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include customer names, real line numbers, private machine parameters, screenshots with sensitive data, or unsanitized scenario exports.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What failed, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest scenario or action sequence that reproduces the issue.
+      placeholder: |
+        1. Open ...
+        2. Add ...
+        3. Click ...
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Explain whether this affects simulation correctness, data safety, visual inspection, export/import, packaging, or documentation.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Browser/Electron, OS, Node version, app version.
+  - type: textarea
+    id: validation
+    attributes:
+      label: Checks already run
+      placeholder: npm run build, npm run lint, npm run test:smoke
+  - type: checkboxes
+    id: data-safety
+    attributes:
+      label: Data safety
+      options:
+        - label: I have removed real customer, operator, machine, route, and production-plan data.
+          required: true
