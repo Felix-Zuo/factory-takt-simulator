@@ -55,6 +55,13 @@ The product priorities are:
 - Added a compact product-page header so visitors can move from overview to workbench without seeing internal simulator controls first.
 - Added a GitHub Pages deployment workflow for the static Vite build.
 
+### Phase 7: Product Showcase Design Benchmarking
+
+- Reviewed public pages for industrial simulation tools and high-quality developer products.
+- Rebuilt the showcase hero around a full-bleed real workbench screenshot instead of a split text/media card.
+- Added a documented design benchmark note so the public presentation has a traceable design rationale.
+- Alternated dark product-surface sections with light documentation-style sections to improve scanning and reduce visual monotony.
+
 ## Public Data Rules
 
 - Use synthetic device names and route IDs.
@@ -65,4 +72,4 @@ The product priorities are:
 
 ## Current Public Version
 
-`0.6.1-beta` is the first public version with a deployable product showcase page linked from the GitHub repository and portfolio profile.
+`0.6.2-beta` is the benchmark-informed public showcase version with a stronger product page, documented design rationale, and the same sanitized generic data boundary.
