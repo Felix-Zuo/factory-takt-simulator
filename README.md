@@ -15,6 +15,8 @@ This public repository is a sanitized showcase build. The included scenarios are
 - Local workbench: run `npm run dev`, then open `http://127.0.0.1:5173/`.
 - Showcase route: add `?view=showcase` to open the product page directly.
 
+![Product showcase page](docs/showcase/screenshots/07-product-showcase.png)
+
 ![Line overview](docs/showcase/screenshots/01-line-overview.png)
 
 ## Visual Workbench
@@ -66,6 +68,7 @@ The public project history is documented in [docs/PROJECT_HISTORY.md](docs/PROJE
 ## Project Documents
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Design benchmarks](docs/DESIGN_BENCHMARKS.md)
 - [Quality model](docs/QUALITY.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Scenario JSON notes](docs/SCENARIO_SCHEMA.md)

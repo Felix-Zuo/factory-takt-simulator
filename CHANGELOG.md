@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.2-beta
+
+- Redesigned the public showcase page after benchmarking industrial simulation and top-tier developer product pages.
+- Rebuilt the hero around a full-bleed real workbench screenshot, concise product positioning, and stronger primary actions.
+- Added clearer proof, capability, workflow, product-surface, engineering-evidence, roadmap, and documentation sections.
+- Introduced a mixed dark/light page structure to reduce visual monotony while keeping the simulator's industrial product identity.
+- Added design benchmark notes so the public presentation rationale is visible in the repository.
+
 ## 0.6.1-beta
 
 - Reworked the in-app project overview into a public product showcase page with direct `?view=showcase` routing.
