@@ -7,6 +7,7 @@
 - Added clearer proof, capability, workflow, product-surface, engineering-evidence, roadmap, and documentation sections.
 - Introduced a mixed dark/light page structure to reduce visual monotony while keeping the simulator's industrial product identity.
 - Added design benchmark notes so the public presentation rationale is visible in the repository.
+- Fixed the default public scenario request path for GitHub Pages subpath deployment.
 
 ## 0.6.1-beta
 
