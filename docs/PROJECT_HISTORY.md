@@ -48,6 +48,13 @@ The product priorities are:
 - Fixed a default full-line edge configuration issue where `shape` was written instead of the runtime `edgeShape` field.
 - Updated README, report examples, diagrams, and smoke checks to match the generic public product.
 
+### Phase 6: Public Product Page
+
+- Reworked the in-app project overview into a direct public product page.
+- Added `?view=showcase` routing for GitHub Pages and external portfolio links.
+- Added a compact product-page header so visitors can move from overview to workbench without seeing internal simulator controls first.
+- Added a GitHub Pages deployment workflow for the static Vite build.
+
 ## Public Data Rules
 
 - Use synthetic device names and route IDs.
@@ -58,4 +65,4 @@ The product priorities are:
 
 ## Current Public Version
 
-`0.6.0-beta` is the first public version where the showcase repository is treated as a generic product rather than a domain-specific demo with renamed labels.
+`0.6.1-beta` is the first public version with a deployable product showcase page linked from the GitHub repository and portfolio profile.

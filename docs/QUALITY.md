@@ -11,6 +11,7 @@ Factory Takt Simulator is treated as a local-first engineering tool. Quality is 
 | Maintainability | `npm run maintain:check` | Track large files and removed 3D dependencies. |
 | Production audit | `npm audit --omit=dev` | Keep runtime dependency surface clean. |
 | Browser smoke | `npm run test:smoke` | Verify main canvas, scenario, animation, settings, and report workflows. |
+| Pages build | `.github/workflows/pages.yml` | Build the public product page from the same Vite app. |
 
 ## Current Known Debt
 

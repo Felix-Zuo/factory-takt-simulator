@@ -21,8 +21,10 @@ import { lazy, Suspense, useRef, useState, type ChangeEvent } from 'react';
 import { t } from '../../i18n/text';
 import { useFactoryStore } from '../../store/factoryStore';
 import type { SavedScenarioSummary } from '../../types/factory';
-import { APP_VERSION } from '../../version';
 import { NumberStepper } from '../ui/NumberStepper';
+import { BrandButton } from './BrandButton';
+import { ShowcaseHeader } from './ShowcaseHeader';
+import { MenuButton, MenuDivider } from './TopBarMenu';
 
 type AppView = 'simulator' | 'settings' | 'tutorial' | 'showcase';
 
@@ -74,6 +76,10 @@ export function TopBar({ view, setView }: TopBarProps) {
   const buttonClass =
     'topbar-action inline-flex h-8 shrink-0 items-center gap-1.5 rounded border border-slate-700 bg-slate-900/82 px-2.5 text-[11px] font-medium text-slate-200 transition hover:border-cyan-300/55 hover:text-cyan-100';
 
+  if (view === 'showcase') {
+    return <ShowcaseHeader setView={setView} zh={zh} />;
+  }
+
   const refreshScenarioList = () => setSavedScenarios(listSavedScenarios());
   const openScenarioModal = () => {
     refreshScenarioList();
@@ -99,20 +105,11 @@ export function TopBar({ view, setView }: TopBarProps) {
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-950/96 px-3 shadow-lg shadow-black/20">
-      <button className="flex min-w-[240px] items-center gap-2 text-left" onClick={() => setView('simulator')}>
-        <div className="grid h-9 w-9 place-items-center rounded border border-cyan-300/34 bg-slate-900/70 p-1.5">
-          <img src="/brand/brand-mark.svg" alt="Factory Takt Simulator" className="h-full w-full" draggable={false} />
-        </div>
-        <div>
-          <h1 className="flex items-baseline gap-2 text-sm font-semibold tracking-wide text-slate-50">
-            <span>Factory_Takt_Simulator</span>
-            <span className="text-[10px] font-medium tracking-normal text-slate-500">v{APP_VERSION}</span>
-          </h1>
-          <p className="max-w-[280px] truncate text-[10px] text-slate-500">
-            {zh ? '模块化产线节拍仿真工作台' : 'Modular line takt simulation workstation'}
-          </p>
-        </div>
-      </button>
+      <BrandButton
+        onClick={() => setView('simulator')}
+        title="Factory_Takt_Simulator"
+        subtitle={zh ? '模块化产线节拍仿真工作台' : 'Modular line takt simulation workstation'}
+      />
 
       <div className="flex min-w-0 items-center gap-2">
         <button className={buttonClass} onClick={start} title={t(settings.language, 'start')}>
@@ -322,17 +319,4 @@ export function TopBar({ view, setView }: TopBarProps) {
       ) : null}
     </header>
   );
-}
-
-function MenuButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-xs text-slate-200 hover:bg-slate-800" onClick={onClick}>
-      {icon}
-      {label}
-    </button>
-  );
-}
-
-function MenuDivider() {
-  return <div className="my-1 border-t border-slate-800" />;
 }

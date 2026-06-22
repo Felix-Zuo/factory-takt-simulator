@@ -8,6 +8,7 @@ This roadmap keeps the public project focused on a mature generic simulator rath
 - Maintain backward-compatible import hydration for older sanitized exports.
 - Keep CI green across build, lint, production audit, maintainability check, and browser smoke.
 - Improve README screenshots, report examples, and documentation when the product surface changes.
+- Keep the GitHub Pages product page aligned with the current simulator surface and public portfolio positioning.
 
 ## 0.7.x Modeling Depth
 
