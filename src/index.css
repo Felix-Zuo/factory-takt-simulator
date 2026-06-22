@@ -25,6 +25,16 @@ body {
     linear-gradient(135deg, #020617 0%, #0f172a 45%, #111827 100%);
 }
 
+body[data-app-view="showcase"] {
+  min-width: 0;
+  min-height: 100vh;
+  overflow: auto;
+}
+
+body[data-app-view="showcase"] #root {
+  min-height: 100vh;
+}
+
 .app-shell {
   --accent-color: #22d3ee;
   --accent-rgb: 34 211 238;

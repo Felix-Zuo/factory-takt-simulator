@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1-beta
+
+- Reworked the in-app project overview into a public product showcase page with direct `?view=showcase` routing.
+- Added a compact showcase navigation header so public visitors can move between the product page, simulator, tutorial, and GitHub repository.
+- Added GitHub Pages deployment workflow for the Vite static build.
+- Added public showcase screenshots under `public/showcase/` so the product page renders correctly after deployment.
+- Updated README with the live product-page entrypoint and Pages status badge.
+
 ## 0.6.0-beta
 
 - Generalized the public showcase from a domain-specific line into a reusable Process A/B/C, Finishing, QA, Merge, Join, and Packing simulator.

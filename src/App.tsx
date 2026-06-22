@@ -11,6 +11,13 @@ import { useFactoryStore } from './store/factoryStore';
 import './App.css';
 
 type AppView = 'simulator' | 'settings' | 'tutorial' | 'showcase';
+const appViews: AppView[] = ['simulator', 'settings', 'tutorial', 'showcase'];
+
+function getInitialView(): AppView {
+  const params = new URLSearchParams(window.location.search);
+  const requestedView = params.get('view') ?? window.location.hash.replace(/^#/, '');
+  return appViews.includes(requestedView as AppView) ? (requestedView as AppView) : 'simulator';
+}
 
 const TutorialPage = lazy(() =>
   import('./components/layout/TutorialPage').then((module) => ({ default: module.TutorialPage })),
@@ -29,16 +36,38 @@ const ParameterPanel = lazy(() =>
 );
 
 function App() {
-  const [view, setView] = useState<AppView>('simulator');
-  const [introOpen, setIntroOpen] = useState(true);
+  const initialView = getInitialView();
+  const [view, setCurrentView] = useState<AppView>(initialView);
+  const [introOpen, setIntroOpen] = useState(initialView === 'simulator');
   useKeyboardShortcuts();
   useScenarioMemory();
   const tick = useFactoryStore((state) => state.tick);
   const settings = useFactoryStore((state) => state.settings);
   const panels = useFactoryStore((state) => state.panels);
   const setPanelSize = useFactoryStore((state) => state.setPanelSize);
+  const createFullLineScenario = useFactoryStore((state) => state.createFullLineScenario);
+
+  const setView = (nextView: AppView) => {
+    setCurrentView(nextView);
+    const url = new URL(window.location.href);
+    if (nextView === 'simulator') {
+      url.searchParams.delete('view');
+      url.hash = '';
+    } else {
+      url.searchParams.set('view', nextView);
+      url.hash = '';
+    }
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  };
 
   useEffect(() => installFactoryTaktAgentBridge(), []);
+
+  useEffect(() => {
+    document.body.dataset.appView = view;
+    return () => {
+      delete document.body.dataset.appView;
+    };
+  }, [view]);
 
   useEffect(() => {
     const tickMs =
@@ -70,7 +99,11 @@ function App() {
 
   return (
     <div
-      className={`app-shell theme-${settings.themeMode} anim-${settings.animationIntensity} ${settings.hideText ? 'text-hidden-mode' : ''} flex h-screen min-h-[720px] flex-col overflow-hidden bg-slate-950 text-slate-100`}
+      className={`app-shell view-${view} theme-${settings.themeMode} anim-${settings.animationIntensity} ${
+        settings.hideText ? 'text-hidden-mode' : ''
+      } flex flex-col bg-slate-950 text-slate-100 ${
+        view === 'showcase' ? 'min-h-screen overflow-visible' : 'h-screen min-h-[720px] overflow-hidden'
+      }`}
       data-language={settings.language}
     >
       {introOpen ? <IntroOverlay language={settings.language} onClose={() => setIntroOpen(false)} /> : null}
@@ -93,7 +126,13 @@ function App() {
             </main>
           }
         >
-          <ShowcasePage />
+          <ShowcasePage
+            onLoadTemplate={() => {
+              createFullLineScenario();
+              setView('simulator');
+            }}
+            onOpenSimulator={() => setView('simulator')}
+          />
         </Suspense>
       ) : view === 'settings' ? (
         <Suspense
