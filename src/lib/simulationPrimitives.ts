@@ -120,9 +120,14 @@ export const takeOutputFromHandle = (node: FactoryNode, amount: number, handleId
   if (isAssemblyStorage(node) || isSplitStorageFeeder(node)) {
     if (handleId === 'out-2') params.partBStorageCount = Math.max(0, params.partBStorageCount - amount);
     else params.partAStorageCount = Math.max(0, params.partAStorageCount - amount);
-    params.currentStorageCount = params.partAStorageCount + params.partBStorageCount;
-    if (isAssemblyStorage(node)) params.inputBufferCount = params.currentStorageCount;
-    params.outputBufferCount = params.currentStorageCount;
+    const outputCount = params.partAStorageCount + params.partBStorageCount;
+    if (isAssemblyStorage(node)) {
+      params.currentStorageCount = outputCount;
+      params.inputBufferCount = outputCount;
+    } else {
+      params.inputBufferCount = Math.min(params.inputBufferCapacity, params.currentStorageCount);
+    }
+    params.outputBufferCount = outputCount;
     return;
   }
   params.outputBufferCount = Math.max(0, params.outputBufferCount - amount);

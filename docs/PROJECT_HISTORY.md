@@ -62,6 +62,12 @@ The product priorities are:
 - Added a documented design benchmark note so the public presentation has a traceable design rationale.
 - Alternated dark product-surface sections with light documentation-style sections to improve scanning and reduce visual monotony.
 
+### Phase 8: Full-Line Template Hardening
+
+- Promoted the public template to the same synthetic 43-node full-line example used by the workbench.
+- Fixed split-feeder inventory accounting so source stock is not overwritten by per-port output buffers.
+- Added smoke coverage for feeder continuity and complete multi-port template rules.
+
 ## Public Data Rules
 
 - Use synthetic device names and route IDs.
@@ -72,4 +78,4 @@ The product priorities are:
 
 ## Current Public Version
 
-`0.6.2-beta` is the benchmark-informed public showcase version with a stronger product page, documented design rationale, and the same sanitized generic data boundary.
+`0.6.3-beta` is the hardened public showcase version with the benchmark-informed product page, a complete synthetic full-line template, and feeder-continuity regression coverage.

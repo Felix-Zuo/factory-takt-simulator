@@ -52,7 +52,7 @@ Full report: [docs/showcase/report-example.md](docs/showcase/report-example.md)
 - Track waiting, blocking, maintenance, consumable change, utilization, output, capacity, and line-balance metrics.
 - Run live simulation or background simulation by target time / target output.
 - Save, load, import, export, and restore scenarios locally.
-- Load a synthetic public template from `public/scenarios/modular-line-template.json`.
+- Load the synthetic 43-node full-line template from `public/scenarios/modular-line-template.json`.
 - Expose a browser-side integration bridge for external tools:
 
 ```ts

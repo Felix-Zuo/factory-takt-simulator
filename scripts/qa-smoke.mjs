@@ -125,6 +125,43 @@ try {
     ? pass('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks))
     : fail('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks));
 
+  await page.evaluate(() => {
+    const api = window.FactoryTaktAgent;
+    api?.runCommand({ type: 'reset' });
+    api?.runCommand({ type: 'setSpeed', speed: 20 });
+    api?.runCommand({ type: 'start' });
+  });
+  await page.waitForTimeout(6500);
+  const feederContinuity = await page.evaluate(() => {
+    const snapshot = window.FactoryTaktAgent?.getSnapshot?.();
+    const feeder = snapshot?.nodes.find((node) => node.id === 'line-feed');
+    const feedEdges = snapshot?.edges.filter((edge) => edge.source === 'line-feed') ?? [];
+    const downstreamInput = snapshot?.nodes
+      .filter((node) => node.id === 'line-feed-a-inspection' || node.id === 'line-feed-b-inspection')
+      .reduce((sum, node) => sum + node.data.params.inputBufferCount + node.data.metrics.totalInput, 0) ?? 0;
+    return {
+      status: feeder?.data.runtime.status,
+      currentStorageCount: feeder?.data.params.currentStorageCount,
+      totalOutput: feeder?.data.metrics.totalOutput,
+      partAStorageCount: feeder?.data.params.partAStorageCount,
+      partBStorageCount: feeder?.data.params.partBStorageCount,
+      downstreamInput,
+      edgeWarnings: feedEdges.map((edge) => edge.data?.warning ?? '').filter(Boolean),
+    };
+  });
+  feederContinuity.status !== 'waiting_material' &&
+  feederContinuity.currentStorageCount > 249500 &&
+  feederContinuity.totalOutput > 2 &&
+  feederContinuity.downstreamInput > 0
+    ? pass('full-line feeder keeps supplying after the first material pair', JSON.stringify(feederContinuity))
+    : fail('full-line feeder keeps supplying after the first material pair', JSON.stringify(feederContinuity));
+  await page.evaluate(() => {
+    const api = window.FactoryTaktAgent;
+    api?.runCommand({ type: 'pause' });
+    api?.runCommand({ type: 'reset' });
+    api?.runCommand({ type: 'setSpeed', speed: 2 });
+  });
+
   const canvasBox = await page.locator('[data-testid="factory-canvas"]').boundingBox();
   canvasBox && canvasBox.width > 700 && canvasBox.height > 420
     ? pass('canvas keeps usable working area', `${Math.round(canvasBox.width)}x${Math.round(canvasBox.height)}`)

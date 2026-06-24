@@ -44,7 +44,7 @@ import {
 } from '../lib/scenarioPersistence';
 import { tickSimulation } from '../lib/simulation';
 import { nanoid } from '../lib/uid';
-import { createEmptyMetrics, createNodeData, createRuntime, getCatalogItem } from '../data/deviceCatalog';
+import { createDefaultPortRule, createEmptyMetrics, createNodeData, createRuntime, getCatalogItem } from '../data/deviceCatalog';
 import type {
   AppSettings,
   DeviceParameters,
@@ -59,6 +59,29 @@ import type {
   SimulationSummary,
   TransportType,
 } from '../types/factory';
+
+const DEFAULT_TEMPLATE_SUPPLY = 250000;
+
+const completePortRules = (params: DeviceParameters): DeviceParameters => {
+  const inputPortRules = { ...params.inputPortRules };
+  for (let index = 1; index <= Math.max(1, Math.min(4, params.inputPortCount)); index += 1) {
+    const handleId = `in-${index}`;
+    if (!inputPortRules[handleId]) inputPortRules[handleId] = createDefaultPortRule('input', index, params.materialKind);
+  }
+
+  const outputPortRules = { ...params.outputPortRules };
+  for (let index = 1; index <= Math.max(1, Math.min(4, params.outputPortCount)); index += 1) {
+    const handleId = `out-${index}`;
+    const materialFilter = index === 2 ? params.output2MaterialKind : params.output1MaterialKind;
+    outputPortRules[handleId] = {
+      ...createDefaultPortRule('output', index, materialFilter),
+      ...(outputPortRules[handleId] ?? {}),
+      materialFilter,
+    };
+  }
+
+  return { ...params, inputPortRules, outputPortRules };
+};
 
 interface FactoryState {
   nodes: FactoryNode[];
@@ -657,20 +680,22 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
   bootstrapScenario: (fallback) => {
     if (get().nodes.length > 0) return;
     const latest = findScenarioPayload();
-    if (!latest || !Array.isArray(latest.nodes) || !Array.isArray(latest.edges)) {
+    if (latest && Array.isArray(latest.nodes) && Array.isArray(latest.edges)) {
+      set((state) => scenarioStatePatch(latest, state, 'Recovered last workspace from local memory.'));
+      return;
+    }
+    if (!Array.isArray(fallback.nodes) || !Array.isArray(fallback.edges) || fallback.nodes.length === 0) {
       get().createFullLineScenario();
       return;
     }
-    const payload = latest && Array.isArray(latest.nodes) && Array.isArray(latest.edges) ? latest : { ...fallback, name: '通用工艺线模板' };
-    if (!latest) {
-      putScenarioRecord({
-        ...payload,
-        id: 'scenario-built-in-modular-line',
-        name: '通用工艺线模板',
-        savedAt: new Date().toISOString(),
-      });
-    }
-    set((state) => scenarioStatePatch(payload, state, latest ? 'Recovered last workspace from local memory.' : 'Loaded built-in template: generic modular line.'));
+    const payload = { ...fallback, name: fallback.name ?? 'Generic modular process line template' };
+    putScenarioRecord({
+      ...payload,
+      id: 'scenario-built-in-modular-line',
+      name: payload.name ?? 'Generic modular process line template',
+      savedAt: new Date().toISOString(),
+    });
+    set((state) => scenarioStatePatch(payload, state, 'Loaded built-in template: generic modular line.'));
   },
 
   startConfigBrush: (sourceNodeId, mode) =>
@@ -721,6 +746,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         deviceShortName: catalog.shortName,
         ...patch,
       };
+      data.params = completePortRules(data.params);
       if ('processTimeSec' in patch && !('station1ProcessTimeSec' in patch)) {
         data.params.station1ProcessTimeSec = data.params.processTimeSec;
       }
@@ -738,8 +764,9 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
 
     const nodes: FactoryNode[] = [
       makeNode('storage_feeder', 20, 160, 1, {
-        initialMaterials: 1600,
-        currentStorageCount: 1600,
+        initialMaterials: DEFAULT_TEMPLATE_SUPPLY,
+        storageCapacity: DEFAULT_TEMPLATE_SUPPLY,
+        currentStorageCount: DEFAULT_TEMPLATE_SUPPLY,
         outputBufferCapacity: 140,
         outputPortCount: 2,
         output1MaterialKind: 'part_a',
@@ -824,6 +851,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         deviceCode: patch.deviceCode ?? `${(patch.deviceShortName ?? catalog.shortName).replace(/\s+/g, '-').toUpperCase()}-${String(index).padStart(2, '0')}`,
         ...patch,
       };
+      data.params = completePortRules(data.params);
       if ('processTimeSec' in patch && !('station1ProcessTimeSec' in patch)) {
         data.params.station1ProcessTimeSec = data.params.processTimeSec;
       }
@@ -848,8 +876,9 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         deviceCode: 'FEED-01',
         feedBatchSize: 1,
         feedIntervalSec: 3,
-        storageCapacity: 2000,
-        currentStorageCount: 2000,
+        initialMaterials: DEFAULT_TEMPLATE_SUPPLY,
+        storageCapacity: DEFAULT_TEMPLATE_SUPPLY,
+        currentStorageCount: DEFAULT_TEMPLATE_SUPPLY,
         outputBufferCapacity: 180,
         outputPortCount: 2,
         materialKind: 'mixed',
@@ -1274,6 +1303,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
           `${(patch.deviceShortName ?? catalog.shortName).replace(/\s+/g, '-').toUpperCase()}-${String(index).padStart(2, '0')}`,
         ...patch,
       };
+      data.params = completePortRules(data.params);
       if ('processTimeSec' in patch && !('station1ProcessTimeSec' in patch)) {
         data.params.station1ProcessTimeSec = data.params.processTimeSec;
       }
