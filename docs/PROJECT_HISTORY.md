@@ -78,4 +78,4 @@ The product priorities are:
 
 ## Current Public Version
 
-`0.6.3-beta` is the hardened public showcase version with the benchmark-informed product page, a complete synthetic full-line template, and feeder-continuity regression coverage.
+`0.6.4-beta` is the hardened public showcase version with the benchmark-informed product page, a complete synthetic full-line template, feeder-continuity regression coverage, and GitHub Pages-safe static asset paths.

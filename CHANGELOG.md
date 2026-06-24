@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4-beta
+
+- Fixed brand asset URLs so the intro and header logo load correctly under the GitHub Pages subpath deployment.
+
 ## 0.6.3-beta
 
 - Fixed a split storage-feeder simulation bug that could overwrite source inventory after the first material pair was transferred.
