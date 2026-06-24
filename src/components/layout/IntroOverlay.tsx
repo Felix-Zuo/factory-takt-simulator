@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+const brandMarkUrl = `${import.meta.env.BASE_URL}brand/brand-mark.svg`;
+
 export function IntroOverlay({ language, onClose }: { language: string; onClose: () => void }) {
   useEffect(() => {
     const close = () => onClose();
@@ -26,7 +28,7 @@ export function IntroOverlay({ language, onClose }: { language: string; onClose:
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" />
         <div className="flex items-center gap-5">
           <div className="intro-mark grid h-24 w-24 shrink-0 place-items-center rounded-lg border border-cyan-300/22 bg-slate-900/70 p-3 shadow-[0_0_28px_rgba(34,211,238,.12)]">
-            <img src="/brand/brand-mark.svg" alt="Factory Takt brand mark" className="h-full w-full" draggable={false} />
+            <img src={brandMarkUrl} alt="Factory Takt brand mark" className="h-full w-full" draggable={false} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="intro-brand-lockup">

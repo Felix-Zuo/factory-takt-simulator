@@ -1,5 +1,7 @@
 import { APP_VERSION } from '../../version';
 
+const brandMarkUrl = `${import.meta.env.BASE_URL}brand/brand-mark.svg`;
+
 interface BrandButtonProps {
   onClick: () => void;
   subtitle: string;
@@ -10,7 +12,7 @@ export function BrandButton({ onClick, subtitle, title }: BrandButtonProps) {
   return (
     <button className="flex min-w-[240px] items-center gap-2 text-left" onClick={onClick}>
       <div className="grid h-9 w-9 place-items-center rounded border border-cyan-300/34 bg-slate-900/70 p-1.5">
-        <img src="./brand/brand-mark.svg" alt="Factory Takt Simulator" className="h-full w-full" draggable={false} />
+        <img src={brandMarkUrl} alt="Factory Takt Simulator" className="h-full w-full" draggable={false} />
       </div>
       <div>
         <h1 className="flex items-baseline gap-2 text-sm font-semibold text-slate-50">
