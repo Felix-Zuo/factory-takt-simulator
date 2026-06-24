@@ -634,6 +634,11 @@ const tickConveyorEdge = (
   }
 
   if (!sourceReady) {
+    const sourceIsCyclingFeeder =
+      source.data.params.deviceType === 'storage_feeder' &&
+      source.data.params.currentStorageCount >= batch &&
+      (source.data.runtime.status === 'running' || source.data.runtime.processRemainingSec > 0);
+    if (sourceIsCyclingFeeder) return;
     edgeData.warning = `${source.data.params.deviceShortName} output is below transfer batch.`;
     return;
   }

@@ -6,7 +6,7 @@ Scenario exports are local-first JSON documents.
 
 ```json
 {
-  "version": "0.6.2-beta",
+  "version": "0.6.3-beta",
   "name": "Example line",
   "nodes": [],
   "edges": [],
@@ -50,3 +50,4 @@ Before adding a scenario to the repository:
 - Remove private takt targets or internal production plans.
 - State clearly whether the scenario is synthetic.
 - Prefer generic stage names such as Process A/B/C, Finishing, QA, Merge, Join, and Pack.
+- Keep multi-port devices self-contained with complete `inputPortRules` and `outputPortRules`.

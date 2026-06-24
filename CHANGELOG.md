@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.3-beta
+
+- Fixed a split storage-feeder simulation bug that could overwrite source inventory after the first material pair was transferred.
+- Replaced the lightweight public scenario JSON with the same synthetic 43-node full-line template used by the in-app full-line example.
+- Completed generated port rules for multi-output devices so exported templates are self-contained and portable.
+- Added smoke coverage for feeder continuity to catch regressions where the default full-line demo stops at startup.
+
 ## 0.6.2-beta
 
 - Redesigned the public showcase page after benchmarking industrial simulation and top-tier developer product pages.
