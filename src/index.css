@@ -323,7 +323,6 @@ button {
 }
 
 .anim-off .industrial-scanline,
-.anim-off .subtle-node-flow,
 .anim-off .material-dot,
 .anim-off .material-flow-dot {
   animation: none !important;
@@ -618,12 +617,6 @@ button {
   display: none;
 }
 
-.subtle-node-flow {
-  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.08), transparent);
-  transform: translateX(-120%);
-  animation: node-scan 5.8s ease-in-out infinite;
-}
-
 .node-card {
   contain: layout;
   backface-visibility: hidden;
@@ -749,40 +742,6 @@ button {
   background: linear-gradient(90deg, #38bdf8, #22d3ee);
 }
 
-.node-card .subtle-node-flow {
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.node-showcase-aura {
-  position: absolute;
-  inset: -5px;
-  z-index: -1;
-  pointer-events: none;
-  border: 1px solid currentColor;
-  border-radius: 0.62rem;
-}
-
-.node-showcase-aura-run {
-  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, currentColor 10%, transparent), transparent 70%);
-  box-shadow:
-    0 0 13px color-mix(in srgb, currentColor 18%, transparent),
-    inset 0 0 10px color-mix(in srgb, currentColor 8%, transparent);
-  animation: node-showcase-run 6.2s ease-in-out infinite alternate;
-}
-
-.node-showcase-aura-wait {
-  background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.18), transparent 70%);
-  box-shadow: 0 0 22px rgba(245, 158, 11, 0.36);
-  animation: node-showcase-wait 4.2s ease-in-out infinite alternate;
-}
-
-.node-showcase-aura-block {
-  background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.2), transparent 70%);
-  box-shadow: 0 0 28px rgba(239, 68, 68, 0.42);
-  animation: node-showcase-block 2.6s ease-in-out infinite alternate;
-}
-
 .context-menu {
   color: #e2e8f0;
 }
@@ -862,11 +821,6 @@ button {
   box-shadow:
     0 14px 28px rgba(15, 23, 42, 0.16),
     0 0 16px rgba(14, 165, 233, 0.1);
-}
-
-.anim-low .subtle-node-flow,
-.anim-off .subtle-node-flow {
-  display: none;
 }
 
 .industrial-grid-animated {
@@ -1114,37 +1068,6 @@ button {
   }
   to {
     opacity: 0.14;
-  }
-}
-
-@keyframes node-showcase-run {
-  from {
-    transform: scale(0.985);
-    opacity: 0.42;
-  }
-  to {
-    transform: scale(1.025);
-    opacity: 0.78;
-  }
-}
-
-@keyframes node-showcase-wait {
-  from {
-    opacity: 0.36;
-  }
-  to {
-    opacity: 0.72;
-  }
-}
-
-@keyframes node-showcase-block {
-  from {
-    transform: scale(1);
-    opacity: 0.38;
-  }
-  to {
-    transform: scale(1.035);
-    opacity: 0.78;
   }
 }
 
