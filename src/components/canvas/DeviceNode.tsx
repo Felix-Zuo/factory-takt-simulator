@@ -44,7 +44,6 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
       ? []
       : Array.from({ length: requestedOutputPorts }, (_, index) => `out-${index + 1}`);
   const animateNode = animationIntensity !== 'off' && animationIntensity !== 'low';
-  const isShowcase = animationIntensity === 'showcase';
   const cycleSec =
     params.deviceType === 'spin_dryer'
       ? params.dryerDryTimeSec
@@ -110,14 +109,6 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
     params.processFamily === 'cleaning' ||
     params.processFamily === 'buffer' ||
     params.processFamily === 'sink';
-  const auraClass =
-    runtime.status === 'running'
-      ? 'node-showcase-aura node-showcase-aura-run'
-      : runtime.status === 'blocked'
-        ? 'node-showcase-aura node-showcase-aura-block'
-        : runtime.status === 'waiting_material'
-          ? 'node-showcase-aura node-showcase-aura-wait'
-          : '';
   const compactCardWidth = isInspectionFamily ? 'w-[124px]' : isAssemblyFamily ? 'w-[128px]' : 'w-[136px]';
   const standardCardWidth = isInspectionFamily ? 'w-[134px]' : isAssemblyFamily ? 'w-[138px]' : 'w-[154px]';
   const cardWidth = hideText ? 'w-[58px]' : compact ? compactCardWidth : standardCardWidth;
@@ -149,8 +140,6 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
       animate={animateNode ? { opacity: 1, y: 0, scale: selected ? 1.01 : 1 } : undefined}
       transition={{ type: 'spring', stiffness: 260, damping: 24 }}
     >
-      {isShowcase && auraClass ? <div className={auraClass} style={{ borderColor: `${color}66`, color }} /> : null}
-
       {inputPorts.map((handleId, index) => (
         <div key={handleId}>
           <Handle
@@ -229,7 +218,6 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
       ))}
 
       <div className="absolute inset-x-0 top-0 h-0.5" style={{ backgroundColor: color }} />
-      {runtime.status === 'running' ? <div className="absolute inset-0 subtle-node-flow" /> : null}
       <button
         className="nodrag absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded border border-slate-700/70 bg-slate-950/80 text-slate-500 opacity-0 transition hover:border-red-300/60 hover:text-red-200 group-hover:opacity-100"
         title={zh ? '删除工序' : 'Delete process'}
