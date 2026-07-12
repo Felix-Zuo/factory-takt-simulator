@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { useEffect, useState } from 'react';
+import { Handle, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import { motion } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
 import { getCatalogItem, statusColorMap, statusLabels } from '../../data/deviceCatalog';
@@ -11,6 +11,7 @@ import { DeviceIcon } from '../DeviceIcon';
 
 export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const updateNodeInternals = useUpdateNodeInternals();
   const { params, runtime, metrics } = data;
   const catalog = getCatalogItem(params.deviceType);
   const color = statusColorMap[runtime.status];
@@ -43,6 +44,16 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
     params.deviceType === 'finished_sink' || params.deviceType === 'packing_sink'
       ? []
       : Array.from({ length: requestedOutputPorts }, (_, index) => `out-${index + 1}`);
+  const flowDirection = data.resolvedFlowDirection ?? 'ltr';
+  const inputPhysicalSide = flowDirection === 'rtl' ? 'right' : 'left';
+  const outputPhysicalSide = flowDirection === 'rtl' ? 'left' : 'right';
+  const inputPosition = flowDirection === 'rtl' ? Position.Right : Position.Left;
+  const outputPosition = flowDirection === 'rtl' ? Position.Left : Position.Right;
+
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, [flowDirection, id, inputPorts.length, outputPorts.length, updateNodeInternals]);
+
   const animateNode = animationIntensity !== 'off' && animationIntensity !== 'low';
   const cycleSec =
     params.deviceType === 'spin_dryer'
@@ -126,6 +137,7 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
     <motion.div
       title={`${catalog.zhTitle} / ${catalog.title}`}
       data-node-short-name={params.deviceShortName}
+      data-flow-direction={flowDirection}
       className={`${cardWidth} node-card group relative overflow-visible rounded border bg-slate-950/96 text-slate-100 shadow-lg shadow-black/20 ${isBrushSource ? 'node-brush-source' : ''} ${isBrushTarget ? 'node-brush-target' : ''} ${isDeleting ? 'node-card-deleting' : ''}`}
       style={{
         borderColor: selected || isClickSource || isBrushSource ? color : `${color}55`,
@@ -145,9 +157,10 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
           <Handle
             id={handleId}
             type="target"
-            position={Position.Left}
+            position={inputPosition}
             data-port-kind="in"
-            className={`node-port node-port-in !h-4 !w-3.5 !rounded-[3px] !border ${
+            data-port-physical-side={inputPhysicalSide}
+            className={`node-port node-port-in node-port-${inputPhysicalSide} !h-4 !w-3.5 !rounded-[3px] !border ${
               selectedPort?.nodeId === id && selectedPort.handleId === handleId ? 'node-port-selected' : ''
             }`}
             title={zh ? `输入工位 ${index + 1}` : `Input station ${index + 1}`}
@@ -163,7 +176,7 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
             isValidConnection={() => true}
           />
           <span
-            className="node-port-label node-port-label-in nodrag"
+            className={`node-port-label node-port-label-in node-port-label-${inputPhysicalSide} nodrag`}
             role="button"
             tabIndex={0}
             title={zh ? `点击编辑输入口 ${index + 1}` : `Edit input port ${index + 1}`}
@@ -184,9 +197,10 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
           <Handle
             id={handleId}
             type="source"
-            position={Position.Right}
+            position={outputPosition}
             data-port-kind="out"
-            className={`node-port node-port-out !h-4 !w-3.5 !rounded-[3px] !border ${
+            data-port-physical-side={outputPhysicalSide}
+            className={`node-port node-port-out node-port-${outputPhysicalSide} !h-4 !w-3.5 !rounded-[3px] !border ${
               selectedPort?.nodeId === id && selectedPort.handleId === handleId ? 'node-port-selected' : ''
             }`}
             title={zh ? `输出工位 ${index + 1}` : `Output station ${index + 1}`}
@@ -201,7 +215,7 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
             isConnectable
           />
           <span
-            className="node-port-label node-port-label-out nodrag"
+            className={`node-port-label node-port-label-out node-port-label-${outputPhysicalSide} nodrag`}
             role="button"
             tabIndex={0}
             title={zh ? `点击编辑输出口 ${index + 1}` : `Edit output port ${index + 1}`}

@@ -61,6 +61,8 @@ import type {
 } from '../types/factory';
 
 const DEFAULT_TEMPLATE_SUPPLY = 250000;
+const FULL_LINE_COLUMN_GAP = 220;
+const fullLineColumnX = (column: number) => column * FULL_LINE_COLUMN_GAP;
 
 const completePortRules = (params: DeviceParameters): DeviceParameters => {
   const inputPortRules = { ...params.inputPortRules };
@@ -870,7 +872,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
     };
 
     const nodes: FactoryNode[] = [
-      makeNode('line-feed', 'storage_feeder', 0, 335, 1, {
+      makeNode('line-feed', 'storage_feeder', fullLineColumnX(0), 335, 1, {
         deviceName: 'Part A / Part B Storage Feeder',
         deviceShortName: 'FEED',
         deviceCode: 'FEED-01',
@@ -889,21 +891,21 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         partBStorageCapacity: 180,
         partBStorageCount: 0,
       }),
-      makeNode('line-feed-a-inspection', 'general_inspection', 170, 100, 3, {
+      makeNode('line-feed-a-inspection', 'general_inspection', fullLineColumnX(1), 100, 3, {
         deviceName: 'Part A Feeder Inspection',
         deviceShortName: 'QA',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-feed-b-inspection', 'general_inspection', 170, 570, 4, {
+      makeNode('line-feed-b-inspection', 'general_inspection', fullLineColumnX(1), 570, 4, {
         deviceName: 'Part B Feeder Inspection',
         deviceShortName: 'QA',
         batchSize: 1,
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-a-1', 'process_a', 340, 40, 5, {
+      makeNode('line-a-1', 'process_a', fullLineColumnX(2), 40, 5, {
         deviceName: 'Process A 1',
         deviceCode: 'PROC-A-01',
         batchSize: 1,
@@ -912,7 +914,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('line-a-2', 'process_a', 340, 175, 6, {
+      makeNode('line-a-2', 'process_a', fullLineColumnX(2), 175, 6, {
         deviceName: 'Process A 2',
         deviceCode: 'PROC-A-02',
         batchSize: 1,
@@ -921,7 +923,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('line-b-1', 'process_b', 340, 505, 7, {
+      makeNode('line-b-1', 'process_b', fullLineColumnX(2), 505, 7, {
         deviceName: 'Process B 1',
         deviceCode: 'PROC-B-01',
         batchSize: 1,
@@ -930,7 +932,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('line-b-2', 'process_b', 340, 640, 8, {
+      makeNode('line-b-2', 'process_b', fullLineColumnX(2), 640, 8, {
         deviceName: 'Process B 2',
         deviceCode: 'PROC-B-02',
         batchSize: 1,
@@ -939,7 +941,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('line-a-inspection-1', 'general_inspection', 510, 40, 9, {
+      makeNode('line-a-inspection-1', 'general_inspection', fullLineColumnX(3), 40, 9, {
         deviceName: 'QA A 1',
         deviceShortName: 'QA',
         deviceCode: 'QA-A-01',
@@ -947,7 +949,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-a-inspection-2', 'general_inspection', 510, 175, 10, {
+      makeNode('line-a-inspection-2', 'general_inspection', fullLineColumnX(3), 175, 10, {
         deviceName: 'QA A 2',
         deviceShortName: 'QA',
         deviceCode: 'QA-A-02',
@@ -955,7 +957,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-b-inspection-1', 'general_inspection', 510, 505, 11, {
+      makeNode('line-b-inspection-1', 'general_inspection', fullLineColumnX(3), 505, 11, {
         deviceName: 'QA B 1',
         deviceShortName: 'QA',
         deviceCode: 'QA-B-01',
@@ -963,7 +965,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-b-inspection-2', 'general_inspection', 510, 640, 12, {
+      makeNode('line-b-inspection-2', 'general_inspection', fullLineColumnX(3), 640, 12, {
         deviceName: 'QA B 2',
         deviceShortName: 'QA',
         deviceCode: 'QA-B-02',
@@ -971,7 +973,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-c-1', 'process_c', 680, 505, 13, {
+      makeNode('line-c-1', 'process_c', fullLineColumnX(4), 505, 13, {
         deviceName: 'Process C 1',
         deviceCode: 'PROC-C-01',
         batchSize: 1,
@@ -980,7 +982,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('line-c-2', 'process_c', 680, 640, 14, {
+      makeNode('line-c-2', 'process_c', fullLineColumnX(4), 640, 14, {
         deviceName: 'Process C 2',
         deviceCode: 'PROC-C-02',
         batchSize: 1,
@@ -989,7 +991,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 30,
         outputBufferCapacity: 25,
       }),
-      makeNode('line-c-inspection-1', 'general_inspection', 850, 505, 15, {
+      makeNode('line-c-inspection-1', 'general_inspection', fullLineColumnX(5), 505, 15, {
         deviceName: 'QA C 1',
         deviceShortName: 'QA',
         deviceCode: 'QA-C-01',
@@ -997,7 +999,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-c-inspection-2', 'general_inspection', 850, 640, 16, {
+      makeNode('line-c-inspection-2', 'general_inspection', fullLineColumnX(5), 640, 16, {
         deviceName: 'QA C 2',
         deviceShortName: 'QA',
         deviceCode: 'QA-C-02',
@@ -1005,7 +1007,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         processTimeSec: 3,
         station1ProcessTimeSec: 3,
       }),
-      makeNode('line-fin-a-1', 'finishing', 680, 40, 17, {
+      makeNode('line-fin-a-1', 'finishing', fullLineColumnX(4), 40, 17, {
         deviceName: 'Finishing A 1',
         deviceCode: 'FIN-A-01',
         batchSize: 1,
@@ -1014,7 +1016,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('line-fin-a-2', 'finishing', 680, 175, 18, {
+      makeNode('line-fin-a-2', 'finishing', fullLineColumnX(4), 175, 18, {
         deviceName: 'Finishing A 2',
         deviceCode: 'FIN-A-02',
         batchSize: 1,
@@ -1023,7 +1025,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('line-fin-b-1', 'finishing_b', 1020, 505, 19, {
+      makeNode('line-fin-b-1', 'finishing_b', fullLineColumnX(6), 505, 19, {
         deviceName: 'Finishing B 1',
         deviceShortName: 'FIN-B',
         deviceCode: 'FIN-B-01',
@@ -1033,7 +1035,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('line-fin-b-2', 'finishing_b', 1020, 640, 20, {
+      makeNode('line-fin-b-2', 'finishing_b', fullLineColumnX(6), 640, 20, {
         deviceName: 'Finishing B 2',
         deviceShortName: 'FIN-B',
         deviceCode: 'FIN-B-02',
@@ -1043,7 +1045,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('line-dry-a', 'spin_dryer', 850, 110, 21, {
+      makeNode('line-dry-a', 'spin_dryer', fullLineColumnX(5), 110, 21, {
         deviceName: 'Part A Batch Dryer',
         deviceShortName: 'DRY-A',
         deviceCode: 'DRY-A-01',
@@ -1053,7 +1055,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         dryerColumnCount: 5,
         dryerDryTimeSec: 35,
       }),
-      makeNode('line-dry-b', 'spin_dryer', 1190, 500, 22, {
+      makeNode('line-dry-b', 'spin_dryer', fullLineColumnX(7), 500, 22, {
         deviceName: 'Part B Batch Dryer',
         deviceShortName: 'DRY-B',
         deviceCode: 'DRY-B-01',
@@ -1063,8 +1065,8 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         dryerColumnCount: 5,
         dryerDryTimeSec: 35,
       }),
-      makeNode('line-join-store', 'merge_buffer', 1360, 335, 23),
-      makeNode('line-join-wash-a', 'wash_dry', 1530, 170, 24, {
+      makeNode('line-join-store', 'merge_buffer', fullLineColumnX(8), 335, 23),
+      makeNode('line-join-wash-a', 'wash_dry', fullLineColumnX(9), 170, 24, {
         deviceShortName: 'WASH-A',
         materialKind: 'part_a',
         cleanerLaneCount: 1,
@@ -1073,7 +1075,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 3,
       }),
-      makeNode('line-join-wash-b', 'wash_dry', 1530, 430, 25, {
+      makeNode('line-join-wash-b', 'wash_dry', fullLineColumnX(9), 430, 25, {
         deviceShortName: 'WASH-B',
         materialKind: 'part_b',
         cleanerLaneCount: 1,
@@ -1082,13 +1084,13 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 3,
       }),
-      makeNode('line-join-qa-a1', 'inspection_a', 1700, 170, 26, { deviceShortName: 'QA-A1', materialKind: 'part_a' }),
-      makeNode('line-join-qa-b1', 'inspection_a', 1700, 430, 27, { deviceShortName: 'QA-B1', materialKind: 'part_b' }),
-      makeNode('line-join-qa-a2', 'inspection_b', 1870, 170, 28, { deviceShortName: 'QA-A2', materialKind: 'part_a' }),
-      makeNode('line-join-qa-b2', 'inspection_b', 1870, 430, 29, { deviceShortName: 'QA-B2', materialKind: 'part_b' }),
-      makeNode('line-join-merge', 'join_station', 2040, 300, 30),
-      makeNode('line-join-fasten', 'fasten_station', 2210, 300, 31),
-      makeNode('line-join-wash-1', 'wash_dry', 2380, 300, 32, {
+      makeNode('line-join-qa-a1', 'inspection_a', fullLineColumnX(10), 170, 26, { deviceShortName: 'QA-A1', materialKind: 'part_a' }),
+      makeNode('line-join-qa-b1', 'inspection_a', fullLineColumnX(10), 430, 27, { deviceShortName: 'QA-B1', materialKind: 'part_b' }),
+      makeNode('line-join-qa-a2', 'inspection_b', fullLineColumnX(11), 170, 28, { deviceShortName: 'QA-A2', materialKind: 'part_a' }),
+      makeNode('line-join-qa-b2', 'inspection_b', fullLineColumnX(11), 430, 29, { deviceShortName: 'QA-B2', materialKind: 'part_b' }),
+      makeNode('line-join-merge', 'join_station', fullLineColumnX(12), 300, 30),
+      makeNode('line-join-fasten', 'fasten_station', fullLineColumnX(13), 300, 31),
+      makeNode('line-join-wash-1', 'wash_dry', fullLineColumnX(14), 300, 32, {
         deviceShortName: 'WASH-2CH',
         cleanerLaneCount: 2,
         cleanerLaneCapacity: 24,
@@ -1096,9 +1098,9 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 8.4,
       }),
-      makeNode('line-join-func', 'functional_check', 2550, 300, 33),
-      makeNode('line-join-perf-open', 'performance_check', 2720, 300, 34, { deviceShortName: 'PERF-1' }),
-      makeNode('line-join-wash-2', 'wash_dry', 2720, 525, 35, {
+      makeNode('line-join-func', 'functional_check', fullLineColumnX(15), 300, 33),
+      makeNode('line-join-perf-open', 'performance_check', fullLineColumnX(16), 300, 34, { deviceShortName: 'PERF-1' }),
+      makeNode('line-join-wash-2', 'wash_dry', fullLineColumnX(16), 525, 35, {
         deviceShortName: 'WASH-2',
         cleanerLaneCount: 2,
         cleanerLaneCapacity: 24,
@@ -1106,7 +1108,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         cleanerAirBatchSize: 5,
         cleanerAirTimeSec: 8.4,
       }),
-      makeNode('line-join-dryer', 'spin_dryer', 2550, 525, 36, {
+      makeNode('line-join-dryer', 'spin_dryer', fullLineColumnX(15), 525, 36, {
         deviceShortName: 'DRY-M',
         dryerColumnBatchSize: 4,
         dryerColumnCount: 4,
@@ -1114,14 +1116,14 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 80,
         outputBufferCapacity: 80,
       }),
-      makeNode('line-join-perf-final', 'performance_check', 2380, 525, 37, { deviceShortName: 'PERF-2' }),
-      makeNode('line-join-fill', 'fill_station', 2210, 525, 38),
-      makeNode('line-join-press', 'press_station', 2040, 525, 39),
-      makeNode('line-join-perf-closed', 'performance_check', 1870, 525, 40, { deviceShortName: 'PERF-3' }),
-      makeNode('line-join-visual', 'visual_inspection', 1700, 650, 41),
-      makeNode('line-join-manual', 'manual_buffer', 1530, 650, 42),
-      makeNode('line-join-surface', 'surface_treatment', 1360, 650, 43),
-      makeNode('line-join-pack', 'packing_sink', 1190, 650, 44),
+      makeNode('line-join-perf-final', 'performance_check', fullLineColumnX(14), 525, 37, { deviceShortName: 'PERF-2' }),
+      makeNode('line-join-fill', 'fill_station', fullLineColumnX(13), 525, 38),
+      makeNode('line-join-press', 'press_station', fullLineColumnX(12), 525, 39),
+      makeNode('line-join-perf-closed', 'performance_check', fullLineColumnX(11), 525, 40, { deviceShortName: 'PERF-3' }),
+      makeNode('line-join-visual', 'visual_inspection', fullLineColumnX(10), 650, 41),
+      makeNode('line-join-manual', 'manual_buffer', fullLineColumnX(9), 650, 42),
+      makeNode('line-join-surface', 'surface_treatment', fullLineColumnX(8), 650, 43),
+      makeNode('line-join-pack', 'packing_sink', fullLineColumnX(7), 650, 44),
     ];
 
     const edge = (

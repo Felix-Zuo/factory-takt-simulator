@@ -68,6 +68,13 @@ The product priorities are:
 - Fixed split-feeder inventory accounting so source stock is not overwritten by per-port output buffers.
 - Added smoke coverage for feeder continuity and complete multi-port template rules.
 
+### Phase 9: Direction-Aware Flow Layout
+
+- Added graph-aware left-to-right and right-to-left port placement for folded production routes.
+- Corrected the assembly return path so input/output ports face the actual upstream and downstream stations.
+- Expanded full-line column spacing and added visual regression checks for readable material movement between cards.
+- Refreshed the public product screenshots after verifying the corrected workbench at overview and working zoom levels.
+
 ## Public Data Rules
 
 - Use synthetic device names and route IDs.
@@ -78,4 +85,4 @@ The product priorities are:
 
 ## Current Public Version
 
-`0.6.5-beta` is the hardened public showcase version with the benchmark-informed product page, a complete synthetic full-line template, feeder-continuity regression coverage, GitHub Pages-safe static asset paths, and a cleaner canvas without node-level lighting spillover.
+`0.6.6-beta` is the hardened public showcase version with a complete synthetic full-line template, feeder-continuity regression coverage, graph-aware port orientation, readable return-flow spacing, GitHub Pages-safe assets, and synchronized product screenshots.

@@ -84,6 +84,7 @@ export type MaintenanceKind = 'dressing' | 'changing_consumable' | null;
 export type TransportType = 'conveyor' | 'loader_arm' | 'manual' | 'buffer_transfer';
 export type ArmPhase = 'home' | 'picking' | 'moving' | 'placing' | 'returning';
 export type EdgeShape = 'smooth' | 'orthogonal';
+export type FlowDirection = 'ltr' | 'rtl';
 export type StageKey =
   | 'process_a'
   | 'finish_a'
@@ -232,6 +233,7 @@ export interface DeviceNodeData extends Record<string, unknown> {
   params: DeviceParameters;
   metrics: DeviceMetrics;
   runtime: DeviceRuntime;
+  resolvedFlowDirection?: FlowDirection;
 }
 
 export interface MaterialPacket {

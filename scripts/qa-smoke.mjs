@@ -125,6 +125,56 @@ try {
     ? pass('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks))
     : fail('generic full-line demo is connected through merge with 3s dispatch and 40s travel', JSON.stringify(scenarioChecks));
 
+  const layoutDirectionChecks = await page.evaluate(() => {
+    const readPortSide = (nodeId, kind) =>
+      document
+        .querySelector(`.react-flow__node[data-id="${nodeId}"] [data-port-kind="${kind}"]`)
+        ?.getAttribute('data-port-physical-side') ?? '';
+    const readDirection = (nodeId) =>
+      document
+        .querySelector(`.react-flow__node[data-id="${nodeId}"] [data-flow-direction]`)
+        ?.getAttribute('data-flow-direction') ?? '';
+    const snapshot = window.FactoryTaktAgent?.getSnapshot?.();
+    const nodeMap = new Map(snapshot?.nodes.map((node) => [node.id, node]) ?? []);
+    const reverseRun = [
+      ['line-join-wash-2', 'line-join-dryer'],
+      ['line-join-dryer', 'line-join-perf-final'],
+      ['line-join-perf-final', 'line-join-fill'],
+      ['line-join-fill', 'line-join-press'],
+      ['line-join-press', 'line-join-perf-closed'],
+      ['line-join-visual', 'line-join-manual'],
+      ['line-join-manual', 'line-join-surface'],
+      ['line-join-surface', 'line-join-pack'],
+    ];
+    const horizontalGaps = reverseRun.map(([sourceId, targetId]) => {
+      const source = nodeMap.get(sourceId);
+      const target = nodeMap.get(targetId);
+      return source && target ? Math.abs(target.position.x - source.position.x) : 0;
+    });
+    return {
+      forwardDirection: readDirection('line-join-func'),
+      forwardInputSide: readPortSide('line-join-func', 'in'),
+      forwardOutputSide: readPortSide('line-join-func', 'out'),
+      reverseDirection: readDirection('line-join-dryer'),
+      reverseInputSide: readPortSide('line-join-dryer', 'in'),
+      reverseOutputSide: readPortSide('line-join-dryer', 'out'),
+      minReverseGap: Math.min(...horizontalGaps),
+    };
+  });
+  layoutDirectionChecks.forwardDirection === 'ltr' &&
+  layoutDirectionChecks.forwardInputSide === 'left' &&
+  layoutDirectionChecks.forwardOutputSide === 'right'
+    ? pass('forward process cards expose left-in and right-out ports', JSON.stringify(layoutDirectionChecks))
+    : fail('forward process cards expose left-in and right-out ports', JSON.stringify(layoutDirectionChecks));
+  layoutDirectionChecks.reverseDirection === 'rtl' &&
+  layoutDirectionChecks.reverseInputSide === 'right' &&
+  layoutDirectionChecks.reverseOutputSide === 'left'
+    ? pass('return-flow process cards expose right-in and left-out ports', JSON.stringify(layoutDirectionChecks))
+    : fail('return-flow process cards expose right-in and left-out ports', JSON.stringify(layoutDirectionChecks));
+  layoutDirectionChecks.minReverseGap >= 220
+    ? pass('return-flow links keep enough visible travel distance', `${layoutDirectionChecks.minReverseGap}px minimum column gap`)
+    : fail('return-flow links keep enough visible travel distance', `${layoutDirectionChecks.minReverseGap}px minimum column gap`);
+
   await page.evaluate(() => {
     const api = window.FactoryTaktAgent;
     api?.runCommand({ type: 'reset' });

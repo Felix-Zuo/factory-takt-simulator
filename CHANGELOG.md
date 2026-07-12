@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.6-beta
+
+- Added graph-aware port orientation so return-flow process cards automatically render right-in and left-out without routing links through cards.
+- Increased the synthetic full-line template column spacing from 170px to 220px so transfer paths and moving material remain visible between stations.
+- Added browser regression coverage for forward/reverse port sides, return-flow spacing, and the existing feeder-continuity path.
+- Refreshed public showcase screenshots to match the corrected full-line workbench.
+
 ## 0.6.5-beta
 
 - Removed node-level scan-light and aura layers that spilled outside process cards in showcase animation mode.

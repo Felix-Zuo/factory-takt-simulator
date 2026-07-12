@@ -10,8 +10,9 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { t } from '../../i18n/text';
+import { resolveFlowDirections } from '../../lib/flowDirection';
 import { useFactoryStore } from '../../store/factoryStore';
-import type { AppSettings, DeviceType, FactoryEdge, FactoryNode } from '../../types/factory';
+import type { AppSettings, DeviceType, FactoryEdge, FactoryNode, FlowDirection } from '../../types/factory';
 import { CanvasContextMenu, type CanvasContextMenuState } from './CanvasContextMenu';
 import { CanvasZoomSlider } from './CanvasZoomSlider';
 import { DeviceNode } from './DeviceNode';
@@ -54,21 +55,29 @@ const portRatio = (handleId: string | null | undefined, count: number) => {
 const pointForHandle = (
   node: FactoryNode,
   settings: AppSettings,
+  flowDirections: ReadonlyMap<string, FlowDirection>,
   side: 'source' | 'target',
   handleId?: string | null,
 ) => {
   const size = nodeSize(node, settings);
   const params = node.data.params;
   const count = side === 'source' ? params.outputPortCount ?? 1 : params.inputPortCount ?? 1;
+  const flowDirection = flowDirections.get(node.id) ?? 'ltr';
+  const connectsOnRight = side === 'source' ? flowDirection === 'ltr' : flowDirection === 'rtl';
   return {
-    x: node.position.x + (side === 'source' ? size.width : 0),
+    x: node.position.x + (connectsOnRight ? size.width : 0),
     y: node.position.y + size.height * portRatio(handleId, count),
     id: `${node.id}:${handleId ?? (side === 'source' ? 'out-1' : 'in-1')}`,
     nodeId: node.id,
   };
 };
 
-const buildArmGroupVisuals = (nodes: FactoryNode[], edges: FactoryEdge[], settings: AppSettings) => {
+const buildArmGroupVisuals = (
+  nodes: FactoryNode[],
+  edges: FactoryEdge[],
+  settings: AppSettings,
+  flowDirections: ReadonlyMap<string, FlowDirection>,
+) => {
   const nodeMap = new Map(nodes.map((node) => [node.id, node]));
   const groups = new Map<string, FactoryEdge[]>();
 
@@ -88,13 +97,13 @@ const buildArmGroupVisuals = (nodes: FactoryNode[], edges: FactoryEdge[], settin
     const sourcePoints = groupEdges
       .map((edge) => {
         const node = nodeMap.get(edge.source);
-        return node ? pointForHandle(node, settings, 'source', edge.sourceHandle) : null;
+        return node ? pointForHandle(node, settings, flowDirections, 'source', edge.sourceHandle) : null;
       })
       .filter(Boolean);
     const targetPoints = groupEdges
       .map((edge) => {
         const node = nodeMap.get(edge.target);
-        return node ? pointForHandle(node, settings, 'target', edge.targetHandle) : null;
+        return node ? pointForHandle(node, settings, flowDirections, 'target', edge.targetHandle) : null;
       })
       .filter(Boolean);
 
@@ -124,10 +133,10 @@ const buildArmGroupVisuals = (nodes: FactoryNode[], edges: FactoryEdge[], settin
     const activeSource = activeEdge ? nodeMap.get(activeEdge.source) : undefined;
     const activeTarget = activeEdge ? nodeMap.get(activeEdge.target) : undefined;
     const sourcePoint = activeSource
-      ? pointForHandle(activeSource, settings, 'source', activeEdge?.sourceHandle)
+      ? pointForHandle(activeSource, settings, flowDirections, 'source', activeEdge?.sourceHandle)
       : uniqueSources[0];
     const targetPoint = activeTarget
-      ? pointForHandle(activeTarget, settings, 'target', activeEdge?.targetHandle)
+      ? pointForHandle(activeTarget, settings, flowDirections, 'target', activeEdge?.targetHandle)
       : uniqueTargets[0];
     const activeData = activeEdge?.data;
     const sourceVertical = Math.max(1, Math.abs(sourcePoint.y - railY));
@@ -261,17 +270,23 @@ function FactoryCanvasInner() {
     setViewport((value) => ({ ...(current ?? value), zoom: nextZoom }));
   }, []);
 
+  const flowDirections = useMemo(() => resolveFlowDirections(nodes, edges), [edges, nodes]);
+
   const nodesForFlow: FactoryNode[] = useMemo(
     () =>
       nodes.map((node) => ({
         ...node,
         selected: node.id === selectedNodeId,
+        data: {
+          ...node.data,
+          resolvedFlowDirection: flowDirections.get(node.id) ?? 'ltr',
+        },
       })),
-    [nodes, selectedNodeId],
+    [flowDirections, nodes, selectedNodeId],
   );
 
   const edgesWithMarkers: FactoryEdge[] = useMemo(() => {
-    const armVisuals = buildArmGroupVisuals(nodes, edges, settings);
+    const armVisuals = buildArmGroupVisuals(nodes, edges, settings, flowDirections);
     return edges.map((edge) => {
       const data = edge.data
         ? {
@@ -294,7 +309,7 @@ function FactoryCanvasInner() {
         data,
       };
     }) as FactoryEdge[];
-  }, [edges, nodes, selectedEdgeId, settings]);
+  }, [edges, flowDirections, nodes, selectedEdgeId, settings]);
 
   return (
     <div

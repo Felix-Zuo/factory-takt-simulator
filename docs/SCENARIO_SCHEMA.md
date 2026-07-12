@@ -6,7 +6,7 @@ Scenario exports are local-first JSON documents.
 
 ```json
 {
-  "version": "0.6.5-beta",
+  "version": "0.6.6-beta",
   "name": "Example line",
   "nodes": [],
   "edges": [],

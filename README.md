@@ -46,6 +46,7 @@ Full report: [docs/showcase/report-example.md](docs/showcase/report-example.md)
 ## Core Features
 
 - Drag process modules onto the canvas and connect input/output ports.
+- Automatically orient ports for left-to-right and folded return-flow routes.
 - Configure conveyors, loader-arm buses, dispatch interval, travel time, batch size, route shape, and line-buffer capacity.
 - Model generic source, feeder, Process A/B/C, finishing, QA, merge buffer, wash/dry, join, fasten, fill, press, surface treatment, and packing modules.
 - Switch between calculated takt mode and direct single-piece takt mode.

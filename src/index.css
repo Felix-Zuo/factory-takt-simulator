@@ -438,12 +438,14 @@ button {
     0 0 14px rgba(34, 211, 238, 0.45) !important;
 }
 
-.node-port-in {
+.node-port-left {
   left: -5px !important;
+  right: auto !important;
   border-radius: 3px 1px 1px 3px !important;
 }
 
-.node-port-out {
+.node-port-right {
+  left: auto !important;
   right: -5px !important;
   border-radius: 1px 3px 3px 1px !important;
 }
@@ -514,11 +516,13 @@ button {
   opacity: 1;
 }
 
-.node-port-label-in {
+.node-port-label-left {
   left: 4px;
+  right: auto;
 }
 
-.node-port-label-out {
+.node-port-label-right {
+  left: auto;
   right: 4px;
 }
 
