@@ -156,7 +156,7 @@ try {
   const responsivePage = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
   await responsivePage.addInitScript(() => localStorage.clear());
   await responsivePage.goto(appUrl, { waitUntil: 'domcontentloaded' });
-  await responsivePage.locator('button[aria-label="Enter simulator"]').click({ timeout: 5000 });
+  await responsivePage.locator('button[aria-label="Enter simulator"]').click({ force: true, timeout: 5000 });
   await responsivePage.waitForFunction(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
   await responsivePage.evaluate(() => window.FactoryTaktAgent?.runCommand({ type: 'createFullLineExample' }));
   await responsivePage.locator('footer button').filter({ hasText: /Expand|展开/ }).click({ timeout: 5000 });
