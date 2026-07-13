@@ -159,7 +159,9 @@ try {
   await responsivePage.locator('button[aria-label="Enter simulator"]').click({ force: true, timeout: 5000 });
   await responsivePage.waitForFunction(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
   await responsivePage.evaluate(() => window.FactoryTaktAgent?.runCommand({ type: 'createFullLineExample' }));
-  await responsivePage.locator('footer button').filter({ hasText: /Expand|展开/ }).click({ timeout: 5000 });
+  const telemetryExpand = responsivePage.locator('footer button').filter({ hasText: /Expand|展开/ });
+  await telemetryExpand.waitFor({ state: 'visible', timeout: 15000 });
+  await telemetryExpand.click({ force: true, timeout: 15000 });
   await responsivePage.waitForTimeout(250);
   const telemetryOverflow = await responsivePage.locator('.bottom-telemetry-shell').evaluate((element) => ({
     clientWidth: element.clientWidth,
