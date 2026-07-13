@@ -73,6 +73,7 @@ export function TopBar({ view, setView }: TopBarProps) {
   } = useFactoryStore();
 
   const zh = settings.language === 'zh-CN';
+  const runState = isRunning ? 'RUN' : elapsedSec > 0 ? (zh ? '已暂停' : 'PAUSED') : zh ? '就绪' : 'READY';
   const buttonClass =
     'topbar-action inline-flex h-8 shrink-0 items-center gap-1.5 rounded border border-slate-700 bg-slate-900/82 px-2.5 text-[11px] font-medium text-slate-200 transition hover:border-cyan-300/55 hover:text-cyan-100';
 
@@ -107,7 +108,7 @@ export function TopBar({ view, setView }: TopBarProps) {
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-950/96 px-3 shadow-lg shadow-black/20">
       <BrandButton
         onClick={() => setView('simulator')}
-        title="Factory_Takt_Simulator"
+        title="Factory Takt Simulator"
         subtitle={zh ? '模块化产线节拍仿真工作台' : 'Modular line takt simulation workstation'}
       />
 
@@ -259,7 +260,7 @@ export function TopBar({ view, setView }: TopBarProps) {
         </div>
 
         <div className="ml-1 flex items-center gap-2 rounded border border-slate-800 bg-slate-900/58 px-2 py-1 text-[11px] text-slate-300">
-          <span>{isRunning ? 'RUN' : 'STOP'}</span>
+          <span className={isRunning ? 'text-emerald-200' : elapsedSec > 0 ? 'text-amber-200' : 'text-slate-300'}>{runState}</span>
           <input
             aria-label="Simulation speed"
             type="range"

@@ -42,6 +42,23 @@ body[data-app-view="showcase"] #root {
   --panel-border: rgba(30, 41, 59, 0.96);
 }
 
+.bottom-telemetry-shell {
+  container-type: inline-size;
+}
+
+.bottom-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+@container (min-width: 1240px) {
+  .bottom-telemetry-grid {
+    grid-template-columns: minmax(250px, 0.9fr) minmax(250px, 0.9fr) minmax(360px, 1.25fr) minmax(280px, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
 .theme-light {
   color: #1f2937;
   background: #e8edf3 !important;

@@ -2,7 +2,7 @@
   "name": "factory-takt-simulator",
   "description": "Modular production line takt simulation workstation for discrete manufacturing.",
   "author": "Factory Takt Simulator contributors",
-  "version": "0.6.6-beta",
+  "version": "0.7.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {

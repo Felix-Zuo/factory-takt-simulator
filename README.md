@@ -2,24 +2,26 @@
 
 [![CI](https://github.com/Felix-Zuo/factory-takt-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/Felix-Zuo/factory-takt-simulator/actions/workflows/ci.yml)
 [![Pages](https://github.com/Felix-Zuo/factory-takt-simulator/actions/workflows/pages.yml/badge.svg)](https://github.com/Felix-Zuo/factory-takt-simulator/actions/workflows/pages.yml)
+[![Release](https://img.shields.io/github/v/release/Felix-Zuo/factory-takt-simulator)](https://github.com/Felix-Zuo/factory-takt-simulator/releases/latest)
+[![License](https://img.shields.io/github/license/Felix-Zuo/factory-takt-simulator)](LICENSE)
 
 Factory Takt Simulator is a visual takt-time and flow-simulation workstation for modular discrete-manufacturing lines. It helps users sketch process routes, tune buffers and transfer rules, run live or background simulation, and export capacity reports without binding the model to one product category.
 
 中文定位：面向离散制造产线的模块化节拍仿真工作台。设备是模块，路线由用户连线决定，系统负责节拍计算、缓存流转、机械手搬运、瓶颈识别和报告输出。
 
-This public repository is a sanitized showcase build. The included scenarios are synthetic and use generic process names such as Process A, Process B, Process C, Finishing, Merge, Join, QA, and Packing. Do not commit real customer programs, production routes, machine parameters, operator names, or factory files unless they have been intentionally sanitized.
+**[Open the live product](https://felix-zuo.github.io/factory-takt-simulator/?view=showcase)** · **[Launch the workbench](https://felix-zuo.github.io/factory-takt-simulator/)** · **[Read the latest release](https://github.com/Felix-Zuo/factory-takt-simulator/releases/latest)**
 
-## Public Product Page
+![Factory Takt Simulator product page](docs/showcase/screenshots/07-product-showcase.png)
 
-- Live product page: [felix-zuo.github.io/factory-takt-simulator/?view=showcase](https://felix-zuo.github.io/factory-takt-simulator/?view=showcase)
-- Local workbench: run `npm run dev`, then open `http://127.0.0.1:5173/`.
-- Showcase route: add `?view=showcase` to open the product page directly.
+## What It Models
 
-![Product showcase page](docs/showcase/screenshots/07-product-showcase.png)
+| Process network | Material flow | Simulation | Decision output |
+| --- | --- | --- | --- |
+| 43-module synthetic full-line example | 52 transfer routes with buffers and handling rules | Live animation or background target runs | Capacity, utilization, bottlenecks, records, and reports |
 
-![Line overview](docs/showcase/screenshots/01-line-overview.png)
+The repository uses synthetic scenarios and generic Process A/B/C, Finishing, Merge, Join, QA, and Packing modules. Real customer routes, machine IDs, operator names, production targets, and raw factory files are outside the public data boundary.
 
-## Visual Workbench
+## Workbench Tour
 
 | Line sandbox | Running flow |
 | --- | --- |

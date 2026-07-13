@@ -34,10 +34,12 @@ import {
   deleteScenarioRecord,
   findScenarioPayload,
   hydrateScenarioPayload,
+  MAX_SCENARIO_JSON_CHARS,
   putScenarioRecord,
   readSavedScenarioRecords,
   sanitizeSettingsPatch,
   summarizeSavedScenario,
+  validateScenarioPayload,
   type LegacySettingsPatch,
   type SavedScenarioRecord,
   type ScenarioPayload,
@@ -377,9 +379,29 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
   },
 
   selectNode: (nodeId) =>
-    set((state) => ({ selectedNodeId: nodeId, selectedEdgeId: null, selectedPort: null, pendingConfigBrush: nodeId ? state.pendingConfigBrush : null })),
-  selectEdge: (edgeId) => set({ selectedEdgeId: edgeId, selectedNodeId: null, selectedPort: null, pendingConfigBrush: null }),
-  selectPort: (port) => set({ selectedPort: port, selectedNodeId: port?.nodeId ?? null, selectedEdgeId: null, pendingConfigBrush: null }),
+    set((state) => ({
+      selectedNodeId: nodeId,
+      selectedEdgeId: null,
+      selectedPort: null,
+      pendingConfigBrush: nodeId ? state.pendingConfigBrush : null,
+      panels: nodeId ? { ...state.panels, rightCollapsed: false } : state.panels,
+    })),
+  selectEdge: (edgeId) =>
+    set((state) => ({
+      selectedEdgeId: edgeId,
+      selectedNodeId: null,
+      selectedPort: null,
+      pendingConfigBrush: null,
+      panels: edgeId ? { ...state.panels, rightCollapsed: false } : state.panels,
+    })),
+  selectPort: (port) =>
+    set((state) => ({
+      selectedPort: port,
+      selectedNodeId: port?.nodeId ?? null,
+      selectedEdgeId: null,
+      pendingConfigBrush: null,
+      panels: port ? { ...state.panels, rightCollapsed: false } : state.panels,
+    })),
 
   updateNodeParams: (nodeId, patch) => {
     set((state) => {
@@ -648,7 +670,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
 
   loadScenario: (scenarioId) => {
     const payload = findScenarioPayload(scenarioId);
-    if (!payload || !Array.isArray(payload.nodes) || !Array.isArray(payload.edges)) return false;
+    if (!payload || !validateScenarioPayload(payload).ok) return false;
 
     set((state) => ({
       ...historyPatch(state),
@@ -664,9 +686,18 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
 
   importScenarioJson: (json, name) => {
     try {
-      const parsed = JSON.parse(json) as ScenarioPayload;
-      if (!Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) return false;
-      const scenario = createImportedScenarioRecord(parsed, name);
+      if (json.length > MAX_SCENARIO_JSON_CHARS) {
+        set((state) => ({ logs: ['Scenario import rejected: file is too large.', ...state.logs].slice(0, 80) }));
+        return false;
+      }
+      const parsed = JSON.parse(json) as unknown;
+      const validation = validateScenarioPayload(parsed);
+      if (!validation.ok) {
+        set((state) => ({ logs: [`Scenario import rejected: ${validation.error}.`, ...state.logs].slice(0, 80) }));
+        return false;
+      }
+      const payload = parsed as ScenarioPayload;
+      const scenario = createImportedScenarioRecord(payload, name);
       putScenarioRecord(scenario);
       set((state) => ({
         ...historyPatch(state),
@@ -682,15 +713,24 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
   bootstrapScenario: (fallback) => {
     if (get().nodes.length > 0) return;
     const latest = findScenarioPayload();
-    if (latest && Array.isArray(latest.nodes) && Array.isArray(latest.edges)) {
+    if (latest && validateScenarioPayload(latest).ok) {
       set((state) => scenarioStatePatch(latest, state, 'Recovered last workspace from local memory.'));
       return;
     }
-    if (!Array.isArray(fallback.nodes) || !Array.isArray(fallback.edges) || fallback.nodes.length === 0) {
+    if (!validateScenarioPayload(fallback).ok) {
       get().createFullLineScenario();
       return;
     }
-    const payload = { ...fallback, name: fallback.name ?? 'Generic modular process line template' };
+    const payload = {
+      ...fallback,
+      name: fallback.name ?? 'Generic modular process line template',
+      panels: {
+        ...get().panels,
+        leftCollapsed: false,
+        rightCollapsed: true,
+        bottomCollapsed: true,
+      },
+    };
     putScenarioRecord({
       ...payload,
       id: 'scenario-built-in-modular-line',
@@ -836,6 +876,12 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
   },
 
   createFullLineScenario: () => {
+    const focusPanels: PanelState = {
+      ...get().panels,
+      leftCollapsed: false,
+      rightCollapsed: true,
+      bottomCollapsed: true,
+    };
     const makeNode = (
       id: string,
       type: DeviceType,
@@ -1262,7 +1308,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
       elapsedSec: 0,
       speed: 2,
       settings: get().settings,
-      panels: get().panels,
+      panels: focusPanels,
       savedAt: new Date().toISOString(),
     };
 
@@ -1275,6 +1321,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
       elapsedSec: 0,
       speed: 2,
       settings: state.settings,
+      panels: focusPanels,
       isRunning: false,
       selectedNodeId: null,
       selectedEdgeId: null,

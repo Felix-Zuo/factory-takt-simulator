@@ -34,10 +34,10 @@ export function BottomTelemetry() {
 
   return (
     <footer
-      className="min-h-0 shrink-0 overflow-x-auto overflow-y-hidden border-t border-slate-800 bg-slate-950/96 p-2.5"
+      className="bottom-telemetry-shell min-h-0 shrink-0 overflow-hidden border-t border-slate-800 bg-slate-950/96 p-2.5"
       style={{ height: panels.bottomHeight }}
     >
-      <div className="grid h-full min-w-[1080px] grid-cols-[300px_300px_420px_320px] gap-2">
+      <div className="bottom-telemetry-grid h-full gap-2">
       <section className="min-h-0 overflow-y-auto rounded border border-slate-800 bg-slate-900/50 p-2.5">
         <PanelHeader icon={<TimerReset className="h-4 w-4 text-cyan-200" />} title={t(settings.language, 'taktCalculator')} onCollapse={() => togglePanel('bottomCollapsed')} />
         <div className="mt-2 grid grid-cols-2 gap-2">

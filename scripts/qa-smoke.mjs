@@ -51,7 +51,7 @@ try {
   await page.waitForTimeout(500);
 
   const introText = (await page.locator('body').textContent()) ?? '';
-  /Factory_Takt_Simulator/.test(introText) && /Line Takt Simulation|Factory Takt Simulator/.test(introText)
+  /Factory Takt Simulator/.test(introText) && /Line Takt Simulation|Factory Takt Simulator/.test(introText)
     ? pass('intro uses generic Factory Takt branding')
     : fail('intro uses generic Factory Takt branding', 'generic brand text missing');
   await page.screenshot({ path: `${out}/01-intro.png` });
@@ -68,6 +68,43 @@ try {
     : fail('project overview opens with bilingual visual content and agent bridge note', 'overview text missing');
   const bridgeReady = await page.evaluate(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
   bridgeReady ? pass('agent bridge is available on window') : fail('agent bridge is available on window');
+  const importGuards = await page.evaluate(() => {
+    const api = window.FactoryTaktAgent;
+    const before = api?.getSnapshot?.();
+    const valid = api?.runCommand({
+      type: 'importScenario',
+      json: JSON.stringify(api.exportScenarioObject()),
+      name: 'Round-trip scenario',
+    });
+    const afterValid = api?.getSnapshot?.();
+    const malformed = api?.runCommand({
+      type: 'importScenario',
+      json: JSON.stringify({
+        nodes: [{ id: 'bad-node', type: 'deviceNode', position: { x: 0, y: 0 }, data: {} }],
+        edges: [],
+      }),
+      name: 'Malformed scenario',
+    });
+    const oversized = api?.runCommand({
+      type: 'importScenario',
+      json: JSON.stringify({ nodes: [], edges: [], padding: 'x'.repeat(6_000_100) }),
+      name: 'Oversized scenario',
+    });
+    const after = api?.getSnapshot?.();
+    return {
+      malformed,
+      oversized,
+      valid,
+      validRoundTrip: before?.nodes.length === afterValid?.nodes.length && before?.edges.length === afterValid?.edges.length,
+      stateUnchanged: afterValid?.nodes.length === after?.nodes.length && afterValid?.edges.length === after?.edges.length,
+    };
+  });
+  importGuards.valid === true && importGuards.validRoundTrip
+    ? pass('scenario exports pass the same validation boundary on round trip')
+    : fail('scenario exports pass the same validation boundary on round trip', JSON.stringify(importGuards));
+  importGuards.malformed === false && importGuards.oversized === false && importGuards.stateUnchanged
+    ? pass('scenario imports reject malformed and oversized payloads without changing the workspace')
+    : fail('scenario imports reject malformed and oversized payloads without changing the workspace', JSON.stringify(importGuards));
   await page.locator('header button').nth(0).click({ timeout: 5000 });
   await page.waitForTimeout(200);
 
@@ -102,6 +139,37 @@ try {
   await page.getByText(/Full line example|完整产线示例/).click({ timeout: 5000 });
   await page.waitForTimeout(900);
   await page.screenshot({ path: `${out}/03-generic-full-line.png` });
+
+  const focusedLayout = await page.evaluate(() => {
+    const asides = Array.from(document.querySelectorAll('aside'));
+    const rightAside = asides.at(-1);
+    const footer = document.querySelector('footer');
+    return {
+      rightWidth: rightAside instanceof HTMLElement ? rightAside.getBoundingClientRect().width : 0,
+      bottomHeight: footer instanceof HTMLElement ? footer.getBoundingClientRect().height : 0,
+    };
+  });
+  focusedLayout.rightWidth <= 60 && focusedLayout.bottomHeight <= 48
+    ? pass('full-line example opens in a canvas-focused layout', JSON.stringify(focusedLayout))
+    : fail('full-line example opens in a canvas-focused layout', JSON.stringify(focusedLayout));
+
+  const responsivePage = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+  await responsivePage.addInitScript(() => localStorage.clear());
+  await responsivePage.goto(appUrl, { waitUntil: 'domcontentloaded' });
+  await responsivePage.locator('button[aria-label="Enter simulator"]').click({ timeout: 5000 });
+  await responsivePage.waitForFunction(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
+  await responsivePage.evaluate(() => window.FactoryTaktAgent?.runCommand({ type: 'createFullLineExample' }));
+  await responsivePage.locator('footer button').filter({ hasText: /Expand|展开/ }).click({ timeout: 5000 });
+  await responsivePage.waitForTimeout(250);
+  const telemetryOverflow = await responsivePage.locator('.bottom-telemetry-shell').evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }));
+  telemetryOverflow.scrollWidth <= telemetryOverflow.clientWidth + 1
+    ? pass('bottom telemetry reflows without a horizontal scrollbar at 1440px', JSON.stringify(telemetryOverflow))
+    : fail('bottom telemetry reflows without a horizontal scrollbar at 1440px', JSON.stringify(telemetryOverflow));
+  await responsivePage.screenshot({ path: `${out}/04-responsive-telemetry.png` });
+  await responsivePage.close();
 
   const scenarioChecks = await page.evaluate(() => {
     const rawValues = Object.values(localStorage).join('\n');
@@ -208,6 +276,13 @@ try {
   await page.evaluate(() => {
     const api = window.FactoryTaktAgent;
     api?.runCommand({ type: 'pause' });
+  });
+  const pausedHeader = (await page.locator('header').textContent()) ?? '';
+  /PAUSED|已暂停/.test(pausedHeader)
+    ? pass('paused simulation is labeled as paused instead of stopped')
+    : fail('paused simulation is labeled as paused instead of stopped', pausedHeader);
+  await page.evaluate(() => {
+    const api = window.FactoryTaktAgent;
     api?.runCommand({ type: 'reset' });
     api?.runCommand({ type: 'setSpeed', speed: 2 });
   });
@@ -370,7 +445,7 @@ try {
   await page.getByText(/Tutorial|使用教程/).click({ timeout: 5000 });
   await page.waitForTimeout(500);
   const tutorialText = (await page.locator('body').textContent()) ?? '';
-  tutorialText.includes('Factory_Takt_Simulator') && tutorialText.includes('SRC')
+  tutorialText.includes('Factory Takt Simulator') && tutorialText.includes('SRC')
     ? pass('tutorial opens')
     : fail('tutorial opens', 'tutorial content missing');
   await page.screenshot({ path: `${out}/06-tutorial.png` });

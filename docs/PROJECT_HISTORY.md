@@ -75,6 +75,14 @@ The product priorities are:
 - Expanded full-line column spacing and added visual regression checks for readable material movement between cards.
 - Refreshed the public product screenshots after verifying the corrected workbench at overview and working zoom levels.
 
+### Phase 10: Stable Product Baseline
+
+- Replaced portfolio-style self-description with concise manufacturing outcomes and verifiable product facts.
+- Added a canvas-focused opening state for the full-line example and responsive telemetry for common laptop widths.
+- Clarified global run state as ready, paused, or running instead of showing stopped while node activity remained visible.
+- Added bounded scenario import validation and browser coverage for malformed and oversized payloads.
+- Normalized the repository license, README, screenshots, roadmap, and GitHub release surface around the same stable version.
+
 ## Public Data Rules
 
 - Use synthetic device names and route IDs.
@@ -85,4 +93,4 @@ The product priorities are:
 
 ## Current Public Version
 
-`0.6.6-beta` is the hardened public showcase version with a complete synthetic full-line template, feeder-continuity regression coverage, graph-aware port orientation, readable return-flow spacing, GitHub Pages-safe assets, and synchronized product screenshots.
+`0.7.0` is the stable public baseline with a complete synthetic full-line template, bounded import validation, focused laptop-scale layout, graph-aware port orientation, feeder-continuity regression coverage, GitHub Pages-safe assets, and synchronized product screenshots.

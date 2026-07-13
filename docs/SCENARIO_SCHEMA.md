@@ -6,16 +6,23 @@ Scenario exports are local-first JSON documents.
 
 ```json
 {
-  "version": "0.6.6-beta",
   "name": "Example line",
   "nodes": [],
   "edges": [],
+  "elapsedSec": 0,
+  "speed": 2,
   "settings": {},
-  "records": []
+  "panels": {}
 }
 ```
 
 The exact fields may evolve before a stable `1.0.0` release. Treat exported JSON as a practical interchange format, not a finalized standard.
+
+## Import Validation
+
+The workbench rejects a scenario before hydration when it has an invalid root shape, missing node data, duplicate IDs, dangling edge references, non-finite coordinates, unsupported graph types, invalid run settings, or more than 500 nodes / 2,000 edges. JSON input is also capped at 6,000,000 characters to avoid freezing the browser with an accidental bulk export.
+
+Unknown settings are discarded. Supported panel dimensions are clamped to the same bounds used by the interactive resizers. A rejected import does not replace the current workspace.
 
 ## Node Guidelines
 

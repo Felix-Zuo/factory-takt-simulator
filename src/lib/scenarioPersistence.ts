@@ -20,6 +20,9 @@ import type { SimulationRecord } from './reporting';
 export const LATEST_SCENARIO_KEY = 'factory-takt-simulator:v3';
 export const SCENARIO_LIBRARY_KEY = 'factory-takt-simulator:saved-scenarios:v3';
 export const REPORT_MEMORY_KEY = 'factory-takt-simulator:reports:v1';
+export const MAX_SCENARIO_JSON_CHARS = 6_000_000;
+export const MAX_SCENARIO_NODES = 500;
+export const MAX_SCENARIO_EDGES = 2_000;
 
 export type LegacySettingsPatch = Partial<AppSettings> & { accent?: unknown; digitalTwinScene?: unknown };
 
@@ -49,12 +52,122 @@ export interface SavedScenarioRecord extends ScenarioPayload {
   savedAt: string;
 }
 
+export interface ScenarioValidationResult {
+  ok: boolean;
+  error?: string;
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+
+const isSafeId = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0 && value.length <= 160;
+
+export const validateScenarioPayload = (value: unknown): ScenarioValidationResult => {
+  if (!isRecord(value)) return { ok: false, error: 'scenario root must be an object' };
+
+  const { nodes, edges } = value;
+  if (!Array.isArray(nodes) || !Array.isArray(edges)) {
+    return { ok: false, error: 'nodes and edges must be arrays' };
+  }
+  if (nodes.length === 0) return { ok: false, error: 'scenario must contain at least one node' };
+  if (nodes.length > MAX_SCENARIO_NODES) {
+    return { ok: false, error: `scenario exceeds ${MAX_SCENARIO_NODES} nodes` };
+  }
+  if (edges.length > MAX_SCENARIO_EDGES) {
+    return { ok: false, error: `scenario exceeds ${MAX_SCENARIO_EDGES} edges` };
+  }
+
+  const nodeIds = new Set<string>();
+  for (const node of nodes) {
+    if (!isRecord(node) || !isSafeId(node.id)) return { ok: false, error: 'every node needs a valid id' };
+    if (nodeIds.has(node.id)) return { ok: false, error: `duplicate node id: ${node.id}` };
+    if (node.type !== undefined && node.type !== 'deviceNode') {
+      return { ok: false, error: `unsupported node type: ${String(node.type)}` };
+    }
+    if (!isRecord(node.position) || !isFiniteNumber(node.position.x) || !isFiniteNumber(node.position.y)) {
+      return { ok: false, error: `node ${node.id} has an invalid position` };
+    }
+    if (Math.abs(node.position.x) > 1_000_000 || Math.abs(node.position.y) > 1_000_000) {
+      return { ok: false, error: `node ${node.id} is outside the supported canvas range` };
+    }
+    if (!isRecord(node.data) || !isRecord(node.data.params)) {
+      return { ok: false, error: `node ${node.id} is missing parameter data` };
+    }
+    nodeIds.add(node.id);
+  }
+
+  const edgeIds = new Set<string>();
+  for (const edge of edges) {
+    if (!isRecord(edge) || !isSafeId(edge.id) || !isSafeId(edge.source) || !isSafeId(edge.target)) {
+      return { ok: false, error: 'every edge needs valid id, source, and target fields' };
+    }
+    if (edgeIds.has(edge.id)) return { ok: false, error: `duplicate edge id: ${edge.id}` };
+    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
+      return { ok: false, error: `edge ${edge.id} references an unknown node` };
+    }
+    if (edge.type !== undefined && edge.type !== 'flowEdge') {
+      return { ok: false, error: `unsupported edge type: ${String(edge.type)}` };
+    }
+    if (!isRecord(edge.data)) return { ok: false, error: `edge ${edge.id} is missing flow data` };
+    edgeIds.add(edge.id);
+  }
+
+  if (value.elapsedSec !== undefined && (!isFiniteNumber(value.elapsedSec) || value.elapsedSec < 0)) {
+    return { ok: false, error: 'elapsedSec must be a non-negative finite number' };
+  }
+  if (value.speed !== undefined && (!isFiniteNumber(value.speed) || value.speed <= 0 || value.speed > 500)) {
+    return { ok: false, error: 'speed must be a finite number between 0 and 500' };
+  }
+  if (value.settings !== undefined && !isRecord(value.settings)) {
+    return { ok: false, error: 'settings must be an object' };
+  }
+  if (value.panels !== undefined && !isRecord(value.panels)) {
+    return { ok: false, error: 'panels must be an object' };
+  }
+
+  return { ok: true };
+};
+
 export const sanitizeSettingsPatch = (settings?: LegacySettingsPatch): Partial<AppSettings> => {
-  if (!settings) return {};
-  const { accent: _discardAccent, digitalTwinScene: _discardDigitalTwinScene, ...rest } = settings;
-  void _discardAccent;
-  void _discardDigitalTwinScene;
-  return rest;
+  if (!isRecord(settings)) return {};
+  const patch: Partial<AppSettings> = {};
+  if (settings.language === 'zh-CN' || settings.language === 'en') patch.language = settings.language;
+  if (settings.themeMode === 'dark' || settings.themeMode === 'light') patch.themeMode = settings.themeMode;
+  if (settings.animationIntensity === 'off' || settings.animationIntensity === 'low' || settings.animationIntensity === 'standard' || settings.animationIntensity === 'showcase') {
+    patch.animationIntensity = settings.animationIntensity;
+  }
+  if (settings.cardDensity === 'compact' || settings.cardDensity === 'standard') patch.cardDensity = settings.cardDensity;
+  if (typeof settings.snapToGrid === 'boolean') patch.snapToGrid = settings.snapToGrid;
+  if (typeof settings.hideText === 'boolean') patch.hideText = settings.hideText;
+  if (settings.simulationTargetMode === 'time' || settings.simulationTargetMode === 'output') {
+    patch.simulationTargetMode = settings.simulationTargetMode;
+  }
+  if (isFiniteNumber(settings.simulationTargetHours) && settings.simulationTargetHours > 0 && settings.simulationTargetHours <= 8_760) {
+    patch.simulationTargetHours = settings.simulationTargetHours;
+  }
+  if (isFiniteNumber(settings.simulationTargetOutput) && settings.simulationTargetOutput > 0 && settings.simulationTargetOutput <= 1_000_000_000) {
+    patch.simulationTargetOutput = settings.simulationTargetOutput;
+  }
+  if (isFiniteNumber(settings.backgroundStepSec) && settings.backgroundStepSec >= 0.05 && settings.backgroundStepSec <= 60) {
+    patch.backgroundStepSec = settings.backgroundStepSec;
+  }
+  return patch;
+};
+
+export const sanitizePanelsPatch = (panels?: Partial<PanelState>): Partial<PanelState> => {
+  if (!isRecord(panels)) return {};
+  const patch: Partial<PanelState> = {};
+  const booleanKeys = ['leftCollapsed', 'rightCollapsed', 'bottomCollapsed', 'taktCollapsed', 'logCollapsed'] as const;
+  for (const key of booleanKeys) {
+    if (typeof panels[key] === 'boolean') patch[key] = panels[key];
+  }
+  if (isFiniteNumber(panels.leftWidth)) patch.leftWidth = Math.max(180, Math.min(420, panels.leftWidth));
+  if (isFiniteNumber(panels.rightWidth)) patch.rightWidth = Math.max(260, Math.min(560, panels.rightWidth));
+  if (isFiniteNumber(panels.bottomHeight)) patch.bottomHeight = Math.max(140, Math.min(460, panels.bottomHeight));
+  return patch;
 };
 
 const migrateFinishingMode = (mode: unknown): FinishingMode => {
@@ -225,7 +338,7 @@ export const hydrateScenarioPayload = (
     elapsedSec: payload.elapsedSec ?? 0,
     speed: payload.speed ?? 1,
     settings: { ...defaultSettings, ...currentSettings, ...sanitizeSettingsPatch(payload.settings) },
-    panels: { ...defaultPanels, ...currentPanels, ...(payload.panels ?? {}) },
+    panels: { ...defaultPanels, ...currentPanels, ...sanitizePanelsPatch(payload.panels) },
   };
 };
 
@@ -258,6 +371,7 @@ export const createImportedScenarioRecord = (payload: ScenarioPayload, name?: st
   id: `scenario-${nanoid()}`,
   name: name?.trim() || payload.name || `Imported ${new Date().toLocaleString()}`,
   settings: sanitizeSettingsPatch(payload.settings),
+  panels: sanitizePanelsPatch(payload.panels),
   savedAt: new Date().toISOString(),
 });
 
@@ -276,7 +390,9 @@ export const readSavedScenarioRecords = (): SavedScenarioRecord[] => {
     const raw = localStorage.getItem(SCENARIO_LIBRARY_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as SavedScenarioRecord[];
-    return Array.isArray(parsed) ? parsed.filter((item) => item?.id && Array.isArray(item.nodes) && Array.isArray(item.edges)) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => item?.id && validateScenarioPayload(item).ok)
+      : [];
   } catch {
     return [];
   }
@@ -314,7 +430,11 @@ export const findScenarioPayload = (scenarioId?: string): ScenarioPayload | null
   if (typeof localStorage === 'undefined') return null;
   try {
     const raw = localStorage.getItem(LATEST_SCENARIO_KEY);
-    if (raw) return JSON.parse(raw) as ScenarioPayload;
+    if (raw) {
+      const parsed = JSON.parse(raw) as unknown;
+      if (validateScenarioPayload(parsed).ok) return parsed as ScenarioPayload;
+      localStorage.removeItem(LATEST_SCENARIO_KEY);
+    }
   } catch {
     localStorage.removeItem(LATEST_SCENARIO_KEY);
   }

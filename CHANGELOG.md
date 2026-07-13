@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0
+
+- Reframed the product page around manufacturing decisions and real product evidence, removing self-referential showcase copy and unstable headline metrics.
+- Made the product navigation fit on mobile and aligned the brand name across the public page, intro, and workbench.
+- Opened the full-line example in a canvas-focused layout, added responsive bottom telemetry, and replaced misleading stopped-state text with ready / paused / running semantics.
+- Added bounded scenario validation for malformed graphs, dangling routes, duplicate IDs, invalid coordinates, unsafe settings, and oversized JSON before any imported data is hydrated.
+- Added browser regression coverage for import rejection, focused template layout, and 1440px telemetry overflow.
+- Refreshed the README, product screenshots, roadmap, scenario contract, release presentation, and canonical Apache-2.0 license.
+
 ## 0.6.6-beta
 
 - Added graph-aware port orientation so return-flow process cards automatically render right-in and left-out without routing links through cards.
