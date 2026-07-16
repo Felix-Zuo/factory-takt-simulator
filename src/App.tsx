@@ -5,6 +5,7 @@ import { IntroOverlay } from './components/layout/IntroOverlay';
 import { ModuleLibrary } from './components/layout/ModuleLibrary';
 import { TopBar } from './components/layout/TopBar';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useIndustrialTwinRuntime } from './hooks/useIndustrialTwinRuntime';
 import { useScenarioMemory } from './hooks/useScenarioMemory';
 import { installFactoryTaktAgentBridge } from './lib/agentBridge';
 import { useFactoryStore } from './store/factoryStore';
@@ -34,12 +35,16 @@ const FactoryCanvas = lazy(() =>
 const ParameterPanel = lazy(() =>
   import('./components/layout/ParameterPanel').then((module) => ({ default: module.ParameterPanel })),
 );
+const TwinWorkspace = lazy(() =>
+  import('./components/industrial/TwinWorkspace').then((module) => ({ default: module.TwinWorkspace })),
+);
 
 function App() {
   const initialView = getInitialView();
   const [view, setCurrentView] = useState<AppView>(initialView);
   const [introOpen, setIntroOpen] = useState(initialView === 'simulator');
   useKeyboardShortcuts();
+  useIndustrialTwinRuntime();
   useScenarioMemory();
   const tick = useFactoryStore((state) => state.tick);
   const settings = useFactoryStore((state) => state.settings);
@@ -165,6 +170,9 @@ function App() {
                 }
               >
                 <FactoryCanvas />
+              </Suspense>
+              <Suspense fallback={null}>
+                <TwinWorkspace />
               </Suspense>
             </div>
             {!panels.bottomCollapsed ? (

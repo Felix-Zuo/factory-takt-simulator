@@ -12,7 +12,6 @@ import {
   Pause,
   Play,
   RotateCcw,
-  Save,
   Settings,
   Upload,
   WandSparkles,
@@ -109,7 +108,7 @@ export function TopBar({ view, setView }: TopBarProps) {
       <BrandButton
         onClick={() => setView('simulator')}
         title="Factory Takt Simulator"
-        subtitle={zh ? '模块化产线节拍仿真工作台' : 'Modular line takt simulation workstation'}
+        subtitle={zh ? '数字孪生与节拍分析工作台' : 'Digital twin and takt analysis workstation'}
       />
 
       <div className="flex min-w-0 items-center gap-2">
@@ -125,16 +124,17 @@ export function TopBar({ view, setView }: TopBarProps) {
           <RotateCcw className="h-4 w-4" />
           <span>{t(settings.language, 'reset')}</span>
         </button>
-        <button className={buttonClass} onClick={openScenarioModal} title={t(settings.language, 'save')}>
-          <Save className="h-4 w-4" />
-          <span>{t(settings.language, 'save')}</span>
-        </button>
-        <button className={buttonClass} onClick={openScenarioModal} title={t(settings.language, 'load')}>
+        <button
+          className={`${buttonClass} topbar-compact-action`}
+          onClick={openScenarioModal}
+          title={zh ? '方案库（保存 / 加载）' : 'Scenario library (save / load)'}
+          aria-label={zh ? '打开方案库' : 'Open scenario library'}
+        >
           <FolderOpen className="h-4 w-4" />
-          <span>{t(settings.language, 'load')}</span>
+          <span>{zh ? '方案' : 'Scenarios'}</span>
         </button>
         <button
-          className={`${buttonClass} ${view === 'settings' ? 'border-cyan-300/70 text-cyan-100' : ''}`}
+          className={`${buttonClass} topbar-compact-action ${view === 'settings' ? 'border-cyan-300/70 text-cyan-100' : ''}`}
           onClick={() => setView('settings')}
           title={t(settings.language, 'settings')}
         >
@@ -142,7 +142,7 @@ export function TopBar({ view, setView }: TopBarProps) {
           <span>{t(settings.language, 'settings')}</span>
         </button>
         <button
-          className={`${buttonClass} ${settings.snapToGrid ? 'border-cyan-300/70 text-cyan-100' : ''}`}
+          className={`${buttonClass} topbar-compact-action ${settings.snapToGrid ? 'border-cyan-300/70 text-cyan-100' : ''}`}
           onClick={() => updateSettings({ snapToGrid: !settings.snapToGrid })}
           title={zh ? '切换网格对齐 / 自由放置' : 'Toggle grid snap / free placement'}
         >
@@ -150,7 +150,7 @@ export function TopBar({ view, setView }: TopBarProps) {
           <span>{settings.snapToGrid ? (zh ? '网格' : 'Grid') : zh ? '自由' : 'Free'}</span>
         </button>
         <button
-          className={`${buttonClass} ${settings.hideText ? 'border-cyan-300/70 text-cyan-100' : ''}`}
+          className={`${buttonClass} topbar-compact-action ${settings.hideText ? 'border-cyan-300/70 text-cyan-100' : ''}`}
           onClick={() => updateSettings({ hideText: !settings.hideText })}
           title={zh ? '隐藏或显示画布文字' : 'Hide or show canvas text'}
         >

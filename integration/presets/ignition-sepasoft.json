@@ -1,0 +1,48 @@
+{
+  "presetVersion": "1.0",
+  "id": "ignition-8.3-sepasoft-mes",
+  "displayName": "Ignition 8.3 + Sepasoft MES",
+  "description": "ISA-95-oriented MES and SCADA reference mapping for normalized digital-twin snapshots.",
+  "transport": {
+    "primary": "https-poll-or-push",
+    "optional": "mqtt-sparkplug-b",
+    "gatewaySnapshotPath": "/api/industrial/events",
+    "gatewayStreamPath": "/api/industrial/stream"
+  },
+  "hierarchy": ["enterprise", "site", "area", "line", "workCell", "equipment"],
+  "mesMapping": {
+    "operationsDefinition": "operationDefinitionId",
+    "operationsResponse": "operationResponseId",
+    "responseSegment": "segmentResponseId",
+    "equipmentPath": "equipmentPath",
+    "materialLot": "materialLotId",
+    "goodCount": "goodCount",
+    "rejectCount": "rejectCount"
+  },
+  "tagSuffixes": {
+    "plcMode": "PLC/Mode",
+    "plcRun": "PLC/Run",
+    "plcReady": "PLC/Ready",
+    "plcFault": "PLC/Fault",
+    "heartbeat": "PLC/Heartbeat",
+    "actionState": "Action/State",
+    "actionProgress": "Action/Progress",
+    "cycleCount": "Production/CycleCount",
+    "goodCount": "Production/GoodCount",
+    "rejectCount": "Production/RejectCount",
+    "partPresent": "DI/PartPresent",
+    "clampCommand": "DO/ClampValve/Cmd",
+    "clampFeedback": "DO/ClampValve/Fbk",
+    "driveCommand": "DO/DriveRun/Cmd",
+    "driveFeedback": "DO/DriveRun/Fbk"
+  },
+  "requiredQualityFields": ["quality", "sourceTimestamp", "serverTimestamp"],
+  "commandPolicy": {
+    "enabledByDefault": false,
+    "allowedCommands": ["request_hold", "request_resume", "acknowledge_alarm", "reset_fault"],
+    "requiresAssetAllowlist": true,
+    "requiresOperatorToken": true,
+    "requiresOneTimePreview": true,
+    "aiAccess": false
+  }
+}

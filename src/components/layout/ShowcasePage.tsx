@@ -1,21 +1,23 @@
 import {
+  Activity,
+  AlertTriangle,
   BarChart3,
   Bot,
-  Cable,
   CheckCircle2,
   ExternalLink,
   Factory,
-  FileJson,
-  Gauge,
   GitBranch,
   Layers3,
   LockKeyhole,
+  Network,
   Play,
+  RadioTower,
   ShieldCheck,
   SlidersHorizontal,
   Workflow,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
+import { useRef, type ReactNode } from 'react';
 import { useFactoryStore } from '../../store/factoryStore';
 import { APP_VERSION } from '../../version';
 
@@ -30,45 +32,55 @@ const repoUrl = 'https://github.com/Felix-Zuo/factory-takt-simulator';
 const releaseUrl = `${repoUrl}/releases`;
 
 const zh = {
-  eyebrow: '离散制造 · 节拍与物流仿真',
+  eyebrow: '工业数字孪生 · 节拍与实时状态',
   title: 'Factory Takt Simulator',
   subtitle:
-    '面向离散制造的通用节拍仿真工作台。先把工序、缓存、搬运和节拍放进可视化沙盘，再决定是否改线、扩产或调整瓶颈工序。',
+    '把离散制造仿真、PLC/MES 实时状态和受限工程分析放在同一张画板。既能用合成场景验证节拍，也为 Ignition、Sepasoft、OPC UA 与 Sparkplug B 现场接入保留清晰边界。',
   primaryAction: '进入工作台',
   secondaryAction: '加载通用模板',
   repoAction: '查看 GitHub',
   heroAlt: 'Factory Takt Simulator 产线沙盘首屏',
   workbenchAlt: 'Factory Takt Simulator 运行工作台',
-  proof: [`v${APP_VERSION}`, 'CI / Smoke 通过', 'Apache-2.0', '仅使用合成数据'],
+  proof: [`v${APP_VERSION}`, 'Industrial Gateway', 'AI 成本受控', '真实命令默认关闭'],
   heroStats: [
-    ['模型', '工序网络'],
-    ['物流', '缓存与搬运'],
-    ['输出', '报告与记录'],
+    ['建模', '工序与物流'],
+    ['现场', 'PLC / MES 状态'],
+    ['分析', '报告 + 受限 AI'],
   ],
   metricStrip: [
-    ['43', '合成示例模块'],
-    ['52', '物料转运关系'],
-    ['2', '实时 / 后台模式'],
-    ['Local', '数据保留在本地'],
+    ['1.0', '统一工业状态契约'],
+    ['500', '单快照资产上限'],
+    ['700', 'AI 默认输出上限'],
+    ['OFF', '真实命令默认状态'],
   ],
-  positioningTitle: '先验证产能假设，再改动真实产线',
+  positioningTitle: '从方案仿真走到现场影子运行',
   positioning:
-    '把工序节拍、良率、缓冲区、转运时间和分支规则放进同一张可运行网络。方案可以先在合成场景中验证，再用产能、等待、阻塞和瓶颈结果支持工程决策。',
+    '同一套节点既可以跑确定性节拍仿真，也可以绑定网关归一化后的机床动作、传感器、阀反馈、PLC 模式和报警。现场信号只负责呈现，不会在后台悄悄改写仿真参数。',
   capabilitiesTitle: '从路线到决策依据',
   capabilities: [
-    ['快速搭建路线', '拖入工序模块，用输入输出端口建立分流、合流、缓存、检测、装配和包装路线。'],
-    ['约束物流规则', '为连线设置在途容量、运输时间、批量、缓存和机械手四段动作，让瓶颈判断更接近真实节拍。'],
-    ['运行仿真反馈', '实时动画和后台仿真会累计等待、阻塞、维护、利用率、产能和工序输出。'],
-    ['交付可复查报告', '导出场景 JSON、CSV 记录和仿真报告，把改线判断沉淀成可审计材料。'],
+    ['建立通用产线模型', '拖入工序、缓存、检测、装配和搬运模块，用端口规则表达分流、合流和返回段。'],
+    ['绑定实时设备状态', '把 PLC 模式、动作阶段、传感器质量、阀/电机指令与反馈映射到同一节点。'],
+    ['归一化报警与命令', '报警只读进入画板；命令独立走白名单、预演、操作员令牌和二次确认。'],
+    ['深入但受限地分析', 'DeepSeek V4 Flash 只接收压缩后的当前报告与状态，回答、次数、输出和每日 Token 都有上限。'],
+  ] satisfies TextBlock[],
+  liveTitle: '看见动作，也看见信号质量与联锁边界',
+  liveEyebrow: 'LIVE DIGITAL TWIN',
+  liveLead:
+    '实时控制台把资产、活动报警、工程问答和接入配置放在画板侧边。节点只显示必要状态，详细 Tag 路径与执行器反馈在需要时展开，不牺牲产线整体可读性。',
+  liveAlt: 'Factory Takt Simulator 实时数字孪生控制台',
+  livePoints: [
+    ['机床动作', '等待、上料、夹紧、加工、检测、转运、下料、保持、维护和故障。'],
+    ['现场信号', '传感器值、OPC 质量、时间戳、执行器指令/反馈和联锁状态。'],
+    ['MES 上下文', '按 ISA-95 设备层级预留工序定义、执行响应、物料批次和质量结果映射。'],
   ] satisfies TextBlock[],
   workflowTitle: '从想法到报告的闭环',
   workflowEyebrow: '标准工作流',
   workflow: [
-    ['1. 建模', '把不同工序抽象成模块，先验证路线结构。'],
-    ['2. 配置', '输入节拍、良率、缓存、搬运和端口规则。'],
-    ['3. 仿真', '用实时或后台模式跑目标时间/目标产出。'],
-    ['4. 分析', '查看产能、等待、阻塞、利用率和瓶颈建议。'],
-    ['5. 交付', '保存方案并导出报告、记录和公开模板。'],
+    ['1. 建模', '用通用工序与物流规则建立可运行网络。'],
+    ['2. 映射', '按设备层级绑定 OPC/MES Tag 与节点 ID。'],
+    ['3. 影子运行', '先只读接收状态，核对动作、质量和报警语义。'],
+    ['4. 分析', '对比节拍报告、实时症状和受限 AI 解释。'],
+    ['5. 验证', '经过现场测试与安全审查后再考虑命令适配。'],
   ] satisfies TextBlock[],
   surfaceTitle: '一张画布看清路线、状态与瓶颈',
   surfaceEyebrow: '工作台实景',
@@ -86,63 +98,75 @@ const zh = {
     ['数据边界', '公开仓库只放合成模板，不提交客户路线、机台号、人员、真实产量目标或原始工厂文件。'],
     ['本地优先', '默认在浏览器或桌面壳内运行，不依赖远端服务，也不会自动上传场景数据。'],
   ] satisfies TextBlock[],
-  bridgeTitle: '可被脚本和智能体调用',
-  bridgeText: '浏览器侧保留 FactoryTaktAgent，外部脚本、桌面封装或 AI 助手可以读取状态、导入方案、启动仿真并收集报告。',
+  bridgeTitle: '明确、可测试的工业接入契约',
+  bridgeText: '网关接收有界的 1.0 快照，经过字段、数量、引用和来源校验后再通过 SSE 推送。浏览器侧 FactoryTaktAgent 同时暴露仿真与只读孪生快照，但不包含 PLC 写入能力。',
   roadmapTitle: '产品演进',
   roadmap: [
-    ['0.7.0', '聚焦画布、响应式遥测、场景边界校验和统一展示体验。'],
-    ['下一阶段', '场景对比、转运规则解释、报告元数据和建模深度。'],
-    ['持续改进', '单元测试、模块拆分和键盘可访问性。'],
+    ['0.8.0', '工业网关、实时资产状态、报警流、DeepSeek 受限分析和新版产品展示。'],
+    ['现场适配', '按工厂设备层级完成 Tag 映射、证书、质量码、报警语义与影子运行验证。'],
+    ['持续改进', '场景对比、历史趋势、更多 MES 适配器和键盘可访问性。'],
   ] satisfies TextBlock[],
   docsTitle: '工程资料',
   docs: [
     ['Architecture', `${repoUrl}/blob/main/docs/ARCHITECTURE.md`],
     ['Quality model', `${repoUrl}/blob/main/docs/QUALITY.md`],
     ['Roadmap', `${repoUrl}/blob/main/docs/ROADMAP.md`],
+    ['Industrial integration', `${repoUrl}/blob/main/docs/INDUSTRIAL_INTEGRATION.md`],
+    ['AI policy', `${repoUrl}/blob/main/docs/AI_ASSISTANT.md`],
     ['Releases', releaseUrl],
   ],
 };
 
 const en = {
-  eyebrow: 'DISCRETE MANUFACTURING · TAKT & FLOW SIMULATION',
+  eyebrow: 'INDUSTRIAL DIGITAL TWIN · TAKT & LIVE STATE',
   title: 'Factory Takt Simulator',
   subtitle:
-    'A generic takt simulation workstation for discrete manufacturing. Model process routes, buffers, transfer constraints, and takt logic before changing a line.',
+    'One canvas for discrete-manufacturing simulation, live PLC/MES state, and bounded engineering analysis. Validate takt with synthetic scenarios, then connect through defined Ignition, Sepasoft, OPC UA, and Sparkplug B boundaries.',
   primaryAction: 'Open Workbench',
   secondaryAction: 'Load Template',
   repoAction: 'View GitHub',
   heroAlt: 'Factory Takt Simulator line sandbox hero',
   workbenchAlt: 'Factory Takt Simulator running workbench',
-  proof: [`v${APP_VERSION}`, 'CI / smoke verified', 'Apache-2.0', 'Synthetic data only'],
+  proof: [`v${APP_VERSION}`, 'Industrial Gateway', 'Bounded AI cost', 'Commands off by default'],
   heroStats: [
-    ['Model', 'Process graph'],
-    ['Flow', 'Buffers + transfer'],
-    ['Output', 'Reports + records'],
+    ['Model', 'Process + flow'],
+    ['Plant', 'PLC / MES state'],
+    ['Analyze', 'Reports + bounded AI'],
   ],
   metricStrip: [
-    ['43', 'synthetic modules'],
-    ['52', 'transfer routes'],
-    ['2', 'live / background modes'],
-    ['Local', 'data stays on device'],
+    ['1.0', 'normalized twin contract'],
+    ['500', 'assets per snapshot'],
+    ['700', 'default AI output cap'],
+    ['OFF', 'physical commands by default'],
   ],
-  positioningTitle: 'Validate the capacity hypothesis before changing the line.',
+  positioningTitle: 'Move from scenario simulation to read-only shadow operation.',
   positioning:
-    'Put takt, yield, buffers, transfer time, and branching rules into one runnable network. Test the synthetic scenario first, then use capacity, waiting, blocking, and bottleneck evidence to support an engineering decision.',
+    'The same nodes can run deterministic takt simulation and bind normalized machine actions, sensors, valve feedback, PLC modes, and alarms. Live signals remain presentational and never rewrite simulation parameters silently.',
   capabilitiesTitle: 'From route to decision evidence',
   capabilities: [
-    ['Build routes quickly', 'Drop process modules and connect ports for split, merge, buffer, inspection, assembly, and packing flows.'],
-    ['Constrain material flow', 'Tune in-transit capacity, travel time, batch behavior, buffers, and loader-arm phases for realistic bottleneck review.'],
-    ['Run simulation feedback', 'Live and background simulation track waiting, blocking, maintenance, utilization, capacity, and stage output.'],
-    ['Deliver reviewable reports', 'Export scenario JSON, CSV records, and simulation reports so line-change decisions remain inspectable.'],
+    ['Build a generic line model', 'Connect process, buffer, inspection, assembly, and transfer modules with explicit routing rules.'],
+    ['Bind live equipment state', 'Map PLC mode, action phase, sensor quality, and valve or motor command/feedback to each node.'],
+    ['Normalize alarms and commands', 'Alarms enter read-only; commands use a separate allowlist, preview, operator token, and exact confirmation.'],
+    ['Analyze deeply within limits', 'DeepSeek V4 Flash receives only compact current evidence, with bounded answers, calls, output, and daily tokens.'],
+  ] satisfies TextBlock[],
+  liveTitle: 'See machine action, signal quality, and the interlock boundary.',
+  liveEyebrow: 'LIVE DIGITAL TWIN',
+  liveLead:
+    'The live console keeps assets, active alarms, engineering questions, and connection settings beside the canvas. Nodes show only essential state; tag paths and actuator feedback expand on demand without obscuring the line.',
+  liveAlt: 'Factory Takt Simulator live digital twin console',
+  livePoints: [
+    ['Machine action', 'Waiting, load, clamp, process, inspect, transfer, unload, hold, service, and fault.'],
+    ['Plant signals', 'Sensor values, OPC quality, timestamps, actuator command/feedback, and interlock state.'],
+    ['MES context', 'ISA-95-oriented mappings for equipment hierarchy, operations, responses, material lots, and quality results.'],
   ] satisfies TextBlock[],
   workflowTitle: 'From idea to report',
   workflowEyebrow: 'STANDARD WORKFLOW',
   workflow: [
-    ['1. Model', 'Represent the process route before changing the line.'],
-    ['2. Configure', 'Set takt, yield, buffers, transfer, and port rules.'],
-    ['3. Simulate', 'Run live or background checks by time or target output.'],
-    ['4. Analyze', 'Review capacity, waiting, blocking, utilization, and bottlenecks.'],
-    ['5. Deliver', 'Save the scenario and export reports, records, and templates.'],
+    ['1. Model', 'Build a runnable network with generic process and flow rules.'],
+    ['2. Map', 'Bind OPC/MES tags to stable equipment and node IDs.'],
+    ['3. Shadow', 'Receive read-only state and reconcile actions, quality, and alarms.'],
+    ['4. Analyze', 'Compare takt reports, runtime symptoms, and bounded AI explanations.'],
+    ['5. Validate', 'Complete site and safety testing before considering command adapters.'],
   ] satisfies TextBlock[],
   surfaceTitle: 'See the route, state, and bottleneck on one canvas',
   surfaceEyebrow: 'WORKBENCH IN PRACTICE',
@@ -160,34 +184,45 @@ const en = {
     ['Data boundary', 'The public repo contains synthetic templates only: no customer routes, machine IDs, operators, real targets, or raw factory files.'],
     ['Local-first', 'Runs in the browser or desktop shell without a remote service and does not upload scenario data by default.'],
   ] satisfies TextBlock[],
-  bridgeTitle: 'Scriptable and agent-ready',
+  bridgeTitle: 'A clear, testable industrial contract',
   bridgeText:
-    'The browser-side FactoryTaktAgent lets local scripts, desktop wrappers, or AI assistants read state, import scenarios, start simulation, and collect reports.',
+    'The gateway accepts bounded 1.0 snapshots, validates fields, counts, references, and sources, then streams them over SSE. FactoryTaktAgent exposes simulation and read-only twin snapshots without any PLC write method.',
   roadmapTitle: 'Product Evolution',
   roadmap: [
-    ['0.7.0', 'Focused canvas, responsive telemetry, scenario boundary validation, and one coherent product surface.'],
-    ['Next', 'Scenario comparison, transfer-rule explainability, report metadata, and modeling depth.'],
-    ['Continuous', 'Unit tests, module splits, and keyboard accessibility.'],
+    ['0.8.0', 'Industrial gateway, live asset state, alarm flow, bounded DeepSeek analysis, and an upgraded product surface.'],
+    ['Site adaptation', 'Validate equipment mapping, certificates, quality codes, alarm semantics, and shadow operation for each plant.'],
+    ['Continuous', 'Scenario comparison, history trends, more MES adapters, and keyboard accessibility.'],
   ] satisfies TextBlock[],
   docsTitle: 'Engineering Notes',
   docs: [
     ['Architecture', `${repoUrl}/blob/main/docs/ARCHITECTURE.md`],
     ['Quality model', `${repoUrl}/blob/main/docs/QUALITY.md`],
     ['Roadmap', `${repoUrl}/blob/main/docs/ROADMAP.md`],
+    ['Industrial integration', `${repoUrl}/blob/main/docs/INDUSTRIAL_INTEGRATION.md`],
+    ['AI policy', `${repoUrl}/blob/main/docs/AI_ASSISTANT.md`],
     ['Releases', releaseUrl],
   ],
 };
 
-const capabilityIcons = [Layers3, Cable, Gauge, FileJson];
+const capabilityIcons = [Layers3, RadioTower, AlertTriangle, Bot];
 const surfaceIcons = [Factory, SlidersHorizontal, BarChart3];
+const liveIcons = [Activity, AlertTriangle, Network];
 const evidenceIcons = [CheckCircle2, ShieldCheck, LockKeyhole];
 
 export function ShowcasePage({ onLoadTemplate, onOpenSimulator }: ShowcasePageProps) {
   const settings = useFactoryStore((state) => state.settings);
   const text = settings.language === 'zh-CN' ? zh : en;
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({ container: scrollContainerRef });
+  const scrollScaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.25 });
 
   return (
-    <main className="min-h-0 flex-1 overflow-y-auto bg-[#f5f7fb] text-slate-950">
+    <main ref={scrollContainerRef} className="min-h-0 flex-1 overflow-y-auto bg-[#f5f7fb] text-slate-950">
+      <motion.div
+        data-testid="showcase-scroll-progress"
+        className="fixed inset-x-0 top-0 z-[70] h-0.5 origin-left bg-cyan-400"
+        style={{ scaleX: scrollScaleX }}
+      />
       <Hero text={text} onLoadTemplate={onLoadTemplate} onOpenSimulator={onOpenSimulator} />
 
       <section className="border-y border-slate-200 bg-white">
@@ -210,15 +245,40 @@ export function ShowcasePage({ onLoadTemplate, onOpenSimulator }: ShowcasePagePr
         </div>
       </Section>
 
-      <Section dark eyebrow={text.surfaceEyebrow} title={text.surfaceTitle} body={text.surfaceLead}>
+      <Section dark eyebrow={text.liveEyebrow} title={text.liveTitle} body={text.liveLead}>
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(330px,.88fr)]">
           <div className="overflow-hidden rounded-md border border-slate-700 bg-slate-950 shadow-2xl shadow-black/25">
+            <img
+              src="./showcase/industrial-twin-demo.gif"
+              alt={text.liveAlt}
+              className="h-full w-full object-cover motion-reduce:hidden"
+              loading="lazy"
+            />
+            <img
+              src="./showcase/screenshots/industrial-twin-console.png"
+              alt={text.liveAlt}
+              className="hidden h-full w-full object-cover motion-reduce:block"
+              loading="lazy"
+            />
+          </div>
+          <div className="grid gap-3">
+            {text.livePoints.map(([title, body], index) => {
+              const Icon = liveIcons[index] ?? Activity;
+              return <SurfaceRow key={title} icon={<Icon className="h-5 w-5" />} title={title} body={body} />;
+            })}
+          </div>
+        </div>
+      </Section>
+
+      <Section eyebrow={text.surfaceEyebrow} title={text.surfaceTitle} body={text.surfaceLead}>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(330px,.88fr)]">
+          <div className="overflow-hidden rounded-md border border-slate-300 bg-slate-950 shadow-xl shadow-slate-900/12">
             <img src="./showcase/screenshots/running-workbench.png" alt={text.workbenchAlt} className="w-full object-cover" />
           </div>
           <div className="grid gap-3">
             {text.surfaces.map(([title, body], index) => {
               const Icon = surfaceIcons[index] ?? Factory;
-              return <SurfaceRow key={title} icon={<Icon className="h-5 w-5" />} title={title} body={body} />;
+              return <FeatureColumn key={title} icon={<Icon className="h-5 w-5" />} title={title} body={body} />;
             })}
           </div>
         </div>
@@ -245,8 +305,9 @@ export function ShowcasePage({ onLoadTemplate, onOpenSimulator }: ShowcasePagePr
             <p className="text-sm leading-7 text-slate-400">{text.bridgeText}</p>
             <pre className="mt-5 overflow-x-auto rounded border border-slate-800 bg-slate-950/80 p-4 text-xs leading-6 text-cyan-100">
 {`window.FactoryTaktAgent.getSnapshot()
-window.FactoryTaktAgent.runCommand({ type: 'createFullLineExample' })
-window.FactoryTaktAgent.runCommand({ type: 'runBackgroundSimulation' })`}
+GET  /api/industrial/stream
+POST /api/industrial/events
+POST /api/ai/assist`}
             </pre>
           </article>
 
@@ -302,13 +363,26 @@ function Hero({
   onOpenSimulator: () => void;
   text: typeof zh | typeof en;
 }) {
+  const reduceMotion = useReducedMotion();
   return (
     <section className="relative isolate min-h-[620px] overflow-hidden bg-slate-950 text-white">
-      <img src="./showcase/screenshots/line-overview.png" alt={text.heroAlt} className="absolute inset-x-0 -top-14 h-[calc(100%+3.5rem)] w-full object-cover opacity-[0.72]" />
+      <motion.img
+        src="./showcase/screenshots/line-overview.png"
+        alt={text.heroAlt}
+        className="absolute inset-x-0 -top-14 h-[calc(100%+3.5rem)] w-full object-cover opacity-[0.72]"
+        initial={reduceMotion ? false : { scale: 1.035 }}
+        animate={reduceMotion ? undefined : { scale: 1 }}
+        transition={{ duration: 1.1, ease: 'easeOut' }}
+      />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,6,23,.94)_0%,rgba(2,6,23,.70)_42%,rgba(2,6,23,.18)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-slate-950 to-transparent" />
       <div className="relative mx-auto flex min-h-[620px] max-w-7xl flex-col justify-between px-5 py-10 sm:px-8 lg:py-14">
-        <div className="max-w-4xl">
+        <motion.div
+          className="max-w-4xl"
+          initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+        >
           <div className="mb-5 text-xs font-semibold uppercase text-cyan-200">{text.eyebrow}</div>
           <h2 className="max-w-4xl text-5xl font-semibold leading-[1.02] text-white md:text-7xl">{text.title}</h2>
           <p className="mt-6 max-w-2xl text-base leading-8 text-slate-200 md:text-lg">{text.subtitle}</p>
@@ -337,7 +411,7 @@ function Hero({
               {text.repoAction}
             </a>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,480px)] lg:items-end">
           <div className="flex flex-wrap gap-2">
@@ -374,8 +448,15 @@ function Section({
   eyebrow: string;
   title: string;
 }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <section className={`${dark ? 'bg-slate-950 text-slate-100' : 'bg-[#f5f7fb] text-slate-950'} border-b border-slate-200/70`}>
+    <motion.section
+      className={`${dark ? 'bg-slate-950 text-slate-100' : 'bg-[#f5f7fb] text-slate-950'} border-b border-slate-200/70`}
+      initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+      whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+    >
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8">
         <div className="mb-7 max-w-3xl">
           <div className={`mb-3 text-xs font-semibold uppercase ${dark ? 'text-cyan-200' : 'text-cyan-700'}`}>{eyebrow}</div>
@@ -384,7 +465,7 @@ function Section({
         </div>
         {children}
       </div>
-    </section>
+    </motion.section>
   );
 }
 

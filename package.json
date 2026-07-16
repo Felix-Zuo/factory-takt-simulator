@@ -1,13 +1,14 @@
 {
   "name": "factory-takt-simulator",
-  "description": "Modular production line takt simulation workstation for discrete manufacturing.",
+  "description": "Local-first production-line takt simulator and bounded industrial digital-twin workbench.",
   "author": "Factory Takt Simulator contributors",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "start:local": "vite --host 127.0.0.1 --port 5173",
+    "gateway": "node --env-file-if-exists=.env.local server/index.mjs",
     "desktop": "npm run build && electron .",
     "desktop:dev": "npm run build && electron .",
     "dist:win": "npm run build && electron-builder --win portable --x64",
@@ -17,6 +18,7 @@
     "maintain:check": "node scripts/maintenance-check.mjs",
     "capture:showcase": "node scripts/capture-showcase.mjs",
     "test:smoke": "node scripts/qa-smoke.mjs",
+    "test:gateway": "node --test server/*.test.mjs",
     "preview": "vite preview"
   },
   "build": {
@@ -81,7 +83,11 @@
     "takt-time",
     "react-flow",
     "discrete-event-simulation",
-    "factory-layout"
+    "factory-layout",
+    "digital-twin",
+    "mes",
+    "opc-ua",
+    "sparkplug-b"
   ],
   "overrides": {
     "tmp": "^0.2.6"

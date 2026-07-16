@@ -1062,7 +1062,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('line-fin-a-2', 'finishing', fullLineColumnX(4), 175, 18, {
+      makeNode('line-fin-a-2', 'finishing', fullLineColumnX(4), 195, 18, {
         deviceName: 'Finishing A 2',
         deviceCode: 'FIN-A-02',
         batchSize: 1,
@@ -1081,7 +1081,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
         inputBufferCapacity: 35,
         outputBufferCapacity: 30,
       }),
-      makeNode('line-fin-b-2', 'finishing_b', fullLineColumnX(6), 640, 20, {
+      makeNode('line-fin-b-2', 'finishing_b', fullLineColumnX(6), 660, 20, {
         deviceName: 'Finishing B 2',
         deviceShortName: 'FIN-B',
         deviceCode: 'FIN-B-02',
@@ -1165,7 +1165,7 @@ export const useFactoryStore = create<FactoryState>((set, get) => ({
       makeNode('line-join-perf-final', 'performance_check', fullLineColumnX(14), 525, 37, { deviceShortName: 'PERF-2' }),
       makeNode('line-join-fill', 'fill_station', fullLineColumnX(13), 525, 38),
       makeNode('line-join-press', 'press_station', fullLineColumnX(12), 525, 39),
-      makeNode('line-join-perf-closed', 'performance_check', fullLineColumnX(11), 525, 40, { deviceShortName: 'PERF-3' }),
+      makeNode('line-join-perf-closed', 'performance_check', fullLineColumnX(11), 575, 40, { deviceShortName: 'PERF-3' }),
       makeNode('line-join-visual', 'visual_inspection', fullLineColumnX(10), 650, 41),
       makeNode('line-join-manual', 'manual_buffer', fullLineColumnX(9), 650, 42),
       makeNode('line-join-surface', 'surface_treatment', fullLineColumnX(8), 650, 43),

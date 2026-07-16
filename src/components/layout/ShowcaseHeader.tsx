@@ -17,7 +17,7 @@ export function ShowcaseHeader({ setView, zh }: ShowcaseHeaderProps) {
       <BrandButton
         onClick={() => setView('simulator')}
         title="Factory Takt Simulator"
-        subtitle={zh ? '通用离散制造节拍仿真产品页' : 'Generic takt simulation product page'}
+        subtitle={zh ? '工业数字孪生与节拍仿真' : 'Industrial digital twin and takt simulation'}
       />
       <nav className="flex min-w-0 shrink-0 items-center justify-end gap-2" aria-label={zh ? '产品导航' : 'Product navigation'}>
         <button className={`${actionClass} border-cyan-300/70 text-cyan-100`} onClick={() => setView('showcase')} title={zh ? '产品页' : 'Product'} aria-label={zh ? '产品页' : 'Product'}>

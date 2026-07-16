@@ -25,6 +25,9 @@ The snapshot includes:
 - `settings`
 - `summary`
 - `latestReport`
+- `industrial.mode`
+- `industrial.connectionState`
+- `industrial.snapshot` with normalized assets, sensors, actuators, and alarms
 
 ## Commands
 
@@ -34,6 +37,8 @@ window.FactoryTaktAgent.runCommand({ type: 'pause' })
 window.FactoryTaktAgent.runCommand({ type: 'reset' })
 window.FactoryTaktAgent.runCommand({ type: 'setSpeed', speed: 20 })
 window.FactoryTaktAgent.runCommand({ type: 'runBackgroundSimulation' })
+window.FactoryTaktAgent.runCommand({ type: 'openTwinConsole', tab: 'assistant' })
+window.FactoryTaktAgent.runCommand({ type: 'setTwinSource', source: 'demo' })
 ```
 
 Scenario commands:
@@ -72,3 +77,5 @@ For a separate branded build:
 4. Run `npm run dist:win`.
 
 The bridge stays the same, so an external assistant can keep using the same command surface.
+
+The bridge deliberately exposes no PLC write, alarm acknowledgement, fault reset, or industrial command execution method. Physical command approval remains in the server-side gateway boundary described in `docs/INDUSTRIAL_INTEGRATION.md`.

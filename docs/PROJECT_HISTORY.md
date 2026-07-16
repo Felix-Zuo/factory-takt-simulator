@@ -83,6 +83,16 @@ The product priorities are:
 - Added bounded scenario import validation and browser coverage for malformed and oversized payloads.
 - Normalized the repository license, README, screenshots, roadmap, and GitHub release surface around the same stable version.
 
+### Phase 11: Industrial Twin And Bounded Engineering Analysis
+
+- Added a standards-oriented site gateway between plant systems and the public browser application.
+- Selected Ignition 8.3 plus optional Sepasoft MES as the reference integration, with OPC UA or MQTT Sparkplug B kept at the plant edge.
+- Added a normalized contract for machine actions, PLC modes, sensors, actuator command/feedback, signal quality, alarms, and ISA-95-style equipment paths.
+- Added a live canvas console for assets, alarms, connection state, command preview, and bounded engineering questions.
+- Added optional DeepSeek V4 Flash analysis with server-only credentials, fixed safety instructions, bounded context and output, rate limits, daily token budget, request caching, and local zero-cost fallback.
+- Kept the command path disabled by default and outside the AI tool surface; site authorization, interlocks, safety logic, and audit remain downstream responsibilities.
+- Rebuilt the public product page and recorded a synthetic five-state industrial-twin walkthrough from the working interface.
+
 ## Public Data Rules
 
 - Use synthetic device names and route IDs.
@@ -93,4 +103,4 @@ The product priorities are:
 
 ## Current Public Version
 
-`0.7.0` is the stable public baseline with a complete synthetic full-line template, bounded import validation, focused laptop-scale layout, graph-aware port orientation, feeder-continuity regression coverage, GitHub Pages-safe assets, and synchronized product screenshots.
+`0.8.0` is the industrial-twin public release. It adds the local integration gateway, normalized live-state contract, canvas asset and alarm views, optional bounded AI analysis, reference MES presets, safety documentation, and a synchronized product-page walkthrough. It is a deployable reference boundary that still requires site-specific tag mapping, certificates, security review, shadow-mode validation, and factory acceptance testing before plant use.

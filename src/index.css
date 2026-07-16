@@ -240,6 +240,19 @@ button {
   color: rgb(var(--accent-rgb) / 0.96) !important;
 }
 
+@media (max-width: 1399px) {
+  .topbar-compact-action {
+    width: 2rem;
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .topbar-compact-action > span {
+    display: none;
+  }
+}
+
 .factory-flow .react-flow__pane {
   cursor: crosshair;
 }
