@@ -38,9 +38,9 @@ export function IntroOverlay({ language, onClose }: { language: string; onClose:
                 <div className="intro-en">{zh ? 'Factory Takt Simulator' : 'Discrete manufacturing sandbox'}</div>
               </div>
             </div>
-            <div className="mt-5 text-3xl font-semibold tracking-tight text-slate-50">Factory_Takt_Simulator</div>
+            <div className="mt-5 text-3xl font-semibold tracking-tight text-slate-50">Factory Takt Simulator</div>
             <div className="mt-1 text-sm uppercase tracking-[0.22em] text-cyan-100">
-              {zh ? '模块化离散制造产线沙盘' : 'Generic Line Takt Sandbox'}
+              {zh ? '工业数字孪生与节拍分析工作台' : 'Industrial digital twin and takt workstation'}
             </div>
           </div>
         </div>

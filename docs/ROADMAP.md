@@ -1,33 +1,36 @@
 # Roadmap
 
-This roadmap keeps the public project focused on a mature generic simulator rather than a one-off demo.
+This roadmap keeps the public project useful as a generic industrial-twin reference without pretending that one public preset is a commissioned plant integration.
 
-## 0.7.0 Product Baseline
+## 0.8.0 Industrial Twin Release
 
-- Keep the generic Process A/B/C showcase clean and synthetic.
-- Maintain backward-compatible import hydration for older sanitized exports.
-- Keep CI green across build, lint, production audit, maintainability check, and browser smoke.
-- Improve README screenshots, report examples, and documentation when the product surface changes.
-- Keep the GitHub Pages product page aligned with the current simulator surface.
-- Validate scenario structure, size, graph references, and numeric boundaries before hydration.
-- Open the full-line example in a canvas-focused layout and keep telemetry responsive at laptop widths.
+- Ship the normalized `1.0` industrial snapshot and SSE gateway.
+- Provide Ignition 8.3 / Sepasoft and MQTT Sparkplug B reference presets.
+- Map PLC mode, machine action, sensors, actuators, quality, heartbeat, and alarms to canvas nodes.
+- Add bounded DeepSeek V4 Flash analysis with local zero-cost fallback.
+- Keep industrial commands disabled by default and outside the AI tool surface.
+- Keep the product page, interaction recording, README, architecture, security policy, and CI aligned with the release.
 
-## 0.8.x Modeling Depth
+## 0.9.x Site Adapter Toolkit
 
-- Add clearer stage configuration for multi-branch lines.
-- Improve transfer-rule explainability for loader-arm buses and synchronized join stations.
-- Add scenario comparison so users can compare capacity before and after a layout change.
-- Expand report export metadata with assumptions, changed parameters, and bottleneck deltas.
+- Add a focused adapter test harness for real Ignition Web Dev and Sparkplug payload samples.
+- Add mapping diagnostics for missing tags, stale timestamps, bad quality, duplicate assets, and unknown alarms.
+- Add historical trend and event-replay inputs without turning the browser into a historian.
+- Add report comparisons that separate simulated constraints from observed live symptoms.
+- Document reverse-proxy, certificate, secret rotation, audit, backup, and rollback patterns for a site deployment.
 
 ## Product Quality
 
+- Add focused unit coverage for takt math, port rules, scenario hydration, twin mapping, and bottleneck classification.
 - Split large modules that exceed the maintainability budget.
-- Add focused unit coverage for takt math, port rules, scenario hydration, and bottleneck classification.
 - Improve keyboard-driven canvas workflows and accessibility labels.
+- Add responsive visual regression coverage for the twin console and public product page.
+- Keep build, lint, gateway tests, production audit, maintainability checks, browser smoke, CI, and Pages green for every stable release.
 
-## Not Planned For The Public Showcase
+## Explicitly Not Planned
 
-- Real customer-specific route packs.
-- Hosted telemetry or remote sync.
-- Automatic upload of scenario data.
-- Raw private production plans, line IDs, machine IDs, or operator data.
+- Direct browser-to-PLC or browser-to-OPC-UA connections.
+- Safety control, safety acknowledgement, or automatic fault reset.
+- AI-generated PLC writes or automatic execution of model proposals.
+- Bundled customer routes, machine addresses, credentials, production plans, or raw factory exports.
+- A claim that the public preset is universally deployable without site mapping, security review, shadow-mode validation, and factory acceptance testing.

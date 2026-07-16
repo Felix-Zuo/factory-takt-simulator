@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.0
+
+- Added a normalized industrial snapshot contract and local gateway for bounded PLC, sensor, actuator, machine-action, alarm, and MES context.
+- Added Ignition 8.3 / Sepasoft and MQTT Sparkplug B integration presets, an ingest example, SSE streaming, strict payload bounds, origin controls, and authenticated ingestion.
+- Added a live digital-twin console with asset, alarm, bounded AI, and connection views mapped directly to canvas nodes.
+- Added optional DeepSeek V4 Flash analysis with server-only credentials, non-thinking JSON output, response sanitization, rate limits, daily token budgets, exact-request caching, and deterministic local fallback.
+- Kept industrial commands disabled by default and separated preview from operator-authenticated execution, explicit confirmation, downstream interlocks, and audit responsibility.
+- Fixed live alarm-to-node binding, 1280px toolbar overflow, and three overlapping node pairs in the full-line template.
+- Rebuilt the product page around the industrial-twin workflow and added a reduced-motion-aware five-state interaction recording.
+- Added gateway tests and CI coverage for health, authenticated ingestion, payload sanitization, disabled commands, and closed AI configuration.
+
 ## 0.7.0
 
 - Reframed the product page around manufacturing decisions and real product evidence, removing self-referential showcase copy and unstable headline metrics.

@@ -56,11 +56,11 @@ try {
     : fail('intro uses generic Factory Takt branding', 'generic brand text missing');
   await page.screenshot({ path: `${out}/01-intro.png` });
 
-  await page.locator('button[aria-label="Enter simulator"]').click({ timeout: 5000 });
+  await page.locator('button[aria-label="Enter simulator"]').click({ force: true, noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(600);
 
-  await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
-  await page.getByText(/Project overview|项目展示/).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /More|更多/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await page.getByText(/Project overview|项目展示/).click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(350);
   const showcaseText = (await page.locator('body').textContent()) ?? '';
   showcaseText.includes('Factory Takt Simulator') && showcaseText.includes('FactoryTaktAgent')
@@ -68,6 +68,13 @@ try {
     : fail('project overview opens with bilingual visual content and agent bridge note', 'overview text missing');
   const bridgeReady = await page.evaluate(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
   bridgeReady ? pass('agent bridge is available on window') : fail('agent bridge is available on window');
+  const showcaseTwinMedia = await page.locator('img[src$="industrial-twin-demo.gif"]').evaluate((image) => ({
+    complete: image instanceof HTMLImageElement ? image.complete : false,
+    naturalWidth: image instanceof HTMLImageElement ? image.naturalWidth : 0,
+  })).catch(() => ({ complete: false, naturalWidth: 0 }));
+  showcaseTwinMedia.complete && showcaseTwinMedia.naturalWidth > 0
+    ? pass('product overview loads the industrial twin walkthrough', JSON.stringify(showcaseTwinMedia))
+    : fail('product overview loads the industrial twin walkthrough', JSON.stringify(showcaseTwinMedia));
   const importGuards = await page.evaluate(() => {
     const api = window.FactoryTaktAgent;
     const before = api?.getSnapshot?.();
@@ -105,23 +112,23 @@ try {
   importGuards.malformed === false && importGuards.oversized === false && importGuards.stateUnchanged
     ? pass('scenario imports reject malformed and oversized payloads without changing the workspace')
     : fail('scenario imports reject malformed and oversized payloads without changing the workspace', JSON.stringify(importGuards));
-  await page.locator('header button').nth(0).click({ timeout: 5000 });
+  await page.locator('header button').nth(0).click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(200);
 
   const asideButtons = await page.locator('aside button').evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim() ?? ''));
   asideButtons.some((text) => text === 'Post' || text === '后段')
     ? pass('left module library exposes post-process tab')
     : fail('left module library exposes post-process tab', asideButtons.join(' | '));
-  await page.locator('aside button').filter({ hasText: /Post|后段/ }).first().click({ timeout: 5000 });
+  await page.locator('aside button').filter({ hasText: /Post|后段/ }).first().click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(250);
   (await page.locator('[data-device-type="merge_buffer"]').isVisible().catch(() => false))
     ? pass('post-process tab shows merge and downstream process cards')
     : fail('post-process tab shows merge and downstream process cards');
   await page.screenshot({ path: `${out}/02-post-process-tab.png` });
 
-  await page.getByRole('button', { name: /Settings|设置/ }).click({ timeout: 5000 });
-  await page.getByRole('button', { name: /Showcase|展示/ }).click({ timeout: 5000 });
-  await page.locator('header button').nth(0).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /Settings|设置/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await page.getByRole('button', { name: /Showcase|展示/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await page.locator('header button').nth(0).click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(200);
   const shellClass = (await page.locator('.app-shell').getAttribute('class')) ?? '';
   shellClass.includes('anim-showcase') && !shellClass.includes('view-isometric')
@@ -135,8 +142,8 @@ try {
     ? pass('top-down React Flow renderer is present', rendererTransform)
     : fail('top-down React Flow renderer is present', 'missing renderer');
 
-  await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
-  await page.getByText(/Full line example|完整产线示例/).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /More|更多/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await page.getByText(/Full line example|完整产线示例/).click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(900);
   await page.screenshot({ path: `${out}/03-generic-full-line.png` });
 
@@ -156,12 +163,12 @@ try {
   const responsivePage = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
   await responsivePage.addInitScript(() => localStorage.clear());
   await responsivePage.goto(appUrl, { waitUntil: 'domcontentloaded' });
-  await responsivePage.locator('button[aria-label="Enter simulator"]').click({ force: true, timeout: 5000 });
+  await responsivePage.locator('button[aria-label="Enter simulator"]').click({ force: true, noWaitAfter: true, timeout: 5000 });
   await responsivePage.waitForFunction(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
   await responsivePage.evaluate(() => window.FactoryTaktAgent?.runCommand({ type: 'createFullLineExample' }));
   const telemetryExpand = responsivePage.locator('footer button').filter({ hasText: /Expand|展开/ });
   await telemetryExpand.waitFor({ state: 'visible', timeout: 15000 });
-  await telemetryExpand.click({ force: true, timeout: 15000 });
+  await telemetryExpand.click({ force: true, noWaitAfter: true, timeout: 15000 });
   await responsivePage.waitForTimeout(250);
   const telemetryOverflow = await responsivePage.locator('.bottom-telemetry-shell').evaluate((element) => ({
     clientWidth: element.clientWidth,
@@ -172,6 +179,61 @@ try {
     : fail('bottom telemetry reflows without a horizontal scrollbar at 1440px', JSON.stringify(telemetryOverflow));
   await responsivePage.screenshot({ path: `${out}/04-responsive-telemetry.png` });
   await responsivePage.close();
+
+  const twinPage = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+  await twinPage.addInitScript(() => localStorage.clear());
+  await twinPage.goto(appUrl, { waitUntil: 'domcontentloaded' });
+  await twinPage.locator('button[aria-label="Enter simulator"]').click({ force: true, noWaitAfter: true, timeout: 5000 });
+  await twinPage.waitForFunction(() => Boolean(window.FactoryTaktAgent?.getSnapshot?.()));
+  await twinPage.waitForFunction(() => (window.FactoryTaktAgent?.getSnapshot?.().nodes.length ?? 0) > 0);
+  await twinPage.waitForTimeout(300);
+  await twinPage.evaluate(() => window.FactoryTaktAgent?.runCommand({ type: 'createFullLineExample' }));
+  await twinPage.waitForFunction(() => window.FactoryTaktAgent?.getSnapshot?.().nodes.length === 43);
+  await twinPage.waitForTimeout(300);
+  const laptopLayout = await twinPage.evaluate(() => {
+    const header = document.querySelector('header');
+    const nodes = Array.from(document.querySelectorAll('.react-flow__node')).map((element) => {
+      const rect = element.getBoundingClientRect();
+      return { id: element.getAttribute('data-id'), x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    });
+    const overlaps = [];
+    for (let left = 0; left < nodes.length; left += 1) {
+      for (let right = left + 1; right < nodes.length; right += 1) {
+        const a = nodes[left];
+        const b = nodes[right];
+        const overlapX = Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x));
+        const overlapY = Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+        if (overlapX > 0 && overlapY > 0) overlaps.push(`${a.id}:${b.id}`);
+      }
+    }
+    return {
+      headerClientWidth: header?.clientWidth ?? 0,
+      headerScrollWidth: header?.scrollWidth ?? 0,
+      nodeCount: nodes.length,
+      overlaps,
+    };
+  });
+  laptopLayout.headerScrollWidth <= laptopLayout.headerClientWidth && laptopLayout.nodeCount === 43 && laptopLayout.overlaps.length === 0
+    ? pass('1280px workbench has no toolbar overflow or overlapping full-line nodes', JSON.stringify(laptopLayout))
+    : fail('1280px workbench has no toolbar overflow or overlapping full-line nodes', JSON.stringify(laptopLayout));
+
+  await twinPage.locator('[data-testid="twin-status-rail"]').click({ noWaitAfter: true, timeout: 5000 });
+  await twinPage.getByRole('button', { name: /AI|AI 分析/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await twinPage.getByRole('button', { name: /Analyze canvas|分析当前画板/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await twinPage.locator('[aria-live="polite"]').waitFor({ state: 'visible', timeout: 5000 });
+  const twinConsoleState = await twinPage.evaluate(() => ({
+    assets: window.FactoryTaktAgent?.getSnapshot?.().industrial?.snapshot.assets.length ?? 0,
+    localResult: document.querySelector('[aria-live="polite"]')?.textContent?.includes('local-rules') ?? false,
+    dockOverflow: (() => {
+      const dock = document.querySelector('[aria-label="Live digital twin console"], [aria-label="实时数字孪生控制台"]');
+      return dock ? dock.scrollWidth - dock.clientWidth : 0;
+    })(),
+  }));
+  twinConsoleState.assets === 43 && twinConsoleState.localResult && twinConsoleState.dockOverflow <= 1
+    ? pass('digital twin console opens with bounded local analysis at laptop width', JSON.stringify(twinConsoleState))
+    : fail('digital twin console opens with bounded local analysis at laptop width', JSON.stringify(twinConsoleState));
+  await twinPage.screenshot({ path: `${out}/05-industrial-twin-laptop.png` });
+  await twinPage.close();
 
   const scenarioChecks = await page.evaluate(() => {
     const rawValues = Object.values(localStorage).join('\n');
@@ -321,7 +383,7 @@ try {
     ? pass('storage feeder exposes an input port', `${feederInputPorts} input ports`)
     : fail('storage feeder exposes an input port', `${feederInputPorts} input ports`);
 
-  await page.locator('.edge-label').first().click({ timeout: 5000 });
+  await page.locator('.edge-label').first().click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(150);
   const activeEdgeLabels = await page.locator('.edge-label').evaluateAll((labels) =>
     labels.filter((label) => (label.textContent ?? '').includes('/h')).length,
@@ -355,7 +417,7 @@ try {
       api.runCommand({ type: 'setSpeed', speed: 1 });
     }
   });
-  await page.getByRole('button', { name: /Start|开始/ }).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /Start|开始/ }).click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(5500);
   const dotMotion = await page.evaluate(async () => {
     const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -404,15 +466,15 @@ try {
   await page.screenshot({ path: `${out}/04-showcase-running.png` });
 
   const edgeCountBeforeClickConnect = await page.locator('.react-flow__edge').count();
-  await page.locator('[data-node-short-name="FEED"] .node-port-label-out').nth(1).click({ force: true, timeout: 5000 });
-  await page.locator('.node-port-label-in').nth(1).click({ force: true, timeout: 5000 });
+  await page.locator('[data-node-short-name="FEED"] .node-port-label-out').nth(1).click({ force: true, noWaitAfter: true, timeout: 5000 });
+  await page.locator('.node-port-label-in').nth(1).click({ force: true, noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(350);
   const edgeCountAfterClickConnect = await page.locator('.react-flow__edge').count();
   edgeCountAfterClickConnect > edgeCountBeforeClickConnect
     ? pass('click connection works from feeder output to inspection input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`)
     : fail('click connection works from feeder output to inspection input', `${edgeCountBeforeClickConnect} -> ${edgeCountAfterClickConnect}`);
 
-  await page.locator('.node-port-label-out').first().click({ force: true, timeout: 5000 });
+  await page.locator('.node-port-label-out').first().click({ force: true, noWaitAfter: true, timeout: 5000 });
   (await page.locator('[data-testid="port-rule-editor"]').isVisible().catch(() => false))
     ? pass('clicking an output port opens port rule editor')
     : fail('clicking an output port opens port rule editor');
@@ -426,25 +488,25 @@ try {
     : fail('canvas right-click context menu opens');
   await page.keyboard.press('Escape');
 
-  await page.getByRole('button', { name: /Settings|设置/ }).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /Settings|设置/ }).click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(350);
-  await page.getByRole('button', { name: /Light|亮色/ }).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /Light|亮色/ }).click({ noWaitAfter: true, timeout: 5000 });
   const lightClass = (await page.locator('.app-shell').getAttribute('class')) ?? '';
   lightClass.includes('theme-light') ? pass('light theme applies') : fail('light theme applies', lightClass);
   await page.screenshot({ path: `${out}/05-settings-light.png` });
 
-  await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
-  await page.getByText(/Background report|后台仿真报告/).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /More|更多/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await page.getByText(/Background report|后台仿真报告/).click({ noWaitAfter: true, timeout: 5000 });
   await page.locator('.fixed section input[type="number"]').first().waitFor({ timeout: 5000 });
   const backgroundInputCount = await page.locator('.fixed section input[type="number"]').count();
   backgroundInputCount >= 3
     ? pass('background simulation modal opens with numeric controls', `${backgroundInputCount} inputs`)
     : fail('background simulation modal opens with numeric controls', `${backgroundInputCount} inputs`);
-  await page.locator('.fixed section button').first().click({ timeout: 5000 });
+  await page.locator('.fixed section button').first().click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(200);
 
-  await page.getByRole('button', { name: /More|更多/ }).click({ timeout: 5000 });
-  await page.getByText(/Tutorial|使用教程/).click({ timeout: 5000 });
+  await page.getByRole('button', { name: /More|更多/ }).click({ noWaitAfter: true, timeout: 5000 });
+  await page.getByText(/Tutorial|使用教程/).click({ noWaitAfter: true, timeout: 5000 });
   await page.waitForTimeout(500);
   const tutorialText = (await page.locator('body').textContent()) ?? '';
   tutorialText.includes('Factory Takt Simulator') && tutorialText.includes('SRC')

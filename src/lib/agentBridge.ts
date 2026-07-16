@@ -1,4 +1,5 @@
 import { useFactoryStore } from '../store/factoryStore';
+import { useTwinStore } from '../store/twinStore';
 import type { AppSettings, DeviceParameters, DeviceType, FactoryEdge, FactoryNode, FlowEdgeData } from '../types/factory';
 import { APP_VERSION } from '../version';
 
@@ -19,7 +20,9 @@ type AgentCommand =
   | { type: 'runBackgroundSimulation' }
   | { type: 'createDemoScenario' }
   | { type: 'createFullLineExample' }
-  | { type: 'createAssemblyExample' };
+  | { type: 'createAssemblyExample' }
+  | { type: 'openTwinConsole'; tab?: 'assets' | 'alarms' | 'assistant' | 'connection' }
+  | { type: 'setTwinSource'; source: 'demo' | 'gateway' };
 
 export interface FactoryTaktAgentSnapshot {
   version: string;
@@ -31,6 +34,11 @@ export interface FactoryTaktAgentSnapshot {
   settings: AppSettings;
   summary: ReturnType<typeof useFactoryStore.getState>['summary'];
   latestReport: string;
+  industrial: {
+    mode: ReturnType<typeof useTwinStore.getState>['mode'];
+    connectionState: ReturnType<typeof useTwinStore.getState>['connectionState'];
+    snapshot: ReturnType<typeof useTwinStore.getState>['snapshot'];
+  };
 }
 
 export interface FactoryTaktAgentApi {
@@ -50,6 +58,7 @@ declare global {
 
 const snapshot = (): FactoryTaktAgentSnapshot => {
   const state = useFactoryStore.getState();
+  const twin = useTwinStore.getState();
   return {
     version: APP_VERSION,
     elapsedSec: state.elapsedSec,
@@ -60,6 +69,11 @@ const snapshot = (): FactoryTaktAgentSnapshot => {
     settings: state.settings,
     summary: state.summary,
     latestReport: state.latestReport,
+    industrial: {
+      mode: twin.mode,
+      connectionState: twin.connectionState,
+      snapshot: twin.snapshot,
+    },
   };
 };
 
@@ -100,6 +114,13 @@ const runCommand = (command: AgentCommand) => {
       return state.createFullLineScenario();
     case 'createAssemblyExample':
       return state.createAssemblyScenario();
+    case 'openTwinConsole': {
+      const twin = useTwinStore.getState();
+      if (command.tab) twin.setActiveTab(command.tab);
+      return twin.setDockOpen(true);
+    }
+    case 'setTwinSource':
+      return useTwinStore.getState().setMode(command.source);
     default:
       return null;
   }
@@ -124,9 +145,13 @@ export function installFactoryTaktAgentBridge() {
       };
     },
     subscribe: (callback) => {
-      const unsubscribe = useFactoryStore.subscribe(() => callback(snapshot()));
+      const unsubscribeFactory = useFactoryStore.subscribe(() => callback(snapshot()));
+      const unsubscribeTwin = useTwinStore.subscribe(() => callback(snapshot()));
       callback(snapshot());
-      return unsubscribe;
+      return () => {
+        unsubscribeFactory();
+        unsubscribeTwin();
+      };
     },
   };
 

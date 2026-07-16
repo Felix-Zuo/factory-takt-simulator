@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "1.0",
+  "source": "ignition",
+  "generatedAt": "2026-07-16T08:00:00.000Z",
+  "sequence": 42,
+  "assets": [
+    {
+      "assetId": "process-a-01",
+      "nodeId": "line-a-1",
+      "displayName": "Process A",
+      "equipmentPath": "Enterprise/Site-A/Area-01/Line-01/PROC-A-01",
+      "source": "ignition",
+      "plc": {
+        "mode": "auto",
+        "run": true,
+        "ready": true,
+        "fault": false,
+        "heartbeat": 42,
+        "programState": "PROCESS"
+      },
+      "action": {
+        "name": "process",
+        "progress": 0.42,
+        "cycleId": "PROC-A-000042",
+        "startedAt": "2026-07-16T07:59:58.000Z"
+      },
+      "sensors": [
+        {
+          "id": "process-a-01:part-present",
+          "label": "Part present",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PROC-A-01/DI/PartPresent",
+          "value": true,
+          "quality": "good",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        }
+      ],
+      "actuators": [
+        {
+          "id": "process-a-01:clamp-valve",
+          "label": "Clamp valve",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PROC-A-01/DO/ClampValve",
+          "kind": "solenoid",
+          "command": true,
+          "feedback": true,
+          "interlocked": false,
+          "quality": "good",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        }
+      ],
+      "cycleCount": 42,
+      "goodCount": 41,
+      "rejectCount": 1,
+      "lastUpdated": "2026-07-16T08:00:00.000Z"
+    },
+    {
+      "assetId": "process-c-01",
+      "nodeId": "line-c-1",
+      "displayName": "Process C",
+      "equipmentPath": "Enterprise/Site-A/Area-01/Line-01/PROC-C-01",
+      "source": "ignition",
+      "plc": {
+        "mode": "auto",
+        "run": false,
+        "ready": true,
+        "fault": false,
+        "heartbeat": 42,
+        "programState": "WAITING_MATERIAL"
+      },
+      "action": {
+        "name": "waiting",
+        "progress": 0,
+        "cycleId": "PROC-C-000031",
+        "startedAt": null
+      },
+      "sensors": [
+        {
+          "id": "process-c-01:input-available",
+          "label": "Input available",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PROC-C-01/DI/InputAvailable",
+          "value": false,
+          "quality": "good",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        },
+        {
+          "id": "process-c-01:machine-ready",
+          "label": "Machine ready",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PROC-C-01/DI/MachineReady",
+          "value": true,
+          "quality": "good",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        }
+      ],
+      "actuators": [
+        {
+          "id": "process-c-01:drive-run",
+          "label": "Machine drive",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PROC-C-01/DO/DriveRun",
+          "kind": "motor",
+          "command": false,
+          "feedback": false,
+          "interlocked": false,
+          "quality": "good",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        }
+      ],
+      "cycleCount": 31,
+      "goodCount": 31,
+      "rejectCount": 0,
+      "lastUpdated": "2026-07-16T08:00:00.000Z"
+    },
+    {
+      "assetId": "press-01",
+      "nodeId": "line-join-press",
+      "displayName": "Assembly Press",
+      "equipmentPath": "Enterprise/Site-A/Area-01/Line-01/PRESS-01",
+      "source": "ignition",
+      "plc": {
+        "mode": "auto",
+        "run": false,
+        "ready": false,
+        "fault": true,
+        "heartbeat": 42,
+        "programState": "FAULT_HOLD"
+      },
+      "action": {
+        "name": "fault",
+        "progress": 0.68,
+        "cycleId": "PRESS-000018",
+        "startedAt": "2026-07-16T07:59:56.000Z"
+      },
+      "sensors": [
+        {
+          "id": "press-01:part-present",
+          "label": "Part present",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PRESS-01/DI/PartPresent",
+          "value": true,
+          "quality": "good",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        },
+        {
+          "id": "press-01:pressure",
+          "label": "Press pressure",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PRESS-01/AI/Pressure",
+          "value": 2.8,
+          "unit": "bar",
+          "quality": "good",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        }
+      ],
+      "actuators": [
+        {
+          "id": "press-01:press-valve",
+          "label": "Press solenoid",
+          "tagPath": "[default]Enterprise/Site-A/Area-01/Line-01/PRESS-01/DO/PressValve",
+          "kind": "solenoid",
+          "command": true,
+          "feedback": false,
+          "interlocked": true,
+          "quality": "uncertain",
+          "updatedAt": "2026-07-16T08:00:00.000Z"
+        }
+      ],
+      "cycleCount": 18,
+      "goodCount": 17,
+      "rejectCount": 1,
+      "lastUpdated": "2026-07-16T08:00:00.000Z"
+    }
+  ],
+  "alarms": [
+    {
+      "id": "press-01:feedback-mismatch",
+      "assetId": "press-01",
+      "code": "ACTUATOR_FEEDBACK_MISMATCH",
+      "title": "Press valve feedback mismatch",
+      "message": "Press valve command is ON while feedback remains OFF. Verify interlocks, coil power and valve feedback before resuming.",
+      "severity": "high",
+      "state": "active",
+      "source": "[default]Enterprise/Site-A/Area-01/Line-01/PRESS-01/Alarms/ValveFeedback",
+      "occurredAt": "2026-07-16T07:59:57.000Z"
+    }
+  ]
+}

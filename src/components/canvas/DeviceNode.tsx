@@ -6,6 +6,7 @@ import { getCatalogItem, statusColorMap, statusLabels } from '../../data/deviceC
 import { getPortRule } from '../../lib/portRules';
 import { calculateStationTakts, formatNumber } from '../../lib/takt';
 import { useFactoryStore } from '../../store/factoryStore';
+import { useTwinStore } from '../../store/twinStore';
 import type { FactoryNode } from '../../types/factory';
 import { DeviceIcon } from '../DeviceIcon';
 
@@ -27,6 +28,11 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
   const completeClickConnect = useFactoryStore((state) => state.completeClickConnect);
   const selectPort = useFactoryStore((state) => state.selectPort);
   const deleteNode = useFactoryStore((state) => state.deleteNode);
+  const twinAsset = useTwinStore((state) => state.snapshot.assets.find((asset) => asset.nodeId === id));
+  const hasTwinAlarm = useTwinStore((state) => {
+    const asset = state.snapshot.assets.find((candidate) => candidate.nodeId === id);
+    return Boolean(asset && state.snapshot.alarms.some((alarm) => alarm.assetId === asset.assetId && alarm.state === 'active'));
+  });
   const status = statusLabels[runtime.status];
   const stationTakts = calculateStationTakts(params);
   const isClickSource = pendingConnectFrom?.nodeId === id;
@@ -138,6 +144,8 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
       title={`${catalog.zhTitle} / ${catalog.title}`}
       data-node-short-name={params.deviceShortName}
       data-flow-direction={flowDirection}
+      data-twin-action={twinAsset?.action.name}
+      data-twin-alarm={hasTwinAlarm ? 'active' : 'clear'}
       className={`${cardWidth} node-card group relative overflow-visible rounded border bg-slate-950/96 text-slate-100 shadow-lg shadow-black/20 ${isBrushSource ? 'node-brush-source' : ''} ${isBrushTarget ? 'node-brush-target' : ''} ${isDeleting ? 'node-card-deleting' : ''}`}
       style={{
         borderColor: selected || isClickSource || isBrushSource ? color : `${color}55`,
@@ -270,6 +278,18 @@ export function DeviceNode({ id, data, selected }: NodeProps<FactoryNode>) {
                 <span className="truncate text-[10px] font-semibold uppercase" style={{ color }}>
                   {zh ? status.zh : status.short}
                 </span>
+                {twinAsset ? (
+                  <span
+                    className={`ml-auto shrink-0 rounded border px-1 py-0.5 text-[8px] font-semibold uppercase ${
+                      hasTwinAlarm
+                        ? 'border-amber-300/45 bg-amber-300/12 text-amber-100'
+                        : 'border-cyan-300/18 bg-cyan-300/6 text-cyan-100/75'
+                    }`}
+                    title={`${twinAsset.equipmentPath} · PLC ${twinAsset.plc.mode} · ${twinAsset.action.name} · ${twinAsset.sensors.filter((signal) => signal.quality === 'good').length}/${twinAsset.sensors.length} IO`}
+                  >
+                    {hasTwinAlarm ? 'ALM' : twinAsset.action.name.slice(0, 4)}
+                  </span>
+                ) : null}
               </div>
             </div>
           ) : (

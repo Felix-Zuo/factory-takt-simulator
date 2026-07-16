@@ -28,6 +28,9 @@ jobs:
       - name: Audit production dependency surface
         run: npm audit --omit=dev
 
+      - name: Industrial gateway tests
+        run: npm run test:gateway
+
       - name: Build
         run: npm run build
 

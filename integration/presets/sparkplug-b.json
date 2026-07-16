@@ -1,0 +1,24 @@
+{
+  "presetVersion": "1.0",
+  "id": "mqtt-sparkplug-b-uns",
+  "displayName": "MQTT Sparkplug B Unified Namespace",
+  "description": "Optional publish-subscribe transport between site-edge gateways and the normalized industrial gateway.",
+  "topicNamespace": "spBv1.0/{groupId}/{messageType}/{edgeNodeId}/{deviceId}",
+  "acceptedMessageTypes": ["NBIRTH", "DBIRTH", "NDATA", "DDATA", "NDEATH", "DDEATH"],
+  "metricMappings": {
+    "PLC/Mode": "plc.mode",
+    "PLC/Run": "plc.run",
+    "PLC/Ready": "plc.ready",
+    "PLC/Fault": "plc.fault",
+    "Action/State": "action.name",
+    "Action/Progress": "action.progress",
+    "Production/CycleCount": "cycleCount"
+  },
+  "requirements": {
+    "birthDeathState": true,
+    "metricQuality": true,
+    "sourceTimestamp": true,
+    "brokerTls": true,
+    "anonymousAccess": false
+  }
+}
